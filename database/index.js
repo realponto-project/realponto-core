@@ -1,10 +1,7 @@
 const Sequelize = require('sequelize')
 const Models = require('./models')
 
-const DB_USERNAME = 'postgres'
-const DB_HOST = 'localhost'
-const DB_NAME = 'realponto-core-postgres'
-const DB_PWD = 'postgres'
+const { DB_USERNAME, DB_HOST, DB_DATABASE, DB_PWD, DB_PORT } = process.env
 
 let sequelize = null
 const { DATABASE_URL } = process.env
@@ -25,10 +22,11 @@ if (DATABASE_URL) {
   })
 } else {
   sequelize = new Sequelize({
-    username: DB_USERNAME,
-    password: DB_PWD,
-    database: DB_NAME,
     host: DB_HOST,
+    port: DB_PORT,
+    password: DB_PWD,
+    username: DB_USERNAME,
+    database: DB_DATABASE,
     dialect: 'postgres',
     logging: false,
     pool: {
@@ -36,6 +34,11 @@ if (DATABASE_URL) {
       min: 0,
       acquire: 30000,
       idle: 10000
+    },
+    define: {
+      freezeTableName: true,
+      paranoid: true,
+      timestamps: true
     }
   })
 }

@@ -4,7 +4,7 @@ const { pathOr, omit } = require('ramda')
 const database = require('../../database')
 const UserModel = database.model('user')
 
-const secret = 'process.env.SECRET'
+const secret = process.env.SECRET_KEY_JWT || 'mySecretKey'
 
 const authentication = async (req, res, next) => {
   const email = pathOr(null, ['body', 'email'], req)
