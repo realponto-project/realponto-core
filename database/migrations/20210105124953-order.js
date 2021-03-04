@@ -26,7 +26,7 @@ module.exports = {
       statusId: {
         type: Sequelize.STRING,
         references: {
-          model: 'statuses',
+          model: 'status',
           key: 'id'
         },
         onUpdate: 'cascade',
@@ -35,7 +35,7 @@ module.exports = {
       customerId: {
         type: Sequelize.STRING,
         references: {
-          model: 'customers',
+          model: 'customer',
           key: 'id'
         },
         onUpdate: 'cascade',
@@ -44,7 +44,7 @@ module.exports = {
       userId: {
         type: Sequelize.STRING,
         references: {
-          model: 'users',
+          model: 'user',
           key: 'id'
         },
         onUpdate: 'cascade',
@@ -53,7 +53,7 @@ module.exports = {
       companyId: {
         type: Sequelize.STRING,
         references: {
-          model: 'companies',
+          model: 'company',
           key: 'id'
         },
         onUpdate: 'cascade',
@@ -68,6 +68,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: new Date()
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE,
+        defaultValue: null
       }
     }),
   down: (queryInterface) => queryInterface.dropTable('orders')

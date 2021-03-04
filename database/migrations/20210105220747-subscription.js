@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) =>
-    queryInterface.createTable('subscriptions', {
+    queryInterface.createTable('subscription', {
       id: {
         allowNull: false,
         type: Sequelize.STRING,
@@ -33,7 +33,7 @@ module.exports = {
       companyId: {
         type: Sequelize.STRING,
         references: {
-          model: 'companies',
+          model: 'company',
           key: 'id'
         },
         onUpdate: 'cascade',
@@ -42,7 +42,7 @@ module.exports = {
       planId: {
         type: Sequelize.STRING,
         references: {
-          model: 'plans',
+          model: 'plan',
           key: 'id'
         },
         onUpdate: 'cascade',
@@ -57,7 +57,12 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: new Date()
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE,
+        defaultValue: null
       }
     }),
-  down: (queryInterface) => queryInterface.dropTable('subscriptions')
+  down: (queryInterface) => queryInterface.dropTable('subscription')
 }
