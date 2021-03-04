@@ -1,24 +1,18 @@
-#### Rota de customers
-
-- `Post:` /customers
-
+### Payload para criar
 ```json
-// payload
   {
     "name": "Company fullname ltda",
     "document": "cnpj or cpf"
   }
 ```
 
-- `Put:` /customers/:id
-
+### Payload para alterar
 ```json
-// payload
   {
     "name": "Company fullname ltda",
     "document": "cnpj or cpf"
   }
 ```
 
-- `Get:` /customers
-- `Get:` /customers/:id
+status?page=0&limit=3&color=1772C9
+buscar a cor sem hash podemos buscar por todos os campos

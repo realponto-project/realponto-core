@@ -1,0 +1,17 @@
+{
+  "image": "heroku/node",
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-geo-buildpack.git"
+    },
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-nodejs.git"
+    }
+  ],
+  "environments": {
+    "review": {
+      "addons": 
+        ["heroku-postgresql:hobby-dev"]
+    }
+  }
+}
