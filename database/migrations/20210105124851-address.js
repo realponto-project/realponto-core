@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) =>
-    queryInterface.createTable('addresses', {
+    queryInterface.createTable('address', {
       id: {
         allowNull: false,
         type: Sequelize.STRING,
@@ -51,7 +51,12 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: new Date()
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE,
+        defaultValue: null
       }
     }),
-  down: (queryInterface) => queryInterface.dropTable('addresses')
+  down: (queryInterface) => queryInterface.dropTable('address')
 }

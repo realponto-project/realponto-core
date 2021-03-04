@@ -3,7 +3,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) =>
     queryInterface.bulkInsert(
-      'statuses',
+      'status',
       [
         {
           id: 'st_71b4a55b-c463-4f89-8f37-c84f0f96843f',
@@ -284,5 +284,5 @@ module.exports = {
       {}
     ),
 
-  down: (queryInterface) => queryInterface.bulkDelete('statuses', null, {})
+  down: (queryInterface) => queryInterface.bulkDelete('status', null, {})
 }

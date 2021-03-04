@@ -3,7 +3,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) =>
     queryInterface.bulkInsert(
-      'serialNumbers',
+      'serialNumber',
       [
         {
           id: 'sn_e394ceea-47b5-4dfa-bce9-0e58ebf82c66',
@@ -31,5 +31,5 @@ module.exports = {
       {}
     ),
 
-  down: (queryInterface) => queryInterface.bulkDelete('serialNumbers', null, {})
+  down: (queryInterface) => queryInterface.bulkDelete('serialNumber', null, {})
 }

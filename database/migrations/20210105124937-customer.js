@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) =>
-    queryInterface.createTable('customers', {
+    queryInterface.createTable('customer', {
       id: {
         type: Sequelize.STRING,
         primaryKey: true,
@@ -23,7 +23,7 @@ module.exports = {
       addressId: {
         type: Sequelize.STRING,
         references: {
-          model: 'addresses',
+          model: 'address',
           key: 'id'
         },
         onUpdate: 'cascade',
@@ -33,7 +33,7 @@ module.exports = {
       companyId: {
         type: Sequelize.STRING,
         references: {
-          model: 'companies',
+          model: 'company',
           key: 'id'
         },
         onUpdate: 'cascade',
@@ -49,7 +49,12 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: new Date()
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE,
+        defaultValue: null
       }
     }),
-  down: (queryInterface) => queryInterface.dropTable('customers')
+  down: (queryInterface) => queryInterface.dropTable('customer')
 }
