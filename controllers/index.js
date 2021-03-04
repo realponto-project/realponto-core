@@ -17,5 +17,5 @@ module.exports = {
   serialNumberController,
   authenticationController,
   transactionController,
-  statusController,
+  statusController
 }

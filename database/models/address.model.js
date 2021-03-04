@@ -12,37 +12,37 @@ const Address = (sequelize) => {
     neighborhood: {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true,
+      unique: true
     },
     street: {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true,
+      unique: true
     },
     streetNumber: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
     city: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
     states: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
     zipcode: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
     complementary: {
       type: Sequelize.STRING,
-      allowNull: true,
+      allowNull: true
     },
     reference: {
       type: Sequelize.STRING,
-      allowNull: true,
-    },
+      allowNull: true
+    }
   })
 
   return Address

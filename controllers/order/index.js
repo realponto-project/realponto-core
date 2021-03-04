@@ -1,10 +1,4 @@
-const {
-  pathOr,
-  map,
-  omit,
-  propEq,
-  isEmpty,
-} = require('ramda')
+const { pathOr, map, omit, propEq, isEmpty } = require('ramda')
 const database = require('../../database')
 const OrderModel = database.model('order')
 const TransactionModel = database.model('transaction')
@@ -18,7 +12,10 @@ const CustomerModel = database.model('customer')
 const buildPagination = require('../../utils/helpers/searchSpec')
 const buildSearchAndPagination = buildPagination('order')
 const Sequelize = require('sequelize')
-const { parserSummaryData, getStatusSummary } = require('../../utils/helpers/summaryDataParser')
+const {
+  parserSummaryData,
+  getStatusSummary
+} = require('../../utils/helpers/summaryDataParser')
 
 const includeValues = [
   {
@@ -31,7 +28,7 @@ const includeValues = [
   },
   {
     model: StatusModel,
-    attributes: [ 'value', 'color', 'typeLabel']
+    attributes: ['value', 'color', 'typeLabel']
   },
   {
     model: TransactionModel,
@@ -39,18 +36,18 @@ const includeValues = [
     include: [
       {
         model: ProductModel,
-        attributes: ['name', 'activated'],
+        attributes: ['name', 'activated']
       },
       {
         model: StatusModel,
-        attributes: [ 'value', 'color', 'typeLabel', 'type']
+        attributes: ['value', 'color', 'typeLabel', 'type']
       },
       {
         model: UserModel,
         attributes: ['name', 'activated']
       }
-    ],
-  },
+    ]
+  }
 ]
 
 const include = [
@@ -64,20 +61,26 @@ const include = [
   },
   {
     model: StatusModel,
-    attributes: [ 'value', 'color', 'typeLabel', 'type']
+    attributes: ['value', 'color', 'typeLabel', 'type']
   },
   {
     model: SerialNumberModel,
-    attributes: ['id', 'serialNumber', 'activated', 'transactionInId', 'transactionOutId'],
+    attributes: [
+      'id',
+      'serialNumber',
+      'activated',
+      'transactionInId',
+      'transactionOutId'
+    ],
     include: [
       {
         model: ProductModel,
-        attributes: ['id', 'name', 'activated'],
+        attributes: ['id', 'name', 'activated']
       },
       {
         model: UserModel,
         attributes: ['id', 'name', 'activated']
-      },
+      }
     ]
   },
   {
@@ -86,7 +89,7 @@ const include = [
     include: [
       {
         model: ProductModel,
-        attributes: ['name', 'activated'],
+        attributes: ['name', 'activated']
       },
       {
         model: UserModel,
@@ -94,8 +97,8 @@ const include = [
       },
       {
         model: StatusModel,
-        attributes: [ 'value', 'color', 'typeLabel', 'type', 'label']
-      },
+        attributes: ['value', 'color', 'typeLabel', 'type', 'label']
+      }
     ]
   },
   {
@@ -103,8 +106,8 @@ const include = [
     include: [
       {
         model: StatusModel,
-        attributes: [ 'value', 'color', 'typeLabel', 'label']
-      },
+        attributes: ['value', 'color', 'typeLabel', 'label']
+      }
     ]
   }
 ]
@@ -112,17 +115,20 @@ const include = [
 const statusBlockOnCreate = {
   analysis_return: true,
   booking_return: true,
-  pending_analysis: true,
+  pending_analysis: true
 }
 
-const quantityTotalProducts = companyId => (curr, prev) => {
+const quantityTotalProducts = (companyId) => (curr, prev) => {
   const findCurrent = curr.find(propEq('productId', prev.productId))
 
   if (findCurrent) {
-    const sumQuantity = product => product.productId === prev.product.id ? ({
-      ...product,
-      quantity: product.quantity + prev.quantity,
-    }) : product
+    const sumQuantity = (product) =>
+      product.productId === prev.product.id
+        ? {
+            ...product,
+            quantity: product.quantity + prev.quantity
+          }
+        : product
 
     curr = curr.map(sumQuantity)
   }
@@ -133,7 +139,7 @@ const quantityTotalProducts = companyId => (curr, prev) => {
       {
         productId: prev.productId,
         quantity: prev.quantity,
-        companyId,
+        companyId
       }
     ]
   }
@@ -144,33 +150,34 @@ const quantityTotalProducts = companyId => (curr, prev) => {
 const updateBalance = ({ type, label }) => async ({
   productId,
   quantity,
-  companyId,
+  companyId
 }) => {
-  const productBalance = await BalanceModel.findOne({ where: { productId, companyId }})
-    if (label === 'booking') {
-      await productBalance.update({
-        booking: productBalance.booking + quantity
-      })
-    }
+  const productBalance = await BalanceModel.findOne({
+    where: { productId, companyId }
+  })
+  if (label === 'booking') {
+    await productBalance.update({
+      booking: productBalance.booking + quantity
+    })
+  }
 
-    if (label === 'booking_return') {
-      await productBalance.update({
-        booking: productBalance.booking_return + quantity
-      })
-    }
+  if (label === 'booking_return') {
+    await productBalance.update({
+      booking: productBalance.booking_return + quantity
+    })
+  }
 
-    if (label !== 'booking' && label === 'booking_return') {
-      await productBalance.update({
-        quantity: (
-          type === 'outputs'
-            ? productBalance.quantity - quantity
-            : productBalance.quantity + quantity
-        )
-      })
-    }
+  if (label !== 'booking' && label === 'booking_return') {
+    await productBalance.update({
+      quantity:
+        type === 'outputs'
+          ? productBalance.quantity - quantity
+          : productBalance.quantity + quantity
+    })
+  }
 
-    await productBalance.reload()
-    return productBalance
+  await productBalance.reload()
+  return productBalance
 }
 
 const create = async (req, res, next) => {
@@ -185,7 +192,9 @@ const create = async (req, res, next) => {
 
   try {
     const findStatus = await StatusModel.findByPk(statusId, { raw: true })
-    const pendingReviewStatus = await StatusModel.findOne({ where: { label: 'pending_analysis' }})
+    const pendingReviewStatus = await StatusModel.findOne({
+      where: { label: 'pending_analysis' }
+    })
 
     if (findStatus.label === 'booking') {
       pendingReview = true
@@ -202,40 +211,51 @@ const create = async (req, res, next) => {
       throw new Error(`cannot create a order with status ${findStatus.label}!`)
     }
 
-    if (findStatus.label !== 'booking' && !userId && !customerId ) {
+    if (findStatus.label !== 'booking' && !userId && !customerId) {
       // somente ordens com o status booking pode ser criada sem usuário ou
       // cliente
-      throw new Error(`cannot create a order without user or customer to status ${findStatus.label}!`)
+      throw new Error(
+        `cannot create a order without user or customer to status ${findStatus.label}!`
+      )
     }
 
-
-    if(products.length === 0) {
+    if (products.length === 0) {
       // toda ordem precisa ter pelo menos um produto
       throw new Error('do you need add almost a product!')
     }
 
-    const response = await OrderModel.create({
-      statusId,
-      userId,
-      customerId,
-      pendingReview,
-      companyId,
-    }, { transaction, include })
+    const response = await OrderModel.create(
+      {
+        statusId,
+        userId,
+        customerId,
+        pendingReview,
+        companyId
+      },
+      { transaction, include }
+    )
     const orderId = response.id
-    const formmatProduct = product => omit(['productName'], ({
-      ...product,
-      statusId: product.statusId === 'pending_analysis' ? pendingReviewStatus.id : product.statusId,
-      orderId,
-      userId: createdBy,
-      companyId,
-    }))
+    const formmatProduct = (product) =>
+      omit(['productName'], {
+        ...product,
+        statusId:
+          product.statusId === 'pending_analysis'
+            ? pendingReviewStatus.id
+            : product.statusId,
+        orderId,
+        userId: createdBy,
+        companyId
+      })
 
     const productOrder = (product) => ({
       ...product,
-      statusId: product.statusId === 'pending_analysis' ? pendingReviewStatus.id : product.statusId,
+      statusId:
+        product.statusId === 'pending_analysis'
+          ? pendingReviewStatus.id
+          : product.statusId,
       userId: createdBy,
       orderId: response.id,
-      companyId,
+      companyId
     })
 
     const productsPayload = map(formmatProduct, products)
@@ -261,104 +281,154 @@ const update = async (req, res, next) => {
   const orderProductId = pathOr(null, ['body', 'orderProductId'], req)
 
   try {
-    const response = await OrderModel.findOne({ where: { companyId, id: orderId }, include})
-    const findStatus = await StatusModel.findByPk(payload.statusId, { raw: true })
+    const response = await OrderModel.findOne({
+      where: { companyId, id: orderId },
+      include
+    })
+    const findStatus = await StatusModel.findByPk(payload.statusId, {
+      raw: true
+    })
     const transactions = await TransactionModel.findAll({
-        where: {
-          companyId,
-          productId: payload.productId,
-          orderId,
-        },
-        include: [{
-          model: StatusModel,
-        }],
-        raw: true
-      })
-
-    const situation = transactions.reduce((curr, prev) => {
-      if (curr[prev['status.label']]) {
-        curr = {
-          ...curr,
-          [prev['status.label']]: curr[prev['status.label']] + prev.quantity
+      where: {
+        companyId,
+        productId: payload.productId,
+        orderId
+      },
+      include: [
+        {
+          model: StatusModel
         }
-      }
-
-      if (!curr[prev['status.label']]) {
-        curr = {
-          ...curr,
-          [prev['status.label']]: prev.quantity
-        }
-      }
-
-      return curr
-    }, {
-      in_analysis: 0,
-      pending_analysis: 0,
-      analysis_return: 0,
-      booking_return: 0,
-      booking: 0,
-      delivery: 0,
+      ],
+      raw: true
     })
 
-    if ((situation.analysis_return + payload.quantity) === situation.pending_analysis) {
-      const updateProductOrder = await OrderProductModel.findOne({ where: { id: orderProductId }})
+    const situation = transactions.reduce(
+      (curr, prev) => {
+        if (curr[prev['status.label']]) {
+          curr = {
+            ...curr,
+            [prev['status.label']]: curr[prev['status.label']] + prev.quantity
+          }
+        }
+
+        if (!curr[prev['status.label']]) {
+          curr = {
+            ...curr,
+            [prev['status.label']]: prev.quantity
+          }
+        }
+
+        return curr
+      },
+      {
+        in_analysis: 0,
+        pending_analysis: 0,
+        analysis_return: 0,
+        booking_return: 0,
+        booking: 0,
+        delivery: 0
+      }
+    )
+
+    if (
+      situation.analysis_return + payload.quantity ===
+      situation.pending_analysis
+    ) {
+      const updateProductOrder = await OrderProductModel.findOne({
+        where: { id: orderProductId }
+      })
       await updateProductOrder.update({ statusId: response.statusId })
     }
 
-    if (findStatus.type === 'inputs' && (situation.analysis_return === situation.pending_analysis)) {
-      const updateProductOrder = await OrderProductModel.findOne({ where: { id: orderProductId }})
+    if (
+      findStatus.type === 'inputs' &&
+      situation.analysis_return === situation.pending_analysis
+    ) {
+      const updateProductOrder = await OrderProductModel.findOne({
+        where: { id: orderProductId }
+      })
       await updateProductOrder.update({ statusId: response.statusId })
       throw new Error('quantity send not allow')
     }
 
-    if (findStatus.type === 'outputs' && (situation.in_analysis === situation.pending_analysis)) {
+    if (
+      findStatus.type === 'outputs' &&
+      situation.in_analysis === situation.pending_analysis
+    ) {
       throw new Error('quantity send not allow')
     }
 
-    if (findStatus.type === 'outputs' && payload.quantity > situation.pending_analysis) {
+    if (
+      findStatus.type === 'outputs' &&
+      payload.quantity > situation.pending_analysis
+    ) {
       throw new Error('quantity send not allow')
     }
 
-    if (findStatus.type === 'outputs' && (payload.quantity + situation.in_analysis) > situation.pending_analysis) {
+    if (
+      findStatus.type === 'outputs' &&
+      payload.quantity + situation.in_analysis > situation.pending_analysis
+    ) {
       throw new Error('quantity send not allow')
     }
 
-    if (findStatus.type === 'outputs' && (payload.quantity + situation.analysis_return) > situation.pending_analysis) {
+    if (
+      findStatus.type === 'outputs' &&
+      payload.quantity + situation.analysis_return > situation.pending_analysis
+    ) {
       throw new Error('quantity send not allow')
     }
 
-    if (findStatus.type === 'inputs' && payload.quantity > (situation.in_analysis - situation.analysis_return)) {
+    if (
+      findStatus.type === 'inputs' &&
+      payload.quantity > situation.in_analysis - situation.analysis_return
+    ) {
       throw new Error('quantity send not allow')
     }
 
-    if (findStatus.type === 'inputs' && situation.in_analysis === situation.analysis_return) {
+    if (
+      findStatus.type === 'inputs' &&
+      situation.in_analysis === situation.analysis_return
+    ) {
       throw new Error('quantity send not allow')
     }
 
-    if (findStatus.type === 'inputs' && situation.booking_return > (situation.booking - situation.delivery)) {
+    if (
+      findStatus.type === 'inputs' &&
+      situation.booking_return > situation.booking - situation.delivery
+    ) {
       throw new Error('quantity send not allow')
     }
 
-    if (findStatus.type === 'outputs' && situation.quantity > (situation.booking - situation.delivery)) {
+    if (
+      findStatus.type === 'outputs' &&
+      situation.quantity > situation.booking - situation.delivery
+    ) {
       throw new Error('quantity send not allow')
     }
 
-    if ((situation.booking_return + situation.delivery) === situation.booking) {
-      const updateProductOrder = await OrderProductModel.findOne({ where: { id: orderProductId }})
+    if (situation.booking_return + situation.delivery === situation.booking) {
+      const updateProductOrder = await OrderProductModel.findOne({
+        where: { id: orderProductId }
+      })
       await updateProductOrder.update({ statusId: response.statusId })
       throw new Error('quantity send not allow')
     }
-    
+
     await TransactionModel.create({
       ...payload,
       orderId,
-      companyId,
+      companyId
     })
 
-    await Promise.all(map(updateBalance(findStatus.type), [{
-      ...payload,
-      companyId,
-    }]))
+    await Promise.all(
+      map(updateBalance(findStatus.type), [
+        {
+          ...payload,
+          companyId
+        }
+      ])
+    )
 
     await response.reload()
 
@@ -366,13 +436,15 @@ const update = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({ error: error.message })
   }
-
 }
 
 const getById = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   try {
-    const response = await OrderModel.findOne({ where: { companyId, id: req.params.id }, include})
+    const response = await OrderModel.findOne({
+      where: { companyId, id: req.params.id },
+      include
+    })
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -383,16 +455,19 @@ const getAll = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const { where, offset, limit } = buildSearchAndPagination({
     ...req.query,
-    companyId,
+    companyId
   })
-  const setWhereOnInclude = includeValues.map(includeValue => {
+  const setWhereOnInclude = includeValues.map((includeValue) => {
     const wheres = omit(['orderWhere'], where)
     const includeWhereAdd = wheres[includeValue.model.name]
-    if(isEmpty(includeWhereAdd)) {
+    if (isEmpty(includeWhereAdd)) {
       return includeValue
     }
 
-    if(!isEmpty(includeWhereAdd) && includeValue.model.name === 'transaction') {
+    if (
+      !isEmpty(includeWhereAdd) &&
+      includeValue.model.name === 'transaction'
+    ) {
       return {
         ...includeValue,
         include: [
@@ -407,57 +482,56 @@ const getAll = async (req, res, next) => {
           },
           {
             model: StatusModel,
-            attributes: [ 'value', 'color', 'typeLabel', 'type']
-          },
+            attributes: ['value', 'color', 'typeLabel', 'type']
+          }
         ]
       }
     }
 
-    return ({
+    return {
       ...includeValue,
-      where: includeWhereAdd,
-    })
+      where: includeWhereAdd
+    }
   })
 
-  const orderWhere = (
-    isEmpty(where.orderWhere)
-      ? { where: { companyId }}
-      : { where: where.orderWhere }
-  )
+  const orderWhere = isEmpty(where.orderWhere)
+    ? { where: { companyId } }
+    : { where: where.orderWhere }
   try {
-    const response = await OrderModel.findAll(
-      {
+    const response = await OrderModel.findAll({
       ...orderWhere,
       include: setWhereOnInclude,
       offset,
-      limit,
-    }
-    )
-    res.json({ total: response.length, source: response  })
+      limit
+    })
+    res.json({ total: response.length, source: response })
   } catch (error) {
     res.status(400).json({ error: error.message })
   }
 }
 
-
 const getSummaryToChart = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-  const { where, offset, limit } = buildSearchAndPagination({ ...req.query, companyId })
+  const { where, offset, limit } = buildSearchAndPagination({
+    ...req.query,
+    companyId
+  })
 
-  const orderWhere = (
-    isEmpty(where.orderWhere)
-      ? { where: { companyId } }
-      : { where: where.orderWhere }
-  )
+  const orderWhere = isEmpty(where.orderWhere)
+    ? { where: { companyId } }
+    : { where: where.orderWhere }
   try {
     const { rows } = await OrderModel.findAndCountAll({
       ...orderWhere,
       include: {
         model: StatusModel,
-        attributes: [ 'value', 'color', 'typeLabel', 'type', 'label', 'id']
+        attributes: ['value', 'color', 'typeLabel', 'type', 'label', 'id']
       },
       attributes: [
-        [Sequelize.fn('date_trunc', 'day', Sequelize.col('order.createdAt')), 'name'],
+        [
+          Sequelize.fn('date_trunc', 'day', Sequelize.col('order.createdAt')),
+          'name'
+        ],
         [Sequelize.fn('COUNT', Sequelize.col('order.createdAt')), 'count']
       ],
       group: [
@@ -466,9 +540,12 @@ const getSummaryToChart = async (req, res, next) => {
       ],
       offset,
       limit,
-      raw: true,
+      raw: true
     })
-    res.json({ source: parserSummaryData(rows), chartSettings: getStatusSummary(rows) })
+    res.json({
+      source: parserSummaryData(rows),
+      chartSettings: getStatusSummary(rows)
+    })
   } catch (error) {
     console.log(error)
     res.status(400).json({ error: error.message })
@@ -479,7 +556,10 @@ const finishedOrder = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const id = pathOr(null, ['params', 'id'], req)
   try {
-    const response = await OrderModel.findOne({ where: { companyId, id }, include })
+    const response = await OrderModel.findOne({
+      where: { companyId, id },
+      include
+    })
     await response.update({ pendingReview: false })
     await response.reload()
     res.json(response)
@@ -488,13 +568,16 @@ const finishedOrder = async (req, res, next) => {
   }
 }
 
-const customerAssociate =  async (req, res, next) => {
+const customerAssociate = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const customerId = pathOr(null, ['body', 'customerId'], req)
   const id = pathOr(null, ['params', 'id'], req)
 
   try {
-    const response = await OrderModel.findOne({ where: { companyId, id }, include })
+    const response = await OrderModel.findOne({
+      where: { companyId, id },
+      include
+    })
     await response.update({ customerId })
     await response.reload()
     res.json(response)
@@ -510,5 +593,5 @@ module.exports = {
   getById,
   getAll,
   getSummaryToChart,
-  finishedOrder,
+  finishedOrder
 }

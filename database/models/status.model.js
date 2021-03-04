@@ -12,37 +12,37 @@ const Status = (sequelize) => {
     activated: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
-      defaultValue: true,
+      defaultValue: true
     },
     label: {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true,
+      unique: true
     },
     value: {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true,
+      unique: true
     },
     color: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
     type: {
       type: Sequelize.ENUM(['inputs', 'outputs']),
       allowNull: false,
-      defaultValue: 'inputs',
+      defaultValue: 'inputs'
     },
     typeLabel: {
       type: Sequelize.ENUM(['Entrada', 'Saída']),
-      allowNull: false,
-    },
+      allowNull: false
+    }
   })
 
   Status.associate = (models) => {
     models.status.belongsTo(models.company, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
   }

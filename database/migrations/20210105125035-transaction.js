@@ -1,71 +1,72 @@
-'use strict';
+'use strict'
 
 module.exports = {
-  up: (queryInterface, Sequelize) => queryInterface.createTable('transactions', {
-    id: {
-      type: Sequelize.STRING,
-      primaryKey: true,
-      allowNull: false,
-    },
-    quantity: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
-    },
-    userId: {
-      type: Sequelize.STRING,
-      references: {
-        model: 'users',
-        key: 'id',
+  up: (queryInterface, Sequelize) =>
+    queryInterface.createTable('transactions', {
+      id: {
+        type: Sequelize.STRING,
+        primaryKey: true,
+        allowNull: false
       },
-      onUpdate: 'cascade',
-      onDelete: 'restrict',
-    },
-    productId: {
-      type: Sequelize.STRING,
-      references: {
-        model: 'products',
-        key: 'id',
+      quantity: {
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
-      onUpdate: 'cascade',
-      onDelete: 'restrict',
-    },
-    statusId: {
-      type: Sequelize.STRING,
-      references: {
-        model: 'statuses',
-        key: 'id',
+      userId: {
+        type: Sequelize.STRING,
+        references: {
+          model: 'users',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
       },
-      onUpdate: 'cascade',
-      onDelete: 'restrict',
-    },
-    orderId: {
-      type: Sequelize.STRING,
-      references: {
-        model: 'orders',
-        key: 'id',
+      productId: {
+        type: Sequelize.STRING,
+        references: {
+          model: 'products',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
       },
-      onUpdate: 'cascade',
-      onDelete: 'restrict',
-    },
-    companyId: {
-      type: Sequelize.STRING,
-      references: {
-        model: 'companies',
-        key: 'id',
+      statusId: {
+        type: Sequelize.STRING,
+        references: {
+          model: 'statuses',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
       },
-      onUpdate: 'cascade',
-      onDelete: 'restrict',
-    },
-    createdAt: {
-      allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: new Date(),
-    },
-    updatedAt: {
-      allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: new Date(),
-    },
-  }),
+      orderId: {
+        type: Sequelize.STRING,
+        references: {
+          model: 'orders',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
+      },
+      companyId: {
+        type: Sequelize.STRING,
+        references: {
+          model: 'companies',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: new Date()
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: new Date()
+      }
+    }),
   down: (queryInterface) => queryInterface.dropTable('transactions')
-};
+}

@@ -7,56 +7,56 @@ const Product = (sequelize) => {
       type: Sequelize.STRING,
       primaryKey: true,
       allowNull: false,
-      defaultValue: uuidv4Generator('pr_'),
+      defaultValue: uuidv4Generator('pr_')
     },
     activated: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
-      defaultValue: true,
+      defaultValue: true
     },
     name: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
     minQuantity: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 5,
+      defaultValue: 5
     },
     buyPrice: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: 0
     },
     salePrice: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 0,
-    },
+      defaultValue: 0
+    }
   })
 
   Product.associate = (models) => {
     models.product.hasMany(models.serialNumber, {
       foreignKey: {
-        allowNull: true,
+        allowNull: true
       }
     })
 
     models.product.hasMany(models.transaction, {
       foreignKey: {
-        allowNull: true,
+        allowNull: true
       }
     })
 
     models.product.belongsTo(models.company, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.product.hasMany(models.balance, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
   }

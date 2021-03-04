@@ -9,7 +9,9 @@ const Sequelize = require('sequelize')
 const getById = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   try {
-    const response = await TransactionModel.findOne({ where: { companyId, id: req.params.id }})
+    const response = await TransactionModel.findOne({
+      where: { companyId, id: req.params.id }
+    })
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -21,19 +23,18 @@ const getAll = async (req, res, next) => {
   try {
     const response = await TransactionModel.findAll({
       where: {
-        companyId,
+        companyId
       },
-      include:[{
-        model: StatusModel,
-        attributes: [ 'value', 'color', 'typeLabel', 'type', 'label', 'id']
-      }],
+      include: [
+        {
+          model: StatusModel,
+          attributes: ['value', 'color', 'typeLabel', 'type', 'label', 'id']
+        }
+      ],
       attributes: [
         [Sequelize.fn('SUM', Sequelize.col('quantity')), 'quantity_total']
       ],
-      group: [
-        'status.id',
-        'product.id'
-      ],
+      group: ['status.id', 'product.id']
     })
     res.json(response)
   } catch (error) {
@@ -43,5 +44,5 @@ const getAll = async (req, res, next) => {
 
 module.exports = {
   getById,
-  getAll,
+  getAll
 }

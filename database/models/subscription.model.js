@@ -7,28 +7,28 @@ const Subscription = (sequelize) => {
       type: Sequelize.STRING,
       primaryKey: true,
       allowNull: false,
-      defaultValue: uuidv4Generator('sb_'),
+      defaultValue: uuidv4Generator('sb_')
     },
     productName: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
     quantity: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: 0
     },
     salePrice: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 0,
-    },
+      defaultValue: 0
+    }
   })
 
   Subscription.associate = (models) => {
     models.orderProduct.belongsTo(models.company, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
   }

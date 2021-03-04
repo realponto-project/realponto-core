@@ -25,5 +25,5 @@ module.exports = [
   OrderProduct,
   Company,
   Plan,
-  Subscription,
+  Subscription
 ]

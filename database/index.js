@@ -9,19 +9,19 @@ const DB_PWD = 'postgres'
 let sequelize = null
 const { DATABASE_URL } = process.env
 
-if(DATABASE_URL) {
+if (DATABASE_URL) {
   sequelize = new Sequelize(DATABASE_URL, {
-      dialect: 'postgres',
-      logging: false,
-      dialectOptions: {
-        ssl: true,
-      },
-      pool: {
-        max: 5,
-        min: 0,
-        acquire: 30000,
-        idle: 10000
-      }
+    dialect: 'postgres',
+    logging: false,
+    dialectOptions: {
+      ssl: true
+    },
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
   })
 } else {
   sequelize = new Sequelize({
@@ -36,17 +36,15 @@ if(DATABASE_URL) {
       min: 0,
       acquire: 30000,
       idle: 10000
-    },
+    }
   })
 }
 
-const ModelInstances = Models.map(model => model(sequelize))
+const ModelInstances = Models.map((model) => model(sequelize))
 // sequelize.sync({ force: true })
-ModelInstances
-  .forEach(
-    modelInstance =>
-      modelInstance.associate &&
-      modelInstance.associate(sequelize.models)
-  )
+ModelInstances.forEach(
+  (modelInstance) =>
+    modelInstance.associate && modelInstance.associate(sequelize.models)
+)
 
 module.exports = sequelize

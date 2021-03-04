@@ -7,55 +7,55 @@ const Order = (sequelize) => {
       type: Sequelize.STRING,
       primaryKey: true,
       allowNull: false,
-      defaultValue: uuidv4Generator('or_'),
+      defaultValue: uuidv4Generator('or_')
     },
     pendingReview: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
-      defaultValue: false,
+      defaultValue: false
     }
   })
 
   Order.associate = (models) => {
     models.order.belongsTo(models.customer, {
       foreignKey: {
-        allowNull: true,
+        allowNull: true
       }
     })
 
     models.order.belongsTo(models.company, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.order.belongsTo(models.user, {
       foreignKey: {
-        allowNull: true,
+        allowNull: true
       }
     })
 
     models.order.belongsTo(models.status, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.order.hasMany(models.transaction, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.order.hasMany(models.serialNumber, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.order.hasMany(models.orderProduct, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
   }

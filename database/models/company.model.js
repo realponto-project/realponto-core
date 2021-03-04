@@ -11,57 +11,57 @@ const Company = (sequelize) => {
     },
     name: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
     fullname: {
       type: Sequelize.STRING,
-      allowNull: true,
+      allowNull: true
     },
     siteUrl: {
       type: Sequelize.STRING,
-      allowNull: true,
+      allowNull: true
     },
     document: {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true,
+      unique: true
     },
     passwordUserDefault: {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: '123456',
+      defaultValue: '123456'
     },
     companyLogo: {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: '',
+      defaultValue: ''
     },
     trialDays: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 7,
+      defaultValue: 7
     },
     subscription: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
-      defaultValue: false,
+      defaultValue: false
     },
     allowPdv: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
-      defaultValue: false,
+      defaultValue: false
     },
     allowOrder: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
-      defaultValue: false,
-    },
+      defaultValue: false
+    }
   })
 
   Company.associate = (models) => {
     models.company.belongsTo(models.address, {
       foreignKey: {
-        allowNull: true,
+        allowNull: true
       }
     })
   }

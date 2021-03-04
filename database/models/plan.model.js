@@ -7,27 +7,27 @@ const Plan = (sequelize) => {
       type: Sequelize.STRING,
       primaryKey: true,
       allowNull: false,
-      defaultValue: uuidv4Generator('pl_'),
+      defaultValue: uuidv4Generator('pl_')
     },
     activated: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
-      defaultValue: true,
+      defaultValue: true
     },
     description: {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true,
+      unique: true
     },
     discount: {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true,
+      unique: true
     },
     amount: {
       type: Sequelize.INTEGER,
-      allowNull: false,
-    },
+      allowNull: false
+    }
   })
 
   return Plan
