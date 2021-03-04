@@ -12,6 +12,13 @@ module.exports = {
       freezeTableName: true,
       paranoid: true,
       timestamps: true
+    },
+    logging: false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
     }
   },
   test: {
@@ -23,11 +30,24 @@ module.exports = {
   production: {
     use_env_variable: 'DATABASE_URL',
     dialect: 'postgres',
+    protocol: 'postgres',
+    url: process.env.DATABASE_URL,
     dialectOptions: {
       ssl: {
         require: true,
         rejectUnauthorized: false
       }
+    },
+    define: {
+      freezeTableName: true,
+      paranoid: true,
+      timestamps: true
+    },
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
     }
   }
 }
