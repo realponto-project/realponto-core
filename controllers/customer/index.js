@@ -12,15 +12,18 @@ const create = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   let customerAddress = null
   try {
-    if(address) {
+    if (address) {
       customerAddress = await AddressModel.create(address, { transaction })
     }
 
-    const response = await CustomerModel.create({
-      ...customer,
-      companyId,
-      ...(customerAddress ? {  addressId: customerAddress.id, }: {})
-    }, { transaction })
+    const response = await CustomerModel.create(
+      {
+        ...customer,
+        companyId,
+        ...(customerAddress ? { addressId: customerAddress.id } : {})
+      },
+      { transaction }
+    )
 
     await transaction.commit()
     res.json(response)
@@ -34,7 +37,7 @@ const update = async (req, res, next) => {
   const id = pathOr(null, ['params', 'id'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   try {
-    const response = await CustomerModel.findOne({ where: { companyId, id, }})
+    const response = await CustomerModel.findOne({ where: { companyId, id } })
     await response.update(req.body)
     await response.reload()
 
@@ -48,7 +51,7 @@ const getById = async (req, res, next) => {
   const id = pathOr(null, ['params', 'id'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   try {
-    const response = await CustomerModel.findOne({ where: { companyId, id, }})
+    const response = await CustomerModel.findOne({ where: { companyId, id } })
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -59,7 +62,7 @@ const getAll = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const query = buildSearchAndPagination({
     ...pathOr({}, ['query'], req),
-    companyId,
+    companyId
   })
   try {
     const { count, rows } = await CustomerModel.findAndCountAll(query)
@@ -73,5 +76,5 @@ module.exports = {
   create,
   update,
   getById,
-  getAll,
+  getAll
 }

@@ -11,38 +11,38 @@ const Transaction = (sequelize) => {
     },
     quantity: {
       type: Sequelize.INTEGER,
-      allowNull: false,
-    },
+      allowNull: false
+    }
   })
 
   Transaction.associate = (models) => {
     models.transaction.belongsTo(models.product, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.transaction.belongsTo(models.order, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.transaction.belongsTo(models.user, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.transaction.belongsTo(models.status, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.transaction.belongsTo(models.company, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
   }

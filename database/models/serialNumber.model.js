@@ -11,48 +11,47 @@ const SerialNumber = (sequelize) => {
     },
     serialNumber: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
     activated: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
-      defaultValue: true,
+      defaultValue: true
     },
     transactionInId: {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: '',
+      defaultValue: ''
     },
     transactionOutId: {
       type: Sequelize.STRING,
       allowNull: true,
-      defaultValue: null,
-    },
+      defaultValue: null
+    }
   })
 
   SerialNumber.associate = (models) => {
-
     models.serialNumber.belongsTo(models.order, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.serialNumber.belongsTo(models.user, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.serialNumber.belongsTo(models.product, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.serialNumber.belongsTo(models.company, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
   }

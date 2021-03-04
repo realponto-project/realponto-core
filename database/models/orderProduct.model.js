@@ -7,49 +7,48 @@ const OrderProduct = (sequelize) => {
       type: Sequelize.STRING,
       primaryKey: true,
       allowNull: false,
-      defaultValue: uuidv4Generator('op_'),
+      defaultValue: uuidv4Generator('op_')
     },
     productName: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
     quantity: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: 0
     },
     salePrice: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 0,
-    },
+      defaultValue: 0
+    }
   })
 
   OrderProduct.associate = (models) => {
     models.orderProduct.belongsTo(models.product, {
       foreignKey: {
-        allowNull: true,
+        allowNull: true
       }
     })
 
     models.orderProduct.belongsTo(models.company, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.orderProduct.belongsTo(models.status, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.orderProduct.belongsTo(models.order, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
-
   }
 
   return OrderProduct

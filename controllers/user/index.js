@@ -15,7 +15,7 @@ const create = async (req, res, next) => {
     const response = await UserModel.create({
       ...req.body,
       password,
-      companyId,
+      companyId
     })
 
     res.json(response)
@@ -45,7 +45,7 @@ const getById = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   try {
     console.log(id)
-    const response = await UserModel.findOne({ where: { companyId, id }})
+    const response = await UserModel.findOne({ where: { companyId, id } })
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -56,7 +56,7 @@ const getAll = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const query = buildSearchAndPagination({
     ...pathOr({}, ['query'], req),
-    companyId,
+    companyId
   })
   try {
     console.log(companyId)
@@ -74,10 +74,12 @@ const updatePassword = async (req, res, next) => {
   const newPassword = pathOr(null, ['body', 'newPassword'], req)
 
   try {
-    const response = await UserModel.findOne({ where: { id: userId, companyId, activated: true }})
+    const response = await UserModel.findOne({
+      where: { id: userId, companyId, activated: true }
+    })
     const checkedPassword = await compare(password, response.password)
 
-    if(!checkedPassword) {
+    if (!checkedPassword) {
       throw new Error('Password do not match with password saved')
     }
 
@@ -96,5 +98,5 @@ module.exports = {
   update,
   getById,
   getAll,
-  updatePassword,
+  updatePassword
 }

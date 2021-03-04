@@ -13,13 +13,13 @@ const {
   always,
   concat,
   prop,
-  propOr,
+  propOr
 } = require('ramda')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
 const { gte, lte, iLike } = Op
 
-const calculatorOffset = values => {
+const calculatorOffset = (values) => {
   const pageOffset = pipe(pathOr(1, ['page']), Number)(values)
   const limit = pipe(pathOr(25, ['limit']), Number)(values)
   const offsetSubOne = subtract(pageOffset, 1)
@@ -27,15 +27,14 @@ const calculatorOffset = values => {
 }
 
 // implentar busca no status com o operador or para buscar multiplos campos
- // include:[{
-      //   model: StatusModel,
-      //   // where: { [Sequelize.Op.or]: [
-      //   //   { value: 'Entrada'}, { value: 'Reserva' }, { value: 'Troca' }
-      //   // ] }
-      // }]
+// include:[{
+//   model: StatusModel,
+//   // where: { [Sequelize.Op.or]: [
+//   //   { value: 'Entrada'}, { value: 'Reserva' }, { value: 'Troca' }
+//   // ] }
+// }]
 
-
-const parserDateToMoment = type => value => {
+const parserDateToMoment = (type) => (value) => {
   let dateParser = moment(value).startOf('day').utc().toISOString()
 
   if (type === 'end') {
@@ -45,7 +44,7 @@ const parserDateToMoment = type => value => {
   return dateParser
 }
 
-const minQuantityParser = propName => values => {
+const minQuantityParser = (propName) => (values) => {
   const propValue = propOr(null, propName, values)
   if (isNil(propValue)) {
     return null
@@ -54,37 +53,31 @@ const minQuantityParser = propName => values => {
   return Number(propValue)
 }
 
-const iLikeOperation = propName => values => {
+const iLikeOperation = (propName) => (values) => {
   const propValue = propOr('', propName, values)
   if (isEmpty(propValue)) {
     console.log(propValue)
     return null
   }
 
-  return ({
+  return {
     [iLike]: concat(concat('%', propValue), '%')
-  })
+  }
 }
 
-const parserDateGteAndLte = propName => values => {
+const parserDateGteAndLte = (propName) => (values) => {
   const propValue = pathOr(null, [propName], values)
   if (isNil(propValue)) {
     return null
   }
 
-  return ({
-    [gte]: pipe(
-      prop(propName),
-      parserDateToMoment('start')
-    )(values),
-    [lte]: pipe(
-      prop(propName),
-      parserDateToMoment('end')
-    )(values)
-  })
+  return {
+    [gte]: pipe(prop(propName), parserDateToMoment('start'))(values),
+    [lte]: pipe(prop(propName), parserDateToMoment('end'))(values)
+  }
 }
 
-const parserDateGteAndLteForCreatedAt = values => {
+const parserDateGteAndLteForCreatedAt = (values) => {
   const intialDate = pipe(
     pathOr(null, ['initialDate']),
     parserDateToMoment('start')
@@ -99,14 +92,14 @@ const parserDateGteAndLteForCreatedAt = values => {
     return null
   }
 
-  return ({
+  return {
     [gte]: intialDate,
-    [lte]: finalyDate,
-  })
+    [lte]: finalyDate
+  }
 }
 
-const getColor = propName => values => {
-  let color = pathOr(null, [propName], values)
+const getColor = (propName) => (values) => {
+  const color = pathOr(null, [propName], values)
   if (color) {
     return concat('#', color)
   }
@@ -114,10 +107,9 @@ const getColor = propName => values => {
   return null
 }
 
-const removeFiledsNilOrEmpty = values => {
+const removeFiledsNilOrEmpty = (values) => {
   const fields = values
-  const fieldFormmat = Object.keys(fields)
-  .reduce((curr, prev) => {
+  const fieldFormmat = Object.keys(fields).reduce((curr, prev) => {
     if (!curr[prev] && fields[prev]) {
       if (fields[prev] == 'true') {
         curr = {
@@ -126,14 +118,14 @@ const removeFiledsNilOrEmpty = values => {
         }
       }
 
-      if(fields[prev] == 'false') {
+      if (fields[prev] == 'false') {
         curr = {
           ...curr,
           [prev]: false
         }
       }
 
-      if(fields[prev] != 'true' && fields != 'false') {
+      if (fields[prev] != 'true' && fields != 'false') {
         curr = {
           ...curr,
           [prev]: fields[prev]
@@ -149,28 +141,28 @@ const removeFiledsNilOrEmpty = values => {
 const orderSpec = applySpec({
   user: pipe(
     applySpec({
-      name: iLikeOperation('user_name'),
+      name: iLikeOperation('user_name')
     }),
     removeFiledsNilOrEmpty
   ),
   customer: pipe(
     applySpec({
       name: iLikeOperation('customer_name'),
-      document: pathOr(null, ['customer_document']),
+      document: pathOr(null, ['customer_document'])
     }),
-    removeFiledsNilOrEmpty,
+    removeFiledsNilOrEmpty
   ),
   status: pipe(
     applySpec({
       value: iLikeOperation('status_value'),
-      typeLabel: pathOr(null, ['status_typeLabel']),
+      typeLabel: pathOr(null, ['status_typeLabel'])
     }),
     removeFiledsNilOrEmpty
   ),
   transaction: pipe(
     applySpec({
       name: iLikeOperation('product_name'),
-      companyId: pathOr(null, ['companyId']),
+      companyId: pathOr(null, ['companyId'])
     }),
     removeFiledsNilOrEmpty
   ),
@@ -179,10 +171,10 @@ const orderSpec = applySpec({
       companyId: pathOr(null, ['companyId']),
       pendingReview: pathOr(null, ['pendingReview']),
       createdAt: parserDateGteAndLteForCreatedAt,
-      updatedAt: parserDateGteAndLte('updatedAt'),
+      updatedAt: parserDateGteAndLte('updatedAt')
     }),
     removeFiledsNilOrEmpty
-  ),
+  )
 })
 
 const searchSpecs = {
@@ -197,7 +189,7 @@ const searchSpecs = {
       type: pathOr(null, ['type']),
       typeLabel: pathOr(null, ['typeLabel']),
       createdAt: parserDateGteAndLte('createdAt'),
-      updatedAt: parserDateGteAndLte('updatedAt'),
+      updatedAt: parserDateGteAndLte('updatedAt')
     }),
     removeFiledsNilOrEmpty
   ),
@@ -209,9 +201,9 @@ const searchSpecs = {
       companyId: pathOr(null, ['companyId']),
       document: pathOr(null, ['document']),
       createdAt: parserDateGteAndLte('createdAt'),
-      updatedAt: parserDateGteAndLte('updatedAt'),
+      updatedAt: parserDateGteAndLte('updatedAt')
     }),
-    removeFiledsNilOrEmpty,
+    removeFiledsNilOrEmpty
   ),
   product: pipe(
     applySpec({
@@ -220,9 +212,9 @@ const searchSpecs = {
       companyId: pathOr(null, ['companyId']),
       minQuantity: minQuantityParser('minQuantity'),
       createdAt: parserDateGteAndLte('createdAt'),
-      updatedAt: parserDateGteAndLte('updatedAt'),
+      updatedAt: parserDateGteAndLte('updatedAt')
     }),
-    removeFiledsNilOrEmpty,
+    removeFiledsNilOrEmpty
   ),
   order: orderSpec,
   serialNumber: pipe(
@@ -230,9 +222,9 @@ const searchSpecs = {
       activated: pathOr(null, ['activated']),
       serialNumber: pathOr(null, ['serialNumber']),
       companyId: pathOr(null, ['companyId']),
-      transactionOutId: pathOr(null, ['transactionOutId']),
+      transactionOutId: pathOr(null, ['transactionOutId'])
     }),
-    removeFiledsNilOrEmpty,
+    removeFiledsNilOrEmpty
   ),
   customer: pipe(
     applySpec({
@@ -240,35 +232,25 @@ const searchSpecs = {
       document: pathOr(null, ['document']),
       companyId: pathOr(null, ['companyId']),
       createdAt: parserDateGteAndLte('createdAt'),
-      updatedAt: parserDateGteAndLte('updatedAt'),
+      updatedAt: parserDateGteAndLte('updatedAt')
     }),
-    removeFiledsNilOrEmpty,
-  ),
+    removeFiledsNilOrEmpty
+  )
 }
 
-const buildPagination = whereSpec => applySpec({
-  offset: ifElse(
-    compose(
-      equals(0),
-      Number,
-      pathOr(0, ['page'])
+const buildPagination = (whereSpec) =>
+  applySpec({
+    offset: ifElse(
+      compose(equals(0), Number, pathOr(0, ['page'])),
+      always(0),
+      calculatorOffset
     ),
-    always(0),
-    calculatorOffset
-  ),
-  limit: ifElse(
-    compose(
-      equals(0),
-      Number,
-      pathOr(25, ['limit'])
+    limit: ifElse(
+      compose(equals(0), Number, pathOr(25, ['limit'])),
+      always(25),
+      pipe(pathOr(25, ['limit']), Number)
     ),
-    always(25),
-    pipe(
-      pathOr(25, ['limit']),
-      Number,
-    )
-  ),
-  where: searchSpecs[whereSpec],
-})
+    where: searchSpecs[whereSpec]
+  })
 
 module.exports = buildPagination

@@ -12,20 +12,20 @@ const Balance = (sequelize) => {
     quantity: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 0,
-    },
+      defaultValue: 0
+    }
   })
 
   Balance.associate = (models) => {
     models.balance.belongsTo(models.product, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.balance.belongsTo(models.company, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
   }

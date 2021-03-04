@@ -11,29 +11,29 @@ const Customer = (sequelize) => {
     },
     name: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: false
     },
     document: {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true,
+      unique: true
     },
     phone: {
       type: Sequelize.STRING,
-      allowNull: false,
-    },
+      allowNull: false
+    }
   })
 
   Customer.associate = (models) => {
     models.customer.belongsTo(models.company, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       }
     })
 
     models.customer.belongsTo(models.address, {
       foreignKey: {
-        allowNull: true,
+        allowNull: true
       }
     })
   }
