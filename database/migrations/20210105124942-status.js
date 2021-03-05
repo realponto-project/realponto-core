@@ -36,6 +36,11 @@ module.exports = {
         type: Sequelize.ENUM(['Entrada', 'Saída']),
         allowNull: false
       },
+      fakeTransaction: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
       companyId: {
         type: Sequelize.STRING,
         references: {
