@@ -15,7 +15,7 @@ const Customer = (sequelize) => {
     },
     socialName: {
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: true
     },
     document: {
       type: Sequelize.STRING,
