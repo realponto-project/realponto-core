@@ -12,6 +12,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      socialName: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       document: {
         type: Sequelize.STRING,
         allowNull: true
