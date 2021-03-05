@@ -22,6 +22,15 @@ module.exports = {
         onUpdate: 'cascade',
         onDelete: 'restrict'
       },
+      statusId: {
+        type: Sequelize.STRING,
+        references: {
+          model: 'status',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
+      },
       companyId: {
         type: Sequelize.STRING,
         references: {
