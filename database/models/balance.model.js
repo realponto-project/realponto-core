@@ -23,6 +23,12 @@ const Balance = (sequelize) => {
       }
     })
 
+    models.transaction.belongsTo(models.status, {
+      foreignKey: {
+        allowNull: false
+      }
+    })
+
     models.balance.belongsTo(models.company, {
       foreignKey: {
         allowNull: false
