@@ -17,6 +17,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      barCode: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       minQuantity: {
         type: Sequelize.INTEGER,
         allowNull: false,
