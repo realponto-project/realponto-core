@@ -27,6 +27,10 @@ module.exports = {
         allowNull: false,
         defaultValue: ''
       },
+      badget: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       birthday: {
         type: Sequelize.STRING,
         allowNull: false,
