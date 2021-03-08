@@ -8,6 +8,12 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 12
   },
-  rules: {},
+  rules: {
+    'jest/prefer-expect-assertions': [
+      'warn',
+      { onlyFunctionsWithAsyncKeyword: true }
+    ],
+    'jest/no-hooks': ['error', { allow: ['beforeAll'] }]
+  },
   plugins: ['jest']
 }
