@@ -1,4 +1,6 @@
-require('dotenv').config({})
+require('dotenv').config({
+  path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env'
+})
 
 module.exports = {
   development: {
@@ -23,10 +25,10 @@ module.exports = {
   },
   test: {
     host: process.env.DB_HOST,
-    port: 5430,
+    port: process.env.DB_PORT,
     password: process.env.DB_PWD,
     username: process.env.DB_USERNAME,
-    database: 'realponto-core-test',
+    database: process.env.DB_DATABASE,
     dialect: 'postgres',
     define: {
       freezeTableName: true,

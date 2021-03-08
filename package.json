@@ -5,15 +5,16 @@
   "license": "MIT",
   "scripts": {
     "start": "node ./bin/www",
-    "pretest": "NODE_ENV=test npx sequelize-cli db:migrate:undo:all && NODE_ENV=test npx sequelize-cli db:migrate",
-    "test": "jest --watch --detectOpenHandles",
     "dev": "nodemon ./bin/www",
     "migrate": "sequelize db:migrate",
     "seeders": "sequelize db:seed:all",
     "seeders:undo:all": "sequelize db:seed:all",
-    "migrate:undo:all": "sequelize db:migrate:undo:all"
+    "migrate:undo:all": "sequelize db:migrate:undo:all",
+    "pretest": "NODE_ENV=test sequelize db:migrate:undo:all && NODE_ENV=test sequelize db:migrate",
+    "test": "jest --detectOpenHandles"
   },
   "dependencies": {
+    "@fnando/cnpj": "^1.0.2",
     "bcrypt": "5.0.0",
     "body-parser": "1.19.0",
     "cors": "2.8.5",
@@ -37,7 +38,7 @@
     "eslint-config-prettier-standard": "^4.0.1",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jest": "^24.1.5",
+    "eslint-plugin-jest": "^24.1.9",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-promise": "^4.3.1",
