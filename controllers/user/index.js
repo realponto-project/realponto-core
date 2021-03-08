@@ -26,7 +26,7 @@ const create = async (req, res, next) => {
 }
 
 const update = async (req, res, next) => {
-  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  // const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const userWithoutPwd = omit(['password'], req.body)
   const userId = pathOr(null, ['params', 'id'], req)
   try {
