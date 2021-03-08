@@ -11,13 +11,11 @@ const Address = (sequelize) => {
     },
     neighborhood: {
       type: Sequelize.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     street: {
       type: Sequelize.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     streetNumber: {
       type: Sequelize.STRING,
