@@ -56,7 +56,6 @@ const minQuantityParser = (propName) => (values) => {
 const iLikeOperation = (propName) => (values) => {
   const propValue = propOr('', propName, values)
   if (isEmpty(propValue)) {
-    console.log(propValue)
     return null
   }
 
