@@ -1,12 +1,14 @@
 const StatusDomain = require('./index')
 const { fakerStatus } = require('../../utils/helpers/fakers')
 
+const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
+
 describe('create new status', () => {
   it('create new status', async () => {
     expect.hasAssertions()
     const statusCreated = await StatusDomain.create({
       ...fakerStatus(),
-      companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
+      companyId
     })
     expect(statusCreated).toHaveProperty('id')
     expect(statusCreated).toHaveProperty('activated')
@@ -26,18 +28,18 @@ describe('update status', () => {
   beforeAll(async () => {
     statusCreated = await StatusDomain.create({
       ...fakerStatus(),
-      companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
+      companyId
     })
   })
+
   it('update status', async () => {
     const statusMock = fakerStatus()
 
     expect.hasAssertions()
 
-    const statusUpdated = await StatusDomain.update({
-      id: statusCreated.id,
+    const statusUpdated = await StatusDomain.update(statusCreated.id, {
       ...statusMock,
-      companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
+      companyId
     })
 
     expect(statusUpdated).toHaveProperty('id', statusCreated.id)
@@ -64,14 +66,17 @@ describe('getById status', () => {
   beforeAll(async () => {
     statusCreated = await StatusDomain.create({
       ...fakerStatus(),
-      companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
+      companyId
     })
   })
+
   it('getById status', async () => {
     expect.hasAssertions()
-    expect(true).toBeTruthy()
 
-    const getStatusById = await StatusDomain.getById(statusCreated.id)
+    const getStatusById = await StatusDomain.getById(
+      statusCreated.id,
+      companyId
+    )
 
     expect(getStatusById).toHaveProperty('id', statusCreated.id)
     expect(getStatusById).toHaveProperty('activated', statusCreated.activated)
@@ -95,19 +100,19 @@ describe('getAll status', () => {
   beforeAll(async () => {
     await StatusDomain.create({
       ...fakerStatus(),
-      companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
+      companyId
     })
   })
+
   it('getAll status', async () => {
     expect.hasAssertions()
-    expect(true).toBeTruthy()
 
     const getAllStatus = await StatusDomain.getAll(
       {},
       'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
     )
 
-    expect(getAllStatus).toHaveProperty('rows', getAllStatus.rows)
-    expect(getAllStatus).toHaveProperty('count', getAllStatus.count)
+    expect(getAllStatus).toHaveProperty('rows')
+    expect(getAllStatus).toHaveProperty('count')
   })
 })
