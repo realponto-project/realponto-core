@@ -23,7 +23,19 @@ const fakerCompany = () => {
   }
 }
 
+const fakerProduct = () => {
+  return {
+    activated: faker.random.boolean(),
+    name: faker.commerce.product(),
+    barCode: faker.random.uuid(),
+    minQuantity: faker.random.number(),
+    buyPrice: faker.random.number(),
+    salePrice: faker.random.number()
+  }
+}
+
 module.exports = {
   fakerCompany,
+  fakerProduct,
   fakerStatus
 }

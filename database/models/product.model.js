@@ -28,12 +28,12 @@ const Product = (sequelize) => {
       defaultValue: 5
     },
     buyPrice: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: false,
       defaultValue: 0
     },
     salePrice: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: false,
       defaultValue: 0
     }
