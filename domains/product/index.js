@@ -1,45 +1,28 @@
-const yup = require('yup')
-
 const buildPagination = require('../../utils/helpers/searchSpec')
 const database = require('../../database')
 const ProductModel = database.model('product')
+const productSchema = require('../../utils/helpers/Schemas/product')
 
 const buildSearchAndPagination = buildPagination('product')
 
 class ProductDomain {
   async create(bodyData, options = {}) {
-    const schema = yup.object().shape({
-      activated: yup.boolean().required(),
-      name: yup.string().required(),
-      barCode: yup.string().required(),
-      minQuantity: yup.number().integer().required(),
-      buyPrice: yup.number().positive().required(),
-      salePrice: yup.number().positive().required(),
-      companyId: yup.string().required()
-    })
-    await schema.validate(bodyData, { abortEarly: false })
-    return await ProductModel.create(bodyData)
+    const { transaction = null } = options
+    await productSchema.validate(bodyData, { abortEarly: false })
+    return await ProductModel.create(bodyData, { transaction })
   }
 
-  async update(bodyData, options = {}) {
-    const schema = yup.object().shape({
-      activated: yup.boolean().required(),
-      name: yup.string().required(),
-      barCode: yup.string().required(),
-      minQuantity: yup.number().integer().required(),
-      buyPrice: yup.number().positive().required(),
-      salePrice: yup.number().positive().required(),
-      companyId: yup.string().required()
-    })
-    await schema.validate(bodyData, { abortEarly: false })
+  async update(id, bodyData, options = {}) {
+    const { transaction = null } = options
+    await productSchema.validate(bodyData, { abortEarly: false })
 
-    const searchProduct = await ProductModel.findByPk(bodyData.id)
+    const searchProduct = await ProductModel.findByPk(id)
 
-    return await searchProduct.update(bodyData)
+    return await searchProduct.update(bodyData, { transaction })
   }
 
-  async getById(id) {
-    return await ProductModel.findByPk(id)
+  async getById(id, companyId) {
+    return await ProductModel.findOne({ where: { companyId, id } })
   }
 
   async getAll(query, companyId) {
