@@ -12,6 +12,18 @@ const fakerStatus = () => {
   }
 }
 
+const fakerCompany = () => {
+  return {
+    name: faker.lorem.word(),
+    fullname: faker.lorem.word(),
+    document: faker.random.number(),
+    siteUrl: faker.internet.url(),
+    allowOrder: faker.random.boolean(),
+    allowPdv: faker.random.boolean()
+  }
+}
+
 module.exports = {
+  fakerCompany,
   fakerStatus
 }
