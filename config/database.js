@@ -22,9 +22,23 @@ module.exports = {
     }
   },
   test: {
-    use_env_variable: 'DATABASE_URL',
-    dialectOptions: {
-      ssl: true
+    host: process.env.DB_HOST,
+    port: 5430,
+    password: process.env.DB_PWD,
+    username: process.env.DB_USERNAME,
+    database: 'realponto-core-test',
+    dialect: 'postgres',
+    define: {
+      freezeTableName: true,
+      paranoid: true,
+      timestamps: true
+    },
+    logging: false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
     }
   },
   production: {
