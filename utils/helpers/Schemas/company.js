@@ -6,8 +6,7 @@ const companySchema = yup.object().shape({
   document: yup.string().required(),
   siteUrl: yup.string().required(),
   allowOrder: yup.boolean().required(),
-  allowPdv: yup.boolean().required(),
-  companyId: yup.string().required()
+  allowPdv: yup.boolean().required()
 })
 
 module.exports = companySchema
