@@ -55,8 +55,7 @@ describe('update company', () => {
     expect.hasAssertions()
 
     const productUpdated = await CompanyDomain.update(companyCreated.id, {
-      ...companyMock,
-      companyId: companyCreated.id
+      ...companyMock
     })
 
     expect(productUpdated).toHaveProperty('id', companyCreated.id)

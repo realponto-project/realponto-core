@@ -1,7 +1,8 @@
 const buildPagination = require('../../utils/helpers/searchSpec')
-const database = require('../../database')
-const CompanyModel = database.model('company')
 const companySchema = require('../../utils/helpers/Schemas/company')
+const database = require('../../database')
+
+const CompanyModel = database.model('company')
 
 const buildSearchAndPagination = buildPagination('company')
 
@@ -22,7 +23,7 @@ class CompanyDomain {
   }
 
   async getById(id) {
-    return await CompanyModel.findOne({ where: { id } })
+    return await CompanyModel.findByPk(id)
   }
 
   async getAll(query) {
