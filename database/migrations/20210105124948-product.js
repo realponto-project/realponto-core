@@ -27,12 +27,12 @@ module.exports = {
         defaultValue: 5
       },
       buyPrice: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0
       },
       salePrice: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0
       },

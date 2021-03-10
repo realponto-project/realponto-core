@@ -1,7 +1,8 @@
 const buildPagination = require('../../utils/helpers/searchSpec')
 const database = require('../../database')
-const ProductModel = database.model('product')
 const productSchema = require('../../utils/helpers/Schemas/product')
+
+const ProductModel = database.model('product')
 
 const buildSearchAndPagination = buildPagination('product')
 
