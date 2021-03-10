@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) =>
-    queryInterface.createTable('orders', {
+    queryInterface.createTable('order', {
       id: {
         type: Sequelize.STRING,
         primaryKey: true,
@@ -75,5 +75,5 @@ module.exports = {
         defaultValue: null
       }
     }),
-  down: (queryInterface) => queryInterface.dropTable('orders')
+  down: (queryInterface) => queryInterface.dropTable('order')
 }
