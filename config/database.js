@@ -24,12 +24,8 @@ module.exports = {
     }
   },
   test: {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    password: process.env.DB_PWD,
-    username: process.env.DB_USERNAME,
-    database: process.env.DB_DATABASE,
-    dialect: 'postgres',
+    dialect: 'sqlite',
+    storage: './database/database-test.sqlite',
     define: {
       freezeTableName: true,
       paranoid: true,

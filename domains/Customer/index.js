@@ -54,9 +54,11 @@ class CustomerDomain {
           transaction
         })
       } else {
-        await addressDomain.create(address, {
+        const { id } = await addressDomain.create(address, {
           transaction
         })
+
+        bodyData.addressId = id
       }
     }
 
