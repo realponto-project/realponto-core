@@ -2,6 +2,7 @@ const ProductDomain = require('./')
 const { fakerProduct } = require('../../utils/helpers/fakers')
 const { ValidationError } = require('sequelize')
 const { omit } = require('ramda')
+const factory = require('../../utils/helpers/factories')
 
 const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 
@@ -34,6 +35,14 @@ describe('create new product', () => {
     ).rejects.toThrow(new ValidationError('name is a required field'))
   })
 
+  it('create product without barCode', async () => {
+    expect.hasAssertions()
+
+    await expect(
+      ProductDomain.create(omit(['barCode'], { ...fakerProduct(), companyId }))
+    ).rejects.toThrow(new ValidationError('barCode is a required field'))
+  })
+
   it('create product without companyId', async () => {
     expect.hasAssertions()
 
@@ -44,13 +53,10 @@ describe('create new product', () => {
 })
 
 describe('update product', () => {
-  let productCreated = null
+  let productFactory = null
 
   beforeAll(async () => {
-    productCreated = await ProductDomain.create({
-      ...fakerProduct(),
-      companyId
-    })
+    productFactory = await factory.create('product')
   })
 
   it('update product', async () => {
@@ -58,12 +64,12 @@ describe('update product', () => {
 
     expect.hasAssertions()
 
-    const productUpdated = await ProductDomain.update(productCreated.id, {
+    const productUpdated = await ProductDomain.update(productFactory.id, {
       ...productMock,
       companyId
     })
 
-    expect(productUpdated).toHaveProperty('id', productCreated.id)
+    expect(productUpdated).toHaveProperty('id', productFactory.id)
     expect(productUpdated).toHaveProperty('activated', productMock.activated)
     expect(productUpdated).toHaveProperty('name', productMock.name)
     expect(productUpdated).toHaveProperty('barCode', productMock.barCode)
@@ -86,54 +92,43 @@ describe('update product', () => {
 
     await expect(
       ProductDomain.update(
-        productCreated.id,
+        productFactory.id,
         omit(['companyId'], { ...productMock })
       )
     ).rejects.toThrow(new ValidationError('companyId is a required field'))
   })
 })
 
-describe('getById product', () => {
-  let productCreated = null
+describe('get product', () => {
+  let productFactory = null
 
   beforeAll(async () => {
-    productCreated = await ProductDomain.create({
-      ...fakerProduct(),
-      companyId
-    })
+    productFactory = await factory.create('product')
   })
   it('getById product', async () => {
     expect.hasAssertions()
 
     const getProductById = await ProductDomain.getById(
-      productCreated.id,
+      productFactory.id,
       companyId
     )
 
-    expect(getProductById).toHaveProperty('id', productCreated.id)
-    expect(getProductById).toHaveProperty('activated', productCreated.activated)
-    expect(getProductById).toHaveProperty('name', productCreated.name)
-    expect(getProductById).toHaveProperty('barCode', productCreated.barCode)
+    expect(getProductById).toHaveProperty('id', productFactory.id)
+    expect(getProductById).toHaveProperty('activated', productFactory.activated)
+    expect(getProductById).toHaveProperty('name', productFactory.name)
+    expect(getProductById).toHaveProperty('barCode', productFactory.barCode)
     expect(getProductById).toHaveProperty(
       'minQuantity',
       getProductById.minQuantity
     )
-    expect(getProductById).toHaveProperty('buyPrice', productCreated.buyPrice)
-    expect(getProductById).toHaveProperty('salePrice', productCreated.salePrice)
+    expect(getProductById).toHaveProperty('buyPrice', productFactory.buyPrice)
+    expect(getProductById).toHaveProperty('salePrice', productFactory.salePrice)
     expect(getProductById).toHaveProperty(
       'companyId',
       'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
     )
   })
-})
 
-describe('getAll product', () => {
-  beforeAll(async () => {
-    await ProductDomain.create({
-      ...fakerProduct(),
-      companyId
-    })
-  })
   it('getAll product', async () => {
     expect.hasAssertions()
 

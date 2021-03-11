@@ -1,7 +1,7 @@
 const faker = require('faker')
 
 const fakerStatus = () => {
-  return {
+  const response = {
     activated: faker.random.boolean(),
     label: faker.lorem.words(),
     value: faker.lorem.words(),
@@ -10,17 +10,20 @@ const fakerStatus = () => {
     typeLabel: faker.random.boolean() ? 'Entrada' : 'Saída',
     fakeTransaction: faker.random.boolean()
   }
+  return response
 }
 
 const fakerCompany = () => {
-  return {
-    name: faker.lorem.word(),
-    fullname: faker.lorem.word(),
+  const response = {
+    name: faker.name.firstName(),
+    fullname: faker.company.companyName(),
     document: String(faker.random.number()),
     siteUrl: faker.internet.url(),
     allowOrder: faker.random.boolean(),
     allowPdv: faker.random.boolean()
   }
+
+  return response
 }
 
 const fakerProduct = () => {
