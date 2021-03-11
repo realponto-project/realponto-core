@@ -13,13 +13,16 @@ describe('create new product', () => {
       companyId
     })
 
-    expect(productCreated).toHaveProperty('id')
-    expect(productCreated).toHaveProperty('activated')
-    expect(productCreated).toHaveProperty('name')
-    expect(productCreated).toHaveProperty('barCode')
-    expect(productCreated).toHaveProperty('minQuantity')
-    expect(productCreated).toHaveProperty('buyPrice')
-    expect(productCreated).toHaveProperty('salePrice')
+    expect(productCreated).toHaveProperty('id', productCreated.id)
+    expect(productCreated).toHaveProperty('activated', productCreated.activated)
+    expect(productCreated).toHaveProperty('name', productCreated.name)
+    expect(productCreated).toHaveProperty('barCode', productCreated.barCode)
+    expect(productCreated).toHaveProperty(
+      'minQuantity',
+      productCreated.minQuantity
+    )
+    expect(productCreated).toHaveProperty('buyPrice', productCreated.buyPrice)
+    expect(productCreated).toHaveProperty('salePrice', productCreated.salePrice)
     expect(productCreated).toHaveProperty('companyId')
   })
 
