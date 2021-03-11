@@ -6,18 +6,30 @@ const { generatorFakerAddress } = require('../../utils/helpers/Faker/address')
 const factory = require('../../utils/helpers/factories')
 describe('create Address', () => {
   it('create new address', async () => {
-    expect.assertions(9)
-    const addressCreated = await addressDomain.create(generatorFakerAddress())
+    expect.assertions(10)
+
+    const addressMock = generatorFakerAddress()
+    const addressCreated = await addressDomain.create(addressMock)
 
     expect(addressCreated).toHaveProperty('id')
-    expect(addressCreated).toHaveProperty('neighborhood')
-    expect(addressCreated).toHaveProperty('street')
-    expect(addressCreated).toHaveProperty('streetNumber')
-    expect(addressCreated).toHaveProperty('city')
-    expect(addressCreated).toHaveProperty('states')
-    expect(addressCreated).toHaveProperty('zipcode')
-    expect(addressCreated).toHaveProperty('complementary')
-    expect(addressCreated).toHaveProperty('reference')
+    expect(addressCreated.id).toMatch(/^ad_/)
+    expect(addressCreated).toHaveProperty(
+      'neighborhood',
+      addressMock.neighborhood
+    )
+    expect(addressCreated).toHaveProperty('street', addressMock.street)
+    expect(addressCreated).toHaveProperty(
+      'streetNumber',
+      addressMock.streetNumber
+    )
+    expect(addressCreated).toHaveProperty('city', addressMock.city)
+    expect(addressCreated).toHaveProperty('states', addressMock.states)
+    expect(addressCreated).toHaveProperty('zipcode', addressMock.zipcode)
+    expect(addressCreated).toHaveProperty(
+      'complementary',
+      addressMock.complementary
+    )
+    expect(addressCreated).toHaveProperty('reference', addressMock.reference)
   })
 
   it('try create new address without neighborhood', async () => {
@@ -85,19 +97,31 @@ describe('create Address', () => {
   })
 
   it('try create new address without complementary and reference', async () => {
-    expect.assertions(9)
+    expect.assertions(10)
+    const addressMock = generatorFakerAddress()
     const addressCreated = await addressDomain.create(
-      omit(['complementary', 'reference'], generatorFakerAddress())
+      omit(['complementary', 'reference'], addressMock)
     )
 
     expect(addressCreated).toHaveProperty('id')
-    expect(addressCreated).toHaveProperty('neighborhood')
-    expect(addressCreated).toHaveProperty('street')
-    expect(addressCreated).toHaveProperty('streetNumber')
-    expect(addressCreated).toHaveProperty('city')
-    expect(addressCreated).toHaveProperty('states')
-    expect(addressCreated).toHaveProperty('zipcode')
-    expect(addressCreated).toHaveProperty('complementary', undefined)
+    expect(addressCreated.id).toMatch(/^ad_/)
+    expect(addressCreated).toHaveProperty(
+      'neighborhood',
+      addressMock.neighborhood
+    )
+    expect(addressCreated).toHaveProperty('street', addressMock.street)
+    expect(addressCreated).toHaveProperty(
+      'streetNumber',
+      addressMock.streetNumber
+    )
+    expect(addressCreated).toHaveProperty('city', addressMock.city)
+    expect(addressCreated).toHaveProperty('states', addressMock.states)
+    expect(addressCreated).toHaveProperty('zipcode', addressMock.zipcode)
+    expect(addressCreated).toHaveProperty(
+      'complementary',
+      addressMock.complementary,
+      undefined
+    )
     expect(addressCreated).toHaveProperty('reference', undefined)
   })
 })
@@ -109,19 +133,26 @@ describe('update Address', () => {
   })
   it('update address', async () => {
     expect.assertions(9)
-    const addressUpdated = await addressDomain.update(
-      address.id,
-      generatorFakerAddress()
-    )
+    const addressMock = generatorFakerAddress()
+    const addressUpdated = await addressDomain.update(address.id, addressMock)
 
     expect(addressUpdated).toHaveProperty('id', address.id)
-    expect(addressUpdated).toHaveProperty('neighborhood')
-    expect(addressUpdated).toHaveProperty('street')
-    expect(addressUpdated).toHaveProperty('streetNumber')
-    expect(addressUpdated).toHaveProperty('city')
-    expect(addressUpdated).toHaveProperty('states')
-    expect(addressUpdated).toHaveProperty('zipcode')
-    expect(addressUpdated).toHaveProperty('complementary')
-    expect(addressUpdated).toHaveProperty('reference')
+    expect(addressUpdated).toHaveProperty(
+      'neighborhood',
+      addressMock.neighborhood
+    )
+    expect(addressUpdated).toHaveProperty('street', addressMock.street)
+    expect(addressUpdated).toHaveProperty(
+      'streetNumber',
+      addressMock.streetNumber
+    )
+    expect(addressUpdated).toHaveProperty('city', addressMock.city)
+    expect(addressUpdated).toHaveProperty('states', addressMock.states)
+    expect(addressUpdated).toHaveProperty('zipcode', addressMock.zipcode)
+    expect(addressUpdated).toHaveProperty(
+      'complementary',
+      addressMock.complementary
+    )
+    expect(addressUpdated).toHaveProperty('reference', addressMock.reference)
   })
 })
