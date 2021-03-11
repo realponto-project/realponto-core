@@ -3,7 +3,7 @@ const { ValidationError } = require('sequelize')
 
 const addressDomain = require('.')
 const { generatorFakerAddress } = require('../../utils/helpers/Faker/address')
-
+const factory = require('../../utils/helpers/factories')
 describe('create Address', () => {
   it('create new address', async () => {
     expect.assertions(9)
@@ -97,15 +97,15 @@ describe('create Address', () => {
     expect(addressCreated).toHaveProperty('city')
     expect(addressCreated).toHaveProperty('states')
     expect(addressCreated).toHaveProperty('zipcode')
-    expect(addressCreated).toHaveProperty('complementary', null)
-    expect(addressCreated).toHaveProperty('reference', null)
+    expect(addressCreated).toHaveProperty('complementary', undefined)
+    expect(addressCreated).toHaveProperty('reference', undefined)
   })
 })
 
 describe('update Address', () => {
   let address = null
   beforeAll(async () => {
-    address = await addressDomain.create(generatorFakerAddress())
+    address = await factory.create('address')
   })
   it('update address', async () => {
     expect.assertions(9)

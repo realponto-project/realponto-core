@@ -12,6 +12,8 @@ if (config.use_env_variable) {
     `${process.env[config.use_env_variable]}?sslmode=require`,
     config
   )
+} else if (env === 'test') {
+  sequelize = new Sequelize(config)
 } else {
   sequelize = new Sequelize(
     config.database,
