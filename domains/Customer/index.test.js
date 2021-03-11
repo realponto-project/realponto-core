@@ -241,7 +241,7 @@ describe('update Customer', () => {
       addressMock.reference
     )
   })
-  it('try update customer withou id', async () => {
+  it('try update customer without id', async () => {
     expect.assertions(1)
 
     const customerMock = generatorFakerCustomer()
@@ -251,7 +251,7 @@ describe('update Customer', () => {
         ...customerMock,
         companyId
       })
-    ).rejects.toThrow(new NotFoundError('user not found'))
+    ).rejects.toThrow(new NotFoundError('customer not found'))
   })
 })
 

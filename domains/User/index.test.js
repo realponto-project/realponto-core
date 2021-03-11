@@ -1,12 +1,17 @@
 const { prop } = require('ramda')
 const userDomain = require('.')
-// const { generatorFakerCustomer } = require('../../utils/helpers/Faker/customer')
+
+const factory = require('../../utils/helpers/factories')
 const { generatorFakerUser } = require('../../utils/helpers/Faker/user')
 const { NotFoundError } = require('../../utils/helpers/errors')
+const truncate = require('../../utils/truncate')
 
 const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 
 describe('create User', () => {
+  afterAll(async () => {
+    await truncate()
+  })
   it('create new user', async () => {
     expect.assertions(12)
 
@@ -36,12 +41,14 @@ describe('create User', () => {
 })
 
 describe('update User', () => {
-  let user = null
+  let userFactory = null
+
   beforeAll(async () => {
-    user = await userDomain.create({
-      ...generatorFakerUser(),
-      companyId
-    })
+    userFactory = await factory.create('user')
+  })
+
+  afterAll(async () => {
+    await truncate()
   })
 
   it('update user', async () => {
@@ -49,12 +56,12 @@ describe('update User', () => {
 
     const userMock = generatorFakerUser()
 
-    const userUpdated = await userDomain.update(user.id, companyId, {
+    const userUpdated = await userDomain.update(userFactory.id, companyId, {
       ...userMock,
       companyId
     })
 
-    expect(userUpdated).toHaveProperty('id', user.id)
+    expect(userUpdated).toHaveProperty('id', userFactory.id)
     expect(userUpdated).toHaveProperty('password')
     expect(userUpdated).toHaveProperty('activated', userMock.activated)
     expect(userUpdated).toHaveProperty('name', userMock.name)
@@ -68,15 +75,16 @@ describe('update User', () => {
   })
 })
 describe('update password', () => {
-  let user = null
-  let userMock = null
+  let userFactory = null
   beforeAll(async () => {
-    userMock = generatorFakerUser()
-    user = await userDomain.create({
-      ...userMock,
-      activated: true,
-      companyId
+    userFactory = await factory.create('user', {
+      password: '123',
+      activated: true
     })
+  })
+
+  afterAll(async () => {
+    await truncate()
   })
 
   it('update password', async () => {
@@ -84,25 +92,27 @@ describe('update password', () => {
 
     const newPassword = prop('password', generatorFakerUser())
 
-    const userUpdated = await userDomain.updatePassword(user.id, companyId, {
-      password: prop('password', userMock),
-      newPassword
-    })
+    const userUpdated = await userDomain.updatePassword(
+      userFactory.id,
+      companyId,
+      {
+        password: '123',
+        newPassword
+      }
+    )
 
-    expect(userUpdated).toHaveProperty('id', user.id)
+    expect(userUpdated).toHaveProperty('id', userFactory.id)
     expect(userUpdated).toHaveProperty('activated', true)
-    expect(userUpdated).toHaveProperty('name', userMock.name)
-    expect(userUpdated).toHaveProperty('email', userMock.email)
-    expect(userUpdated).toHaveProperty('phone', userMock.phone)
-    expect(userUpdated).toHaveProperty('badget', userMock.badget)
-    expect(userUpdated).toHaveProperty('birthday', userMock.birthday)
-    expect(userUpdated).toHaveProperty('firstAccess', userMock.firstAccess)
+    expect(userUpdated).toHaveProperty('name', userFactory.name)
+    expect(userUpdated).toHaveProperty('email', userFactory.email)
+    expect(userUpdated).toHaveProperty('phone', userFactory.phone)
+    expect(userUpdated).toHaveProperty('badget', userFactory.badget)
+    expect(userUpdated).toHaveProperty('birthday', userFactory.birthday)
+    expect(userUpdated).toHaveProperty('firstAccess', userFactory.firstAccess)
     expect(userUpdated).toHaveProperty('companyId', companyId)
     expect(userUpdated).toHaveProperty('company')
     expect(userUpdated).toHaveProperty('password')
-    expect(
-      await userUpdated.checkPassword(prop('password', userMock))
-    ).toBeFalsy()
+    expect(await userUpdated.checkPassword('123')).toBeFalsy()
     expect(await userUpdated.checkPassword(newPassword)).toBeTruthy()
   })
 
@@ -112,8 +122,8 @@ describe('update password', () => {
     const newPassword = prop('password', generatorFakerUser())
 
     await expect(
-      userDomain.updatePassword(user.id, 'invalid', {
-        password: prop('password', userMock),
+      userDomain.updatePassword(userFactory.id, 'invalid', {
+        password: '123',
         newPassword
       })
     ).rejects.toThrow(new NotFoundError('user not found'))
@@ -123,8 +133,8 @@ describe('update password', () => {
     expect.assertions(1)
 
     await expect(
-      userDomain.updatePassword(user.id, companyId, {
-        password: prop('password', userMock)
+      userDomain.updatePassword(userFactory.id, companyId, {
+        password: '123'
       })
     ).rejects.toThrow(new NotFoundError('newPassword is a required field'))
   })
@@ -135,7 +145,7 @@ describe('update password', () => {
     const newPassword = prop('password', generatorFakerUser())
 
     await expect(
-      userDomain.updatePassword(user.id, companyId, {
+      userDomain.updatePassword(userFactory.id, companyId, {
         password: 'invalid',
         newPassword
       })
@@ -143,40 +153,41 @@ describe('update password', () => {
   })
 })
 describe('getById user', () => {
-  let user = null
+  let userFactory = null
   beforeAll(async () => {
-    user = await userDomain.create({
-      ...generatorFakerUser(),
-      companyId
-    })
+    userFactory = await factory.create('user')
+  })
+
+  afterAll(async () => {
+    await truncate()
   })
 
   it('get user by id', async () => {
-    expect.assertions(12)
+    expect.assertions(11)
 
-    const userFinded = await userDomain.getById(user.id, companyId)
+    const userFinded = await userDomain.getById(userFactory.id, companyId)
 
-    expect(userFinded).toHaveProperty('id', user.id)
+    expect(userFinded).toHaveProperty('id', userFactory.id)
     expect(userFinded).toHaveProperty('password')
-    expect(userFinded).toHaveProperty('activated', user.activated)
-    expect(userFinded).toHaveProperty('name', user.name)
-    expect(userFinded).toHaveProperty('email', user.email)
-    expect(userFinded).toHaveProperty('phone', user.phone)
-    expect(userFinded).toHaveProperty('badget', user.badget)
-    expect(userFinded).toHaveProperty('birthday', user.birthday)
-    expect(userFinded).toHaveProperty('firstAccess', user.firstAccess)
+    expect(userFinded).toHaveProperty('activated', userFactory.activated)
+    expect(userFinded).toHaveProperty('name', userFactory.name)
+    expect(userFinded).toHaveProperty('email', userFactory.email)
+    expect(userFinded).toHaveProperty('phone', userFactory.phone)
+    expect(userFinded).toHaveProperty('badget', userFactory.badget)
+    expect(userFinded).toHaveProperty('birthday', userFactory.birthday)
+    expect(userFinded).toHaveProperty('firstAccess', userFactory.firstAccess)
     expect(userFinded).toHaveProperty('companyId', companyId)
     expect(userFinded).toHaveProperty('company')
-    expect(userFinded.company).toStrictEqual(user.company)
   })
 })
 
 describe('getAll user', () => {
   beforeAll(async () => {
-    await userDomain.create({
-      ...generatorFakerUser(),
-      companyId
-    })
+    await factory.create('user')
+  })
+
+  afterAll(async () => {
+    await truncate()
   })
 
   it('get all user without query', async () => {
@@ -185,7 +196,7 @@ describe('getAll user', () => {
     const usersFinded = await userDomain.getAll({}, companyId)
 
     expect(usersFinded).toHaveProperty('count')
-    expect(usersFinded.count).toBeGreaterThan(1)
+    expect(usersFinded.count).toBeGreaterThan(0)
     expect(usersFinded).toHaveProperty('rows')
   })
 })
