@@ -8,17 +8,19 @@ const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 
 describe('create Customer', () => {
   it('create new customer with address', async () => {
-    expect.assertions(17)
+    expect.assertions(19)
 
     const customerMock = generatorFakerCustomer()
+    const addressMock = generatorFakerAddress()
 
     const customerCreated = await customerDomain.create({
       ...customerMock,
-      address: generatorFakerAddress(),
+      address: addressMock,
       companyId
     })
 
     expect(customerCreated).toHaveProperty('id')
+    expect(customerCreated.id).toMatch(/^cu_/)
     expect(customerCreated).toHaveProperty('name', customerMock.name)
     expect(customerCreated).toHaveProperty(
       'socialName',
@@ -30,18 +32,34 @@ describe('create Customer', () => {
     expect(customerCreated).toHaveProperty('address')
     expect(customerCreated).toHaveProperty('companyId', companyId)
     expect(customerCreated.address).toHaveProperty('id')
-    expect(customerCreated.address).toHaveProperty('neighborhood')
-    expect(customerCreated.address).toHaveProperty('street')
-    expect(customerCreated.address).toHaveProperty('streetNumber')
-    expect(customerCreated.address).toHaveProperty('city')
-    expect(customerCreated.address).toHaveProperty('states')
-    expect(customerCreated.address).toHaveProperty('zipcode')
-    expect(customerCreated.address).toHaveProperty('complementary')
-    expect(customerCreated.address).toHaveProperty('reference')
+    expect(customerCreated.address.id).toMatch(/^ad_/)
+    expect(customerCreated.address).toHaveProperty(
+      'neighborhood',
+      addressMock.neighborhood
+    )
+    expect(customerCreated.address).toHaveProperty('street', addressMock.street)
+    expect(customerCreated.address).toHaveProperty(
+      'streetNumber',
+      addressMock.streetNumber
+    )
+    expect(customerCreated.address).toHaveProperty('city', addressMock.city)
+    expect(customerCreated.address).toHaveProperty('states', addressMock.states)
+    expect(customerCreated.address).toHaveProperty(
+      'zipcode',
+      addressMock.zipcode
+    )
+    expect(customerCreated.address).toHaveProperty(
+      'complementary',
+      addressMock.complementary
+    )
+    expect(customerCreated.address).toHaveProperty(
+      'reference',
+      addressMock.reference
+    )
   })
 
   it('create new customer without address', async () => {
-    expect.assertions(8)
+    expect.assertions(9)
 
     const customerCreated = await customerDomain.create({
       ...generatorFakerCustomer(),
@@ -49,12 +67,16 @@ describe('create Customer', () => {
     })
 
     expect(customerCreated).toHaveProperty('id')
-    expect(customerCreated).toHaveProperty('name')
-    expect(customerCreated).toHaveProperty('socialName')
-    expect(customerCreated).toHaveProperty('document')
+    expect(customerCreated.id).toMatch(/^cu_/)
+    expect(customerCreated).toHaveProperty('name', customerCreated.name)
+    expect(customerCreated).toHaveProperty(
+      'socialName',
+      customerCreated.socialName
+    )
+    expect(customerCreated).toHaveProperty('document', customerCreated.document)
+    expect(customerCreated).toHaveProperty('phone', customerCreated.phone)
     expect(customerCreated).toHaveProperty('addressId', null)
     expect(customerCreated).toHaveProperty('address', null)
-    expect(customerCreated).toHaveProperty('phone')
     expect(customerCreated).toHaveProperty('companyId', companyId)
   })
 })
@@ -170,8 +192,6 @@ describe('update Customer', () => {
         companyId
       }
     )
-
-    console.log(customerupdated)
 
     expect(customerupdated).toHaveProperty(
       'id',
