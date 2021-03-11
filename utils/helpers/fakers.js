@@ -3,8 +3,8 @@ const faker = require('faker')
 const fakerStatus = () => {
   return {
     activated: faker.random.boolean(),
-    label: faker.lorem.word(),
-    value: faker.lorem.word(),
+    label: faker.lorem.words(),
+    value: faker.lorem.words(),
     color: faker.internet.color(),
     type: faker.random.boolean() ? 'inputs' : 'outputs',
     typeLabel: faker.random.boolean() ? 'Entrada' : 'Saída',
@@ -16,7 +16,7 @@ const fakerCompany = () => {
   return {
     name: faker.lorem.word(),
     fullname: faker.lorem.word(),
-    document: faker.random.number(),
+    document: String(faker.random.number()),
     siteUrl: faker.internet.url(),
     allowOrder: faker.random.boolean(),
     allowPdv: faker.random.boolean()
