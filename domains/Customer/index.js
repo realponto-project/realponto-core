@@ -43,7 +43,7 @@ class CustomerDomain {
     })
 
     if (!customer) {
-      throw new NotFoundError('user not found')
+      throw new NotFoundError('customer not found')
     }
 
     const address = pathOr({}, ['address'], bodyData)

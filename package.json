@@ -11,10 +11,12 @@
     "seeders:undo:all": "sequelize db:seed:all",
     "migrate:undo:all": "sequelize db:migrate:undo:all",
     "pretest": "NODE_ENV=test sequelize db:migrate:undo:all && NODE_ENV=test sequelize db:migrate",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+		"lint": "eslint --fix ./**/*.js"
   },
   "dependencies": {
     "@fnando/cnpj": "^1.0.2",
+    "@fnando/cpf": "^1.0.2",
     "bcrypt": "5.0.0",
     "body-parser": "1.19.0",
     "cors": "2.8.5",

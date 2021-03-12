@@ -3,6 +3,7 @@ const { omit } = require('ramda')
 const CompanyDomain = require('./')
 const { ValidationError } = require('sequelize')
 const { fakerCompany } = require('../../utils/helpers/fakers')
+const factory = require('../../utils/helpers/factories')
 
 describe('create company', () => {
   it('create new company', async () => {
@@ -41,24 +42,22 @@ describe('create company', () => {
 })
 
 describe('update company', () => {
-  let companyCreated = null
+  let companyFactory = null
 
   beforeAll(async () => {
-    companyCreated = await CompanyDomain.create({
-      ...fakerCompany()
-    })
+    companyFactory = await factory.create('company')
   })
 
-  it('update company with name invalid', async () => {
+  it('update company', async () => {
     const companyMock = fakerCompany()
 
     expect.hasAssertions()
 
-    const productUpdated = await CompanyDomain.update(companyCreated.id, {
+    const productUpdated = await CompanyDomain.update(companyFactory.id, {
       ...companyMock
     })
 
-    expect(productUpdated).toHaveProperty('id', companyCreated.id)
+    expect(productUpdated).toHaveProperty('id', companyFactory.id)
     expect(productUpdated).toHaveProperty('name', companyMock.name)
     expect(productUpdated).toHaveProperty('fullname', companyMock.fullname)
     expect(productUpdated).toHaveProperty('document', companyMock.document)
@@ -68,40 +67,29 @@ describe('update company', () => {
   })
 })
 
-describe('getById company', () => {
-  let companyCreated = null
+describe('get company', () => {
+  let companyFactory = null
 
   beforeAll(async () => {
-    companyCreated = await CompanyDomain.create({
-      ...fakerCompany()
-    })
+    companyFactory = await factory.create('company')
   })
 
   it('getById company', async () => {
     expect.hasAssertions()
 
-    const getCompanyById = await CompanyDomain.getById(companyCreated.id)
+    const getCompanyById = await CompanyDomain.getById(companyFactory.id)
 
-    expect(getCompanyById).toHaveProperty('id', companyCreated.id)
-    expect(getCompanyById).toHaveProperty('name', companyCreated.name)
-    expect(getCompanyById).toHaveProperty('fullname', companyCreated.fullname)
-    expect(getCompanyById).toHaveProperty('document', companyCreated.document)
-    expect(getCompanyById).toHaveProperty('siteUrl', companyCreated.siteUrl)
+    expect(getCompanyById).toHaveProperty('id', companyFactory.id)
+    expect(getCompanyById).toHaveProperty('name', companyFactory.name)
+    expect(getCompanyById).toHaveProperty('fullname', companyFactory.fullname)
+    expect(getCompanyById).toHaveProperty('document', companyFactory.document)
+    expect(getCompanyById).toHaveProperty('siteUrl', companyFactory.siteUrl)
     expect(getCompanyById).toHaveProperty(
       'allowOrder',
-      companyCreated.allowOrder
+      companyFactory.allowOrder
     )
-    expect(getCompanyById).toHaveProperty('allowPdv', companyCreated.allowPdv)
+    expect(getCompanyById).toHaveProperty('allowPdv', companyFactory.allowPdv)
   })
-})
-
-describe('getAll company', () => {
-  beforeAll(async () => {
-    await CompanyDomain.create({
-      ...fakerCompany()
-    })
-  })
-
   it('getAll company', async () => {
     expect.hasAssertions()
 
