@@ -1,13 +1,15 @@
-const { pathOr, isEmpty } = require('ramda')
+const { pathOr, isEmpty, map } = require('ramda')
 
 const database = require('../../database')
 const buildPagination = require('../../utils/helpers/searchSpec')
+const OrderSchema = require('../../utils/helpers/Schemas/Order')
 
 const CompanyModel = database.model('company')
 const CustomerModel = database.model('customer')
 const OrderModel = database.model('order')
 const StatusModel = database.model('status')
 const UserModel = database.model('user')
+const TransactionModel = database.model('transaction')
 
 const buildSearchAndPagination = buildPagination('order')
 
@@ -20,6 +22,8 @@ class OrderDomain {
     const userId = pathOr(null, ['userId'], bodyData)
 
     const companyFinded = await CompanyModel.findByPk(companyId)
+
+    await OrderSchema.validate(bodyData)
 
     if (!companyFinded) {
       throw new Error('company not found')
@@ -48,7 +52,7 @@ class OrderDomain {
     if (userId && !userFinded) {
       throw new Error('user not found or not belongs to company')
     }
-    return await OrderModel.create(
+    const orderCreated = await OrderModel.create(
       {
         companyId,
         statusId,
@@ -58,12 +62,36 @@ class OrderDomain {
       },
       { transaction }
     )
+
+    const { products } = bodyData
+
+    const formatProducts = (product) => ({
+      ...product,
+      orderId: orderCreated.id,
+      userId,
+      statusId,
+      companyId
+    })
+
+    const productsPayload = map(formatProducts, products)
+
+    await TransactionModel.bulkCreate(productsPayload, { transaction })
+
+    return await OrderModel.findByPk(orderCreated.id, {
+      include: [TransactionModel]
+    })
   }
 
   async getById(id, companyId, bodyData, options = {}) {
     return await OrderModel.findOne({
       where: { id, companyId },
-      include: [StatusModel, CompanyModel, CustomerModel, UserModel]
+      include: [
+        StatusModel,
+        CompanyModel,
+        CustomerModel,
+        UserModel,
+        TransactionModel
+      ]
     })
   }
 
@@ -81,7 +109,13 @@ class OrderDomain {
       ...orderWhere,
       limit,
       offset,
-      include: [StatusModel, CompanyModel, CustomerModel, UserModel]
+      include: [
+        StatusModel,
+        CompanyModel,
+        CustomerModel,
+        UserModel,
+        TransactionModel
+      ]
     })
   }
 }
