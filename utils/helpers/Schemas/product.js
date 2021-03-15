@@ -8,7 +8,8 @@ const productSchema = yup.object().shape({
   minQuantity: yup.number().integer().required(),
   buyPrice: yup.number().positive().required(),
   salePrice: yup.number().positive().required(),
-  companyId: yup.string().required()
+  companyId: yup.string().required(),
+  userId: yup.string()
 })
 
 module.exports = productSchema
