@@ -13,7 +13,6 @@ const statusSchema = yup.object().shape({
     .string()
     .matches(/(Entrada|Saída)/)
     .required(),
-  fakeTransaction: yup.boolean().required(),
   companyId: yup.string().required()
 })
 
