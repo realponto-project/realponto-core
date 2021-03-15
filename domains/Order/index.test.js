@@ -20,7 +20,7 @@ describe('create Order', () => {
     await truncate()
   })
   it('new order', async () => {
-    expect.assertions(7)
+    expect.assertions(6)
 
     const order = {
       statusId: statusFactory.id,
@@ -36,10 +36,6 @@ describe('create Order', () => {
     expect(orderCreated).toHaveProperty('statusId', statusFactory.id)
     expect(orderCreated).toHaveProperty('customerId', customerFactory.id)
     expect(orderCreated).toHaveProperty('userId', userFactory.id)
-    expect(orderCreated).toHaveProperty(
-      'pendingReview',
-      statusFactory.fakeTransaction
-    )
   })
 
   it('try create order without companyId', async () => {
@@ -84,7 +80,7 @@ describe('create Order', () => {
   })
 
   it('create order without userId and customerId', async () => {
-    expect.assertions(7)
+    expect.assertions(6)
 
     const order = {
       statusId: statusFactory.id
@@ -98,10 +94,6 @@ describe('create Order', () => {
     expect(orderCreated).toHaveProperty('statusId', statusFactory.id)
     expect(orderCreated).toHaveProperty('customerId', null)
     expect(orderCreated).toHaveProperty('userId', null)
-    expect(orderCreated).toHaveProperty(
-      'pendingReview',
-      statusFactory.fakeTransaction
-    )
   })
 })
 
@@ -116,7 +108,7 @@ describe('getById Order', () => {
     await truncate()
   })
   it('get order by id', async () => {
-    expect.assertions(33)
+    expect.assertions(31)
 
     const orderfinded = await orderDomain.getById(orderFactory.id, companyId)
 
@@ -126,10 +118,6 @@ describe('getById Order', () => {
     expect(orderfinded).toHaveProperty('statusId', orderFactory.statusId)
     expect(orderfinded).toHaveProperty('customerId', orderFactory.customerId)
     expect(orderfinded).toHaveProperty('userId', orderFactory.userId)
-    expect(orderfinded).toHaveProperty(
-      'pendingReview',
-      orderfinded.status.fakeTransaction
-    )
 
     expect(orderfinded.status).toHaveProperty('id', orderFactory.statusId)
     expect(orderfinded.status.id).toMatch(/^st_/)
@@ -139,7 +127,6 @@ describe('getById Order', () => {
     expect(orderfinded.status).toHaveProperty('color')
     expect(orderfinded.status).toHaveProperty('type')
     expect(orderfinded.status).toHaveProperty('typeLabel')
-    expect(orderfinded.status).toHaveProperty('fakeTransaction')
 
     expect(orderfinded.customer).toHaveProperty('id', orderFactory.customerId)
     expect(orderfinded.customer.id).toMatch(/^cu_/)

@@ -36,12 +36,7 @@ const Status = (sequelize) => {
     typeLabel: {
       type: Sequelize.ENUM(['Entrada', 'Saída']),
       allowNull: false
-    },
-    fakeTransaction: {
-      type: Sequelize.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
-    },
+    }
   })
 
   Status.associate = (models) => {
