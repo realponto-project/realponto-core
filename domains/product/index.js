@@ -15,32 +15,36 @@ class ProductDomain {
     const { transaction = null } = options
     await productSchema.validate(bodyData, { abortEarly: false })
     const productCreated = await ProductModel.create(bodyData, { transaction })
-    const statusFinded = await StatusModel.findOne({
-      where: {
-        companyId: bodyData.companyId,
-        label: statusCreate
-      }
-    })
-    const orderCreated = await OrderModel.create(
-      {
-        companyId: bodyData.companyId,
-        statusId: statusFinded.id,
-        userId: bodyData.userId
-      },
-      { transaction }
-    )
 
-    await TransactionModel.create(
-      {
-        orderId: orderCreated.id,
-        statusId: statusFinded.id,
-        quantity: productCreated.balance,
-        productId: productCreated.id,
-        userId: bodyData.userId,
-        companyId: bodyData.companyId
-      },
-      { transaction }
-    )
+    if (productCreated.balance > 0) {
+      const statusFinded = await StatusModel.findOne({
+        where: {
+          companyId: bodyData.companyId,
+          label: statusCreate
+        }
+      })
+
+      const orderCreated = await OrderModel.create(
+        {
+          companyId: bodyData.companyId,
+          statusId: statusFinded.id,
+          userId: bodyData.userId
+        },
+        { transaction }
+      )
+
+      await TransactionModel.create(
+        {
+          orderId: orderCreated.id,
+          statusId: statusFinded.id,
+          quantity: productCreated.balance,
+          productId: productCreated.id,
+          userId: bodyData.userId,
+          companyId: bodyData.companyId
+        },
+        { transaction }
+      )
+    }
 
     return productCreated
   }

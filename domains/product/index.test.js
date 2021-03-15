@@ -11,17 +11,41 @@ describe('create new product', () => {
     user = await factory.create('user')
   })
 
-  it('create product', async () => {
+  it('create product when balance equal 10', async () => {
     expect.hasAssertions()
     const productCreated = await ProductDomain.create({
       ...fakerProduct(),
       companyId,
-      userId: user.id
+      userId: user.id,
+      balance: 10
     })
 
     expect(productCreated).toHaveProperty('id', productCreated.id)
     expect(productCreated).toHaveProperty('activated', productCreated.activated)
-    expect(productCreated).toHaveProperty('balance', productCreated.balance)
+    expect(productCreated).toHaveProperty('balance', 10)
+    expect(productCreated).toHaveProperty('name', productCreated.name)
+    expect(productCreated).toHaveProperty('barCode', productCreated.barCode)
+    expect(productCreated).toHaveProperty(
+      'minQuantity',
+      productCreated.minQuantity
+    )
+    expect(productCreated).toHaveProperty('buyPrice', productCreated.buyPrice)
+    expect(productCreated).toHaveProperty('salePrice', productCreated.salePrice)
+    expect(productCreated).toHaveProperty('companyId')
+  })
+
+  it('create product when balance equal 0', async () => {
+    expect.hasAssertions()
+    const productCreated = await ProductDomain.create({
+      ...fakerProduct(),
+      companyId,
+      userId: user.id,
+      balance: 0
+    })
+
+    expect(productCreated).toHaveProperty('id', productCreated.id)
+    expect(productCreated).toHaveProperty('activated', productCreated.activated)
+    expect(productCreated).toHaveProperty('balance', 0)
     expect(productCreated).toHaveProperty('name', productCreated.name)
     expect(productCreated).toHaveProperty('barCode', productCreated.barCode)
     expect(productCreated).toHaveProperty(
