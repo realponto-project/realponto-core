@@ -14,6 +14,10 @@ const Product = (sequelize) => {
       allowNull: false,
       defaultValue: true
     },
+    balance: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
     name: {
       type: Sequelize.STRING,
       allowNull: false

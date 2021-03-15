@@ -16,6 +16,7 @@ describe('create new product', () => {
 
     expect(productCreated).toHaveProperty('id', productCreated.id)
     expect(productCreated).toHaveProperty('activated', productCreated.activated)
+    expect(productCreated).toHaveProperty('balance', productCreated.balance)
     expect(productCreated).toHaveProperty('name', productCreated.name)
     expect(productCreated).toHaveProperty('barCode', productCreated.barCode)
     expect(productCreated).toHaveProperty(
@@ -71,6 +72,7 @@ describe('update product', () => {
 
     expect(productUpdated).toHaveProperty('id', productFactory.id)
     expect(productUpdated).toHaveProperty('activated', productMock.activated)
+    expect(productUpdated).toHaveProperty('balance', productMock.balance)
     expect(productUpdated).toHaveProperty('name', productMock.name)
     expect(productUpdated).toHaveProperty('barCode', productMock.barCode)
     expect(productUpdated).toHaveProperty(
@@ -115,6 +117,7 @@ describe('get product', () => {
 
     expect(getProductById).toHaveProperty('id', productFactory.id)
     expect(getProductById).toHaveProperty('activated', productFactory.activated)
+    expect(getProductById).toHaveProperty('balance', productFactory.balance)
     expect(getProductById).toHaveProperty('name', productFactory.name)
     expect(getProductById).toHaveProperty('barCode', productFactory.barCode)
     expect(getProductById).toHaveProperty(

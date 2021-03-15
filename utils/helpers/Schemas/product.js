@@ -2,6 +2,7 @@ const yup = require('yup')
 
 const productSchema = yup.object().shape({
   activated: yup.boolean().required(),
+  balance: yup.number().integer().required(),
   name: yup.string().required(),
   barCode: yup.string().required(),
   minQuantity: yup.number().integer().required(),
