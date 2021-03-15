@@ -14,6 +14,7 @@ const ProductModel = database.model('product')
 const StatusModel = database.model('status')
 const UserModel = database.model('user')
 const OrderModel = database.model('order')
+const TransactionModel = database.model('transaction')
 
 factory.define('user', UserModel, {
   ...generatorFakerUser(),
@@ -37,6 +38,12 @@ factory.define('status', StatusModel, {
 
 factory.define('product', ProductModel, {
   ...fakerProduct(),
+  companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
+})
+
+factory.define('transaction', TransactionModel, {
+  quantity: 10,
+  productId: factory.assoc('product', 'id'),
   companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 })
 
