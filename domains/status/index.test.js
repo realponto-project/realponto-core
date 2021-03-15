@@ -18,7 +18,6 @@ describe('create new status', () => {
     expect(statusCreated).toHaveProperty('color')
     expect(statusCreated).toHaveProperty('type')
     expect(statusCreated).toHaveProperty('typeLabel')
-    expect(statusCreated).toHaveProperty('fakeTransaction')
     expect(statusCreated).toHaveProperty('companyId')
   })
 })
@@ -47,10 +46,6 @@ describe('update status', () => {
     expect(statusUpdated).toHaveProperty('color', statusMock.color)
     expect(statusUpdated).toHaveProperty('type', statusMock.type)
     expect(statusUpdated).toHaveProperty('typeLabel', statusMock.typeLabel)
-    expect(statusUpdated).toHaveProperty(
-      'fakeTransaction',
-      statusMock.fakeTransaction
-    )
     expect(statusFactory).toHaveProperty(
       'companyId',
       'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
@@ -80,10 +75,6 @@ describe('get status', () => {
     expect(getStatusById).toHaveProperty('color', statusFactory.color)
     expect(getStatusById).toHaveProperty('type', statusFactory.type)
     expect(getStatusById).toHaveProperty('typeLabel', statusFactory.typeLabel)
-    expect(getStatusById).toHaveProperty(
-      'fakeTransaction',
-      statusFactory.fakeTransaction
-    )
     expect(getStatusById).toHaveProperty(
       'companyId',
       'co_4095e6c0-056d-4b6d-b857-a35584634ad0'

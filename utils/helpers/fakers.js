@@ -7,8 +7,7 @@ const fakerStatus = () => {
     value: faker.lorem.words(),
     color: faker.internet.color(),
     type: faker.random.boolean() ? 'inputs' : 'outputs',
-    typeLabel: faker.random.boolean() ? 'Entrada' : 'Saída',
-    fakeTransaction: faker.random.boolean()
+    typeLabel: faker.random.boolean() ? 'Entrada' : 'Saída'
   }
   return response
 }
