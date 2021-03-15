@@ -1,4 +1,4 @@
-const ProductDomain = require('./')
+const ProductDomain = require('.')
 const { fakerProduct } = require('../../utils/helpers/fakers')
 const factory = require('../../utils/helpers/factories')
 

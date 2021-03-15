@@ -7,7 +7,7 @@ const cors = require('cors')
 const app = Express()
 const baseUrl = '/api'
 
-const { authenticationController } = require('./controllers/')
+// const { authenticationController } = require('./controllers/')
 const authenticationRoutes = require('./routes/authentication')
 const customerRoutes = require('./routes/customer')
 const orderRoutes = require('./routes/order')
@@ -25,7 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use(registerRoutes)
 app.use('/auth', authenticationRoutes)
-app.use(baseUrl, authenticationController.checkToken)
+// app.use(baseUrl, authenticationController.checkToken)
 app.use(baseUrl, companyRoutes)
 app.use(baseUrl, statusRoutes)
 app.use(baseUrl, serialNumberRoutes)

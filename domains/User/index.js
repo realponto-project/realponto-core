@@ -18,8 +18,9 @@ class UserDomain {
       transaction
     })
 
-    return UserModel.findByPk(userCreated.id, {
-      include: [CompanyModel]
+    return await UserModel.findByPk(userCreated.id, {
+      include: [CompanyModel],
+      transaction
     })
   }
 
