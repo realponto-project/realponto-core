@@ -1,6 +1,4 @@
 const Product = require('./product.model')
-const Balance = require('./balance.model')
-const FakeBalance = require('./fakeBalance.model')
 const Order = require('./order.model')
 const Transaction = require('./transaction.model')
 const Customer = require('./customer.model')
@@ -15,8 +13,6 @@ const Address = require('./address.model')
 
 module.exports = [
   Address,
-  Balance,
-  FakeBalance,
   Product,
   Transaction,
   Order,
