@@ -1,17 +1,22 @@
 const ProductDomain = require('./')
 const { fakerProduct } = require('../../utils/helpers/fakers')
-const { ValidationError } = require('sequelize')
-const { omit } = require('ramda')
 const factory = require('../../utils/helpers/factories')
 
 const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 
 describe('create new product', () => {
+  let user = null
+
+  beforeAll(async () => {
+    user = await factory.create('user')
+  })
+
   it('create product', async () => {
     expect.hasAssertions()
     const productCreated = await ProductDomain.create({
       ...fakerProduct(),
-      companyId
+      companyId,
+      userId: user.id
     })
 
     expect(productCreated).toHaveProperty('id', productCreated.id)
@@ -26,30 +31,6 @@ describe('create new product', () => {
     expect(productCreated).toHaveProperty('buyPrice', productCreated.buyPrice)
     expect(productCreated).toHaveProperty('salePrice', productCreated.salePrice)
     expect(productCreated).toHaveProperty('companyId')
-  })
-
-  it('create product without name', async () => {
-    expect.hasAssertions()
-
-    await expect(
-      ProductDomain.create(omit(['name'], { ...fakerProduct(), companyId }))
-    ).rejects.toThrow(new ValidationError('name is a required field'))
-  })
-
-  it('create product without barCode', async () => {
-    expect.hasAssertions()
-
-    await expect(
-      ProductDomain.create(omit(['barCode'], { ...fakerProduct(), companyId }))
-    ).rejects.toThrow(new ValidationError('barCode is a required field'))
-  })
-
-  it('create product without companyId', async () => {
-    expect.hasAssertions()
-
-    await expect(
-      ProductDomain.create(omit(['companyId'], { ...fakerProduct() }))
-    ).rejects.toThrow(new ValidationError('companyId is a required field'))
   })
 })
 
@@ -85,19 +66,6 @@ describe('update product', () => {
       'companyId',
       'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
     )
-  })
-
-  it('update product without companyId', async () => {
-    const productMock = fakerProduct()
-
-    expect.hasAssertions()
-
-    await expect(
-      ProductDomain.update(
-        productFactory.id,
-        omit(['companyId'], { ...productMock })
-      )
-    ).rejects.toThrow(new ValidationError('companyId is a required field'))
   })
 })
 
