@@ -2,7 +2,8 @@ module.exports = {
   env: {
     browser: true,
     commonjs: true,
-    es2021: true
+    es2021: true,
+    'jest/globals': true
   },
   extends: ['prettier', 'standard', 'prettier-standard', 'plugin:jest/all'],
   parserOptions: {
@@ -13,7 +14,7 @@ module.exports = {
       'warn',
       { onlyFunctionsWithAsyncKeyword: true }
     ],
-    'jest/no-hooks': ['error', { allow: ['beforeAll'] }]
+    'jest/no-hooks': ['error', { allow: ['beforeAll', 'afterAll'] }]
   },
   plugins: ['jest']
 }

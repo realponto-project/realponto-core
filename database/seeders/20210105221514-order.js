@@ -3,7 +3,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) =>
     queryInterface.bulkInsert(
-      'orders',
+      'order',
       [
         {
           id: 'or_b8c2e248-4c84-4301-a03f-952ea72bcf94',
@@ -29,5 +29,5 @@ module.exports = {
       {}
     ),
 
-  down: (queryInterface) => queryInterface.bulkDelete('orders', null, {})
+  down: (queryInterface) => queryInterface.bulkDelete('order', null, {})
 }

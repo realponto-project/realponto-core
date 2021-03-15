@@ -1,5 +1,6 @@
 const StatusDomain = require('./index')
 const { fakerStatus } = require('../../utils/helpers/fakers')
+const factory = require('../../utils/helpers/factories')
 
 const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 
@@ -23,13 +24,10 @@ describe('create new status', () => {
 })
 
 describe('update status', () => {
-  let statusCreated = null
+  let statusFactory = null
 
   beforeAll(async () => {
-    statusCreated = await StatusDomain.create({
-      ...fakerStatus(),
-      companyId
-    })
+    statusFactory = await factory.create('status')
   })
 
   it('update status', async () => {
@@ -37,12 +35,12 @@ describe('update status', () => {
 
     expect.hasAssertions()
 
-    const statusUpdated = await StatusDomain.update(statusCreated.id, {
+    const statusUpdated = await StatusDomain.update(statusFactory.id, {
       ...statusMock,
       companyId
     })
 
-    expect(statusUpdated).toHaveProperty('id', statusCreated.id)
+    expect(statusUpdated).toHaveProperty('id', statusFactory.id)
     expect(statusUpdated).toHaveProperty('activated', statusMock.activated)
     expect(statusUpdated).toHaveProperty('label', statusMock.label)
     expect(statusUpdated).toHaveProperty('value', statusMock.value)
@@ -53,55 +51,43 @@ describe('update status', () => {
       'fakeTransaction',
       statusMock.fakeTransaction
     )
-    expect(statusCreated).toHaveProperty(
+    expect(statusFactory).toHaveProperty(
       'companyId',
       'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
     )
   })
 })
 
-describe('getById status', () => {
-  let statusCreated = null
+describe('get status', () => {
+  let statusFactory = null
 
   beforeAll(async () => {
-    statusCreated = await StatusDomain.create({
-      ...fakerStatus(),
-      companyId
-    })
+    statusFactory = await factory.create('status')
   })
 
   it('getById status', async () => {
     expect.hasAssertions()
 
     const getStatusById = await StatusDomain.getById(
-      statusCreated.id,
+      statusFactory.id,
       companyId
     )
 
-    expect(getStatusById).toHaveProperty('id', statusCreated.id)
-    expect(getStatusById).toHaveProperty('activated', statusCreated.activated)
-    expect(getStatusById).toHaveProperty('label', statusCreated.label)
-    expect(getStatusById).toHaveProperty('value', statusCreated.value)
-    expect(getStatusById).toHaveProperty('color', statusCreated.color)
-    expect(getStatusById).toHaveProperty('type', statusCreated.type)
-    expect(getStatusById).toHaveProperty('typeLabel', statusCreated.typeLabel)
+    expect(getStatusById).toHaveProperty('id', statusFactory.id)
+    expect(getStatusById).toHaveProperty('activated', statusFactory.activated)
+    expect(getStatusById).toHaveProperty('label', statusFactory.label)
+    expect(getStatusById).toHaveProperty('value', statusFactory.value)
+    expect(getStatusById).toHaveProperty('color', statusFactory.color)
+    expect(getStatusById).toHaveProperty('type', statusFactory.type)
+    expect(getStatusById).toHaveProperty('typeLabel', statusFactory.typeLabel)
     expect(getStatusById).toHaveProperty(
       'fakeTransaction',
-      statusCreated.fakeTransaction
+      statusFactory.fakeTransaction
     )
     expect(getStatusById).toHaveProperty(
       'companyId',
       'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
     )
-  })
-})
-
-describe('getAll status', () => {
-  beforeAll(async () => {
-    await StatusDomain.create({
-      ...fakerStatus(),
-      companyId
-    })
   })
 
   it('getAll status', async () => {
