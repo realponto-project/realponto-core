@@ -8,9 +8,7 @@ const buildSearchAndPagination = buildPagination('status')
 class StatusDomain {
   async create(bodyData, options = {}) {
     const { transaction = null } = options
-
     await statusSchema.validate(bodyData, { abortEarly: false })
-
     return await StatusModel.create(bodyData, { transaction })
   }
 
