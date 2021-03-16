@@ -38,6 +38,7 @@ const create = async (req, res, next) => {
     res.status(201).json(response)
     await transaction.commit()
   } catch (error) {
+    console.log(error)
     await transaction.rollback()
     res.status(400).json({ error: error.message })
   }
