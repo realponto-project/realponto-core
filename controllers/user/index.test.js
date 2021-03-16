@@ -28,7 +28,7 @@ describe('controller User', () => {
         .set('Accept', 'application/json')
         .send(userMock)
 
-      expect(response.status).toBe(200)
+      expect(response.status).toBe(201)
       expect(response.request.method).toBe('POST')
       expect(response.body).toHaveProperty('id')
       expect(response.body.id).toMatch(/^us_/)
