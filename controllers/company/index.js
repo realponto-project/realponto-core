@@ -44,6 +44,18 @@ const create = async (req, res, next) => {
   }
 }
 
+const update = async (req, res, next) => {
+  const transaction = await database.transaction()
+  try {
+    const company = await CompanyDomain.update(req.body, { transaction })
+    await transaction.commit()
+    res.json(company)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
 const getById = async (req, res, next) => {
   try {
     const response = await CompanyDomain.getById(req.params.id)
@@ -53,7 +65,18 @@ const getById = async (req, res, next) => {
   }
 }
 
+const getAll = async (req, res, next) => {
+  try {
+    const response = await CompanyDomain.getAll(req.query)
+    res.json(response)
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
 module.exports = {
   create,
-  getById
+  getById,
+  getAll,
+  update
 }
