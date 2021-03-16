@@ -1,6 +1,7 @@
 const request = require('supertest')
 const app = require('../../index')
 const faker = require('faker')
+const truncate = require('../../utils/truncate')
 
 const companyMock = {
   company: {
@@ -19,13 +20,30 @@ const companyMock = {
   }
 }
 
-describe.only('company controller', () => {
+describe('company controller', () => {
   describe('post company', () => {
+    afterAll(async () => await truncate())
+
     it('create company', async () => {
       expect.hasAssertions()
       const res = await request(app).post('/register').send(companyMock)
-      expect(res.statusCode).toEqual(201)
-      expect(res.method).toEqual('POST')
+      expect(res.statusCode).toBe(201)
+      expect(res.request.method).toStrictEqual('POST')
     })
   })
+
+  // describe('get company by id', function (id) {
+  // 	afterAll(async () => await truncate())
+
+  //   it('responds with json', function (done) {
+  // 		expect.hasAssertions()
+
+  //     request(app)
+  //       .get(`/api/companies/${id}`)
+  //       .auth('username', 'password')
+  //       .set('Accept', 'application/json')
+  //       .expect('Content-Type', /json/)
+  //       .expect(200, done)
+  //   })
+  // })
 })
