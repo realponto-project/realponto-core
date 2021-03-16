@@ -1,7 +1,8 @@
 const { prop } = require('ramda')
-const userDomain = require('.')
 
 const factory = require('../../utils/helpers/factories')
+const userDomain = require('.')
+const truncate = require('../../utils/truncate')
 const { generatorFakerUser } = require('../../utils/helpers/Faker/user')
 const { NotFoundError } = require('../../utils/helpers/errors')
 
@@ -48,7 +49,7 @@ describe('update User', () => {
 
     const userMock = generatorFakerUser()
 
-    const userUpdated = await userDomain.update(userFactory.id, companyId, {
+    const userUpdated = await userDomain.update(userFactory.id, {
       ...userMock,
       companyId
     })
@@ -80,14 +81,11 @@ describe('update password', () => {
 
     const newPassword = prop('password', generatorFakerUser())
 
-    const userUpdated = await userDomain.updatePassword(
-      userFactory.id,
+    const userUpdated = await userDomain.updatePassword(userFactory.id, {
       companyId,
-      {
-        password: '123',
-        newPassword
-      }
-    )
+      password: '123',
+      newPassword
+    })
 
     expect(userUpdated).toHaveProperty('id', userFactory.id)
     expect(userUpdated).toHaveProperty('activated', true)
@@ -110,7 +108,8 @@ describe('update password', () => {
     const newPassword = prop('password', generatorFakerUser())
 
     await expect(
-      userDomain.updatePassword(userFactory.id, 'invalid', {
+      userDomain.updatePassword(userFactory.id, {
+        companyId: 'invalid',
         password: '123',
         newPassword
       })
@@ -121,7 +120,8 @@ describe('update password', () => {
     expect.assertions(1)
 
     await expect(
-      userDomain.updatePassword(userFactory.id, companyId, {
+      userDomain.updatePassword(userFactory.id, {
+        companyId,
         password: '123'
       })
     ).rejects.toThrow(new NotFoundError('newPassword is a required field'))
@@ -133,7 +133,8 @@ describe('update password', () => {
     const newPassword = prop('password', generatorFakerUser())
 
     await expect(
-      userDomain.updatePassword(userFactory.id, companyId, {
+      userDomain.updatePassword(userFactory.id, {
+        companyId,
         password: 'invalid',
         newPassword
       })
