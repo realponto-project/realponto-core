@@ -2,7 +2,7 @@ const { pathOr } = require('ramda')
 const Sequelize = require('sequelize')
 const database = require('../../database')
 const ProductModel = database.model('product')
-const BalanceModel = database.model('balance')
+// const BalanceModel = database.model('balance')
 
 const buildPagination = require('../../utils/helpers/searchSpec')
 const buildSearchAndPagination = buildPagination('product')
@@ -32,10 +32,10 @@ const create = async (req, res, next) => {
       { ...req.body, companyId },
       { transaction }
     )
-    await BalanceModel.create(
-      { productId: response.id, companyId },
-      { transaction }
-    )
+    // await BalanceModel.create(
+    //   { productId: response.id, companyId },
+    //   { transaction }
+    // )
 
     await transaction.commit()
     res.json(response)
@@ -79,8 +79,8 @@ const getAll = async (req, res, next) => {
   })
   try {
     const { count, rows } = await ProductModel.findAndCountAll({
-      ...query,
-      include: [BalanceModel]
+      ...query
+      // include: [BalanceModel]
     })
     res.json({ total: count, source: rows })
   } catch (error) {

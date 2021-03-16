@@ -1,6 +1,5 @@
-const { compare } = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const { pathOr, omit } = require('ramda')
+const { pathOr } = require('ramda')
 const database = require('../../database')
 const UserModel = database.model('user')
 
@@ -11,13 +10,15 @@ const authentication = async (req, res, next) => {
   const password = pathOr(null, ['body', 'password'], req)
 
   try {
-    const user = await UserModel.findOne({ where: { email }, raw: true })
-    const userWithoutPwd = omit(['password'], user)
-    const checkedPassword = await compare(password, user.password)
+    const user = await UserModel.findOne({ where: { email } })
 
-    if (!checkedPassword) {
+    if (!(await user.checkPassword(password))) {
       throw new Error('Email or password do not match')
     }
+    const userWithoutPwd = await UserModel.findByPk(user.id, {
+      raw: true,
+      attributes: { exclude: ['password'] }
+    })
 
     const token = jwt.sign({ user: userWithoutPwd }, secret, {
       expiresIn: '24h'
