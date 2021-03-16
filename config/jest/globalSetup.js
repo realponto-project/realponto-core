@@ -2,6 +2,7 @@ const database = require('../../database')
 
 const CompanyModel = database.model('company')
 const StatusModel = database.model('status')
+const UserModel = database.model('user')
 
 module.exports = async () => {
   await CompanyModel.findOrCreate({
@@ -37,4 +38,22 @@ module.exports = async () => {
       companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
     }
   })
+
+  if (!(await UserModel.findByPk('us_a92a34bf-d0fc-4967-b78a-0ddf2955de4c'))) {
+    await UserModel.findOrCreate({
+      where: {
+        id: 'us_a92a34bf-d0fc-4967-b78a-0ddf2955de4c',
+        activated: true,
+        name: 'Alexandre Soares',
+        email: 'alexandre_santos@hotmail.com',
+        password: '123456', // 123456
+        firstAccess: true,
+        phone: '+55 11 970707070',
+        birthday: new Date(),
+        badget:
+          'cracha-alexandre-soares-us_a92a34bf-d0fc-4967-b78a-0ddf2955de4c',
+        companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
+      }
+    })
+  }
 }
