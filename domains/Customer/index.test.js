@@ -96,13 +96,10 @@ describe('update Customer', () => {
 
     const customerMock = generatorFakerCustomer()
 
-    const customerupdated = await customerDomain.update(
-      customerFactory.id,
-      companyId,
-      {
-        ...customerMock
-      }
-    )
+    const customerupdated = await customerDomain.update(customerFactory.id, {
+      ...customerMock,
+      companyId
+    })
 
     expect(customerupdated).toHaveProperty('id', customerFactory.id)
     expect(customerupdated).toHaveProperty('name', customerMock.name)
@@ -126,15 +123,11 @@ describe('update Customer', () => {
     const customerMock = generatorFakerCustomer()
     const addressMock = generatorFakerAddress()
 
-    const customerupdated = await customerDomain.update(
-      customerFactory.id,
-      companyId,
-      {
-        ...customerMock,
-        address: addressMock,
-        companyId
-      }
-    )
+    const customerupdated = await customerDomain.update(customerFactory.id, {
+      ...customerMock,
+      address: addressMock,
+      companyId
+    })
 
     expect(customerupdated).toHaveProperty('id', customerFactory.id)
     expect(customerupdated).toHaveProperty('name', customerMock.name)
@@ -186,7 +179,6 @@ describe('update Customer', () => {
 
     const customerupdated = await customerDomain.update(
       customerFactoryWithoutAddress.id,
-      companyId,
       {
         address: addressMock,
         companyId
@@ -247,7 +239,7 @@ describe('update Customer', () => {
     const customerMock = generatorFakerCustomer()
 
     await expect(
-      customerDomain.update(undefined, companyId, {
+      customerDomain.update(undefined, {
         ...customerMock,
         companyId
       })
