@@ -53,11 +53,11 @@ class ProductDomain {
     const { transaction = null } = options
     await productSchema.validate(bodyData, { abortEarly: false })
 
-    const searchProduct = await ProductModel.findByPk(id)
+    const searchProduct = await ProductModel.findByPk(id, { transaction })
     await searchProduct.update(bodyData, { transaction })
-    await searchProduct.reload()
 
-    return searchProduct
+    const productUpdated = await ProductModel.findByPk(id, { transaction })
+    return productUpdated
   }
 
   async getById(id, companyId) {
