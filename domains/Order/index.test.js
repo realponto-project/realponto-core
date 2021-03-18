@@ -263,6 +263,7 @@ describe('getAll Order', () => {
   beforeAll(async () => {
     await factory.create('order')
   })
+
   it('get all order', async () => {
     expect.assertions(3)
 
