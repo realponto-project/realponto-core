@@ -27,8 +27,8 @@ const fakerCompany = () => {
 
 const fakerProduct = () => {
   return {
+    balance: 0,
     activated: faker.random.boolean(),
-    balance: faker.random.number(),
     name: faker.commerce.product(),
     barCode: faker.random.uuid(),
     minQuantity: faker.random.number(),
