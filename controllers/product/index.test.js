@@ -6,17 +6,17 @@ const { fakerProduct } = require('../../utils/helpers/fakers')
 const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 
 describe('product controller', () => {
-  describe('post product', () => {
-    let token = null
+  let token = null
 
-    beforeAll(async () => {
-      const response = await request(app).post('/auth/login').send({
-        email: 'alexandre_santos@hotmail.com',
-        password: '123456'
-      })
-
-      token = response.body.token
+  beforeAll(async () => {
+    const response = await request(app).post('/auth/login').send({
+      email: 'alexandre_santos@hotmail.com',
+      password: '123456'
     })
+
+    token = response.body.token
+  })
+  describe('post product', () => {
     it('create product', async () => {
       expect.hasAssertions()
       const productMock = fakerProduct()
@@ -26,7 +26,7 @@ describe('product controller', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('Accept', 'application/json')
         .send(productMock)
-      expect(res.statusCode).toBe(200)
+      expect(res.statusCode).toBe(201)
       expect(res.request.method).toStrictEqual('POST')
       expect(res.body).toHaveProperty('activated', productMock.activated)
       expect(res.body).toHaveProperty('balance', productMock.balance)
@@ -39,17 +39,9 @@ describe('product controller', () => {
     })
 
     describe('update product controller', () => {
-      let token = null
       let productFactory = null
 
       beforeAll(async () => {
-        const response = await request(app).post('/auth/login').send({
-          email: 'alexandre_santos@hotmail.com',
-          password: '123456'
-        })
-
-        token = response.body.token
-
         productFactory = await factory.create('product')
       })
 
@@ -76,17 +68,10 @@ describe('product controller', () => {
     })
 
     describe('get product controller', () => {
-      let token = null
       let productFactory = null
 
       beforeAll(async () => {
         productFactory = await factory.create('product')
-        const response = await request(app).post('/auth/login').send({
-          email: 'alexandre_santos@hotmail.com',
-          password: '123456'
-        })
-
-        token = response.body.token
       })
 
       it('get product by id', async () => {
@@ -112,18 +97,10 @@ describe('product controller', () => {
     })
 
     describe('get product controller', () => {
-      let token = null
       let productFactory = null
 
       beforeAll(async () => {
         productFactory = await factory.create('product')
-
-        const response = await request(app).post('/auth/login').send({
-          email: 'alexandre_santos@hotmail.com',
-          password: '123456'
-        })
-
-        token = response.body.token
       })
 
       it('get all product', async () => {

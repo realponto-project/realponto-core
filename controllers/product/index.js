@@ -1,10 +1,7 @@
 const { pathOr, path } = require('ramda')
-const database = require('../../database')
-const ProductModel = database.model('product')
-const ProductDomain = require('../../domains/product')
 
-const buildPagination = require('../../utils/helpers/searchSpec')
-const buildSearchAndPagination = buildPagination('product')
+const database = require('../../database')
+const ProductDomain = require('../../domains/product')
 
 const create = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
@@ -18,7 +15,7 @@ const create = async (req, res, next) => {
     )
 
     await transaction.commit()
-    res.json(response)
+    res.status(201).json(response)
   } catch (error) {
     await transaction.rollback()
     res.status(400).json({ error: error.message })
