@@ -38,7 +38,7 @@ const Status = (sequelize) => {
         type: Sequelize.ENUM(['Entrada', 'Saída']),
         allowNull: false
       },
-      teste: {
+      concatStatus: {
         type: Sequelize.VIRTUAL,
         allowNull: true,
         unique: true
@@ -47,7 +47,11 @@ const Status = (sequelize) => {
     {
       hooks: {
         beforeSave: (status) => {
-          status.teste = concat(status.companyId, status.value, status.label)
+          status.concatStatus = concat(
+            status.companyId,
+            status.value,
+            status.label
+          )
         }
       }
     }
