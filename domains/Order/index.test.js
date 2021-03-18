@@ -1,3 +1,6 @@
+const { map } = require('ramda')
+const { ValidationError } = require('sequelize')
+
 const orderDomain = require('.')
 const factory = require('../../utils/helpers/factories')
 
@@ -9,7 +12,9 @@ describe('create Order', () => {
   let products = null
 
   beforeAll(async () => {
-    statusFactory = await factory.create('status')
+    statusFactory = await factory.create('status', {
+      type: 'inputs'
+    })
 
     customerFactory = await factory.create('customer')
 
@@ -22,7 +27,8 @@ describe('create Order', () => {
       quantity: 10
     }))
   })
-  it('new order', async () => {
+
+  it('should be able create new order', async () => {
     expect.assertions(8)
 
     const order = {
@@ -55,6 +61,25 @@ describe('create Order', () => {
         statusId: statusFactory.id,
         companyId
       })
+    )
+  })
+
+  it('should be not able create new order with status type equal "outpts" and quantity greader than product balance', async () => {
+    expect.assertions(1)
+
+    const status = await factory.create('status', {
+      type: 'outputs'
+    })
+
+    const order = {
+      statusId: status.id,
+      customerId: customerFactory.id,
+      userId: userFactory.id,
+      products: map((item) => ({ ...item, quantity: 100 }), products)
+    }
+
+    await expect(orderDomain.create(companyId, order)).rejects.toThrow(
+      new ValidationError('Validation error: Validation min on balance failed')
     )
   })
 
@@ -238,6 +263,7 @@ describe('getAll Order', () => {
   beforeAll(async () => {
     await factory.create('order')
   })
+
   it('get all order', async () => {
     expect.assertions(3)
 

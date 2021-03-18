@@ -1,4 +1,4 @@
-const { pathOr, isEmpty, map } = require('ramda')
+const { pathOr, isEmpty, map, add, subtract } = require('ramda')
 
 const database = require('../../database')
 const buildPagination = require('../../utils/helpers/searchSpec')
@@ -10,6 +10,7 @@ const OrderModel = database.model('order')
 const StatusModel = database.model('status')
 const UserModel = database.model('user')
 const TransactionModel = database.model('transaction')
+const ProductModel = database.model('product')
 
 const buildSearchAndPagination = buildPagination('order')
 
@@ -76,7 +77,29 @@ class OrderDomain {
 
     const productsPayload = map(formatProducts, products)
 
-    await TransactionModel.bulkCreate(productsPayload, { transaction })
+    const transactions = await TransactionModel.bulkCreate(productsPayload, {
+      transaction
+    })
+
+    const updateBalances = transactions.map(async ({ productId, quantity }) => {
+      const product = await ProductModel.findByPk(productId, { transaction })
+
+      const balanceOBJ = {
+        inputs: add(product.balance, quantity),
+        outputs: subtract(product.balance, quantity)
+      }
+
+      const balance = balanceOBJ[statusFinded.type]
+
+      // const balance = {
+      //   inputs: add(product.balance, quantity),
+      //   outputs: subtract(product.balance, quantity)
+      // }[statusFinded.type]
+
+      await product.update({ balance }, { transaction })
+    })
+
+    await Promise.all(updateBalances)
 
     return await OrderModel.findByPk(orderCreated.id, {
       include: [TransactionModel]
