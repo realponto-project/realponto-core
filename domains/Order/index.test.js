@@ -74,11 +74,12 @@ describe('create Order', () => {
     const order = {
       statusId: status.id,
       customerId: customerFactory.id,
+      companyId,
       userId: userFactory.id,
       products: map((item) => ({ ...item, quantity: 100 }), products)
     }
 
-    await expect(orderDomain.create(companyId, order)).rejects.toThrow(
+    await expect(orderDomain.create(order)).rejects.toThrow(
       new ValidationError('Validation error: Validation min on balance failed')
     )
   })
