@@ -1,7 +1,6 @@
 const request = require('supertest')
 const app = require('../../index')
 const faker = require('faker')
-const truncate = require('../../utils/truncate')
 const factory = require('../../utils/helpers/factories')
 const { fakerCompany } = require('../../utils/helpers/fakers')
 
