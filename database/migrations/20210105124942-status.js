@@ -34,7 +34,7 @@ module.exports = {
         type: Sequelize.ENUM(['Entrada', 'Saída']),
         allowNull: false
       },
-      teste: {
+      concatStatus: {
         type: Sequelize.VIRTUAL,
         allowNull: true,
         unique: true
