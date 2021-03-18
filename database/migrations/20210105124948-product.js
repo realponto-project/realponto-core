@@ -15,7 +15,11 @@ module.exports = {
       },
       balance: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0,
+        validate: {
+          min: 0
+        }
       },
       name: {
         type: Sequelize.STRING,
