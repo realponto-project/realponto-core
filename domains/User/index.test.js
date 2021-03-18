@@ -4,14 +4,10 @@ const userDomain = require('.')
 const factory = require('../../utils/helpers/factories')
 const { generatorFakerUser } = require('../../utils/helpers/Faker/user')
 const { NotFoundError } = require('../../utils/helpers/errors')
-const truncate = require('../../utils/truncate')
 
 const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 
 describe('create User', () => {
-  afterAll(async () => {
-    await truncate()
-  })
   it('create new user', async () => {
     expect.assertions(12)
 
@@ -47,10 +43,6 @@ describe('update User', () => {
     userFactory = await factory.create('user')
   })
 
-  afterAll(async () => {
-    await truncate()
-  })
-
   it('update user', async () => {
     expect.assertions(11)
 
@@ -81,10 +73,6 @@ describe('update password', () => {
       password: '123',
       activated: true
     })
-  })
-
-  afterAll(async () => {
-    await truncate()
   })
 
   it('update password', async () => {
@@ -158,10 +146,6 @@ describe('getById user', () => {
     userFactory = await factory.create('user')
   })
 
-  afterAll(async () => {
-    await truncate()
-  })
-
   it('get user by id', async () => {
     expect.assertions(11)
 
@@ -184,10 +168,6 @@ describe('getById user', () => {
 describe('getAll user', () => {
   beforeAll(async () => {
     await factory.create('user')
-  })
-
-  afterAll(async () => {
-    await truncate()
   })
 
   it('get all user without query', async () => {
