@@ -24,7 +24,7 @@ const companyMock = {
 
 describe('company controller', () => {
   describe('post company', () => {
-    afterAll(async () => await truncate())
+    // afterAll(async () => await truncate())
 
     it('create company', async () => {
       expect.hasAssertions()
