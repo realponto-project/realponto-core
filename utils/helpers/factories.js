@@ -47,16 +47,12 @@ factory.define('transaction', TransactionModel, () => ({
   companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 }))
 
-factory.define(
-  'order',
-  OrderModel,
-  (fakeTransaction = faker.random.boolean()) => ({
-    pendingReview: fakeTransaction,
-    statusId: factory.assoc('status', 'id', { fakeTransaction }),
-    customerId: factory.assoc('customer', 'id'),
-    userId: factory.assoc('user', 'id'),
-    companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
-  })
-)
+factory.define('order', OrderModel, () => ({
+  pendingReview: false,
+  statusId: factory.assoc('status', 'id', { fakeTransaction: false }),
+  customerId: factory.assoc('customer', 'id'),
+  userId: factory.assoc('user', 'id'),
+  companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
+}))
 
 module.exports = factory
