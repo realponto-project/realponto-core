@@ -15,9 +15,10 @@ const ProductModel = database.model('product')
 const buildSearchAndPagination = buildPagination('order')
 
 class OrderDomain {
-  async create(companyId, bodyData, options = {}) {
+  async create(bodyData, options = {}) {
     const { transaction = null } = options
 
+    const companyId = pathOr(null, ['companyId'], bodyData)
     const statusId = pathOr(null, ['statusId'], bodyData)
     const customerId = pathOr(null, ['customerId'], bodyData)
     const userId = pathOr(null, ['userId'], bodyData)
