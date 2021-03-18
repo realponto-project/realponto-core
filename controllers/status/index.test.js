@@ -25,7 +25,7 @@ describe('status controller', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('Accept', 'application/json')
         .send(statusMock)
-      expect(res.statusCode).toBe(200)
+      expect(res.statusCode).toBe(201)
       expect(res.request.method).toStrictEqual('POST')
       expect(res.body).toHaveProperty('activated', statusMock.activated)
       expect(res.body).toHaveProperty('label', statusMock.label)
