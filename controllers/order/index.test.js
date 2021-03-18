@@ -18,7 +18,7 @@ describe('controller Order', () => {
     it('should be able create order', async () => {
       expect.assertions(3)
 
-      const statusFactory = await factory.create('status')
+      const statusFactory = await factory.create('status', { type: 'inputs' })
       const customerFactory = await factory.create('customer')
       const userFactory = await factory.create('user')
       const productsFactory = await factory.createMany('product', 3)
