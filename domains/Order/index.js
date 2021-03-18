@@ -16,7 +16,6 @@ const buildSearchAndPagination = buildPagination('order')
 class OrderDomain {
   async create(bodyData, options = {}) {
     const { transaction = null } = options
-    const companyId = pathOr(null, ['companyId'], bodyData)
 
     const companyId = pathOr(null, ['companyId'], bodyData)
     const statusId = pathOr(null, ['statusId'], bodyData)
