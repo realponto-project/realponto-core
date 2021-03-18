@@ -2,7 +2,6 @@ const { prop } = require('ramda')
 
 const factory = require('../../utils/helpers/factories')
 const userDomain = require('.')
-const truncate = require('../../utils/truncate')
 const { generatorFakerUser } = require('../../utils/helpers/Faker/user')
 const { NotFoundError } = require('../../utils/helpers/errors')
 
