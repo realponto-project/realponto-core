@@ -1,13 +1,12 @@
 const buildPagination = require('../../utils/helpers/searchSpec')
 const database = require('../../database')
 const productSchema = require('../../utils/helpers/Schemas/product')
-
 const ProductModel = database.model('product')
 const TransactionModel = database.model('transaction')
 const OrderModel = database.model('order')
 const StatusModel = database.model('status')
-
 const buildSearchAndPagination = buildPagination('product')
+
 const statusCreated = 'initial_balance'
 
 class ProductDomain {
@@ -15,7 +14,6 @@ class ProductDomain {
     const { transaction = null } = options
     await productSchema.validate(bodyData, { abortEarly: false })
     const productCreated = await ProductModel.create(bodyData, { transaction })
-
     if (productCreated.balance > 0) {
       const statusFinded = await StatusModel.findOne({
         where: {
@@ -23,7 +21,6 @@ class ProductDomain {
           label: statusCreated
         }
       })
-
       const orderCreated = await OrderModel.create(
         {
           companyId: bodyData.companyId,
@@ -32,7 +29,6 @@ class ProductDomain {
         },
         { transaction }
       )
-
       await TransactionModel.create(
         {
           orderId: orderCreated.id,
@@ -45,7 +41,6 @@ class ProductDomain {
         { transaction }
       )
     }
-
     return productCreated
   }
 
@@ -53,11 +48,11 @@ class ProductDomain {
     const { transaction = null } = options
     await productSchema.validate(bodyData, { abortEarly: false })
 
-    const searchProduct = await ProductModel.findByPk(id)
+    const searchProduct = await ProductModel.findByPk(id, { transaction })
     await searchProduct.update(bodyData, { transaction })
-    await searchProduct.reload()
 
-    return searchProduct
+    const productUpdated = await ProductModel.findByPk(id, { transaction })
+    return productUpdated
   }
 
   async getById(id, companyId) {
@@ -73,5 +68,4 @@ class ProductDomain {
     )
   }
 }
-
 module.exports = new ProductDomain()
