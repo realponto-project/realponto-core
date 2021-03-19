@@ -1,31 +1,41 @@
+const { map } = require('ramda')
+const { ValidationError } = require('sequelize')
+
 const orderDomain = require('.')
 const factory = require('../../utils/helpers/factories')
-const truncate = require('../../utils/truncate')
 
 const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 describe('create Order', () => {
   let statusFactory = null
   let customerFactory = null
   let userFactory = null
+  let products = null
 
   beforeAll(async () => {
-    statusFactory = await factory.create('status')
+    statusFactory = await factory.create('status', {
+      type: 'inputs'
+    })
 
     customerFactory = await factory.create('customer')
 
     userFactory = await factory.create('user')
+
+    const productsFactory = await factory.createMany('product', 3)
+
+    products = productsFactory.map(({ id: productId }) => ({
+      productId,
+      quantity: 10
+    }))
   })
 
-  afterAll(async () => {
-    await truncate()
-  })
-  it('new order', async () => {
-    expect.assertions(6)
+  it('should be able create new order', async () => {
+    expect.assertions(8)
 
     const order = {
       statusId: statusFactory.id,
       customerId: customerFactory.id,
-      userId: userFactory.id
+      userId: userFactory.id,
+      products
     }
 
     const orderCreated = await orderDomain.create(companyId, order)
@@ -36,9 +46,43 @@ describe('create Order', () => {
     expect(orderCreated).toHaveProperty('statusId', statusFactory.id)
     expect(orderCreated).toHaveProperty('customerId', customerFactory.id)
     expect(orderCreated).toHaveProperty('userId', userFactory.id)
+    expect(orderCreated).toHaveProperty('transactions')
+    expect(orderCreated.transactions).toContainEqual(
+      expect.objectContaining({
+        id: expect.stringMatching(/^td_/),
+        quantity: 10,
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        deletedAt: null,
+        productId: expect.stringMatching(/^pr_/),
+        orderId: orderCreated.id,
+        userId: userFactory.id,
+        statusId: statusFactory.id,
+        companyId
+      })
+    )
   })
 
-  it('try create order without companyId', async () => {
+  it('should be not able create new order with status type equal "outpts" and quantity greader than product balance', async () => {
+    expect.assertions(1)
+
+    const status = await factory.create('status', {
+      type: 'outputs'
+    })
+
+    const order = {
+      statusId: status.id,
+      customerId: customerFactory.id,
+      userId: userFactory.id,
+      products: map((item) => ({ ...item, quantity: 100 }), products)
+    }
+
+    await expect(orderDomain.create(companyId, order)).rejects.toThrow(
+      new ValidationError('Validation error: Validation min on balance failed')
+    )
+  })
+
+  it('try create order without products', async () => {
     expect.assertions(1)
 
     const order = {
@@ -47,18 +91,33 @@ describe('create Order', () => {
       userId: userFactory.id
     }
 
+    await expect(orderDomain.create(companyId, order)).rejects.toThrow(
+      new Error('products is a required field')
+    )
+  })
+
+  it('try create order without companyId', async () => {
+    expect.assertions(1)
+
+    const order = {
+      statusId: statusFactory.id,
+      customerId: customerFactory.id,
+      userId: userFactory.id,
+      products
+    }
+
     await expect(orderDomain.create(undefined, order)).rejects.toThrow(
       new Error('company not found')
     )
   })
-
   it('try create order other companyId', async () => {
     expect.assertions(1)
 
     const order = {
       statusId: statusFactory.id,
       customerId: customerFactory.id,
-      userId: userFactory.id
+      userId: userFactory.id,
+      products
     }
 
     await expect(
@@ -71,19 +130,21 @@ describe('create Order', () => {
 
     const order = {
       customerId: customerFactory.id,
-      userId: userFactory.id
+      userId: userFactory.id,
+      products
     }
 
     await expect(
       orderDomain.create('co_5eb458ca-3466-4c89-99d2-e9ae57c0c362', order)
-    ).rejects.toThrow(new Error('status not found or not belongs to company'))
+    ).rejects.toThrow(new Error('statusId is a required field'))
   })
 
   it('create order without userId and customerId', async () => {
-    expect.assertions(6)
+    expect.assertions(8)
 
     const order = {
-      statusId: statusFactory.id
+      statusId: statusFactory.id,
+      products
     }
 
     const orderCreated = await orderDomain.create(companyId, order)
@@ -94,6 +155,20 @@ describe('create Order', () => {
     expect(orderCreated).toHaveProperty('statusId', statusFactory.id)
     expect(orderCreated).toHaveProperty('customerId', null)
     expect(orderCreated).toHaveProperty('userId', null)
+    expect(orderCreated).toHaveProperty('transactions')
+    expect(orderCreated.transactions).toContainEqual(
+      expect.objectContaining({
+        id: expect.stringMatching(/^td_/),
+        quantity: 10,
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        deletedAt: null,
+        productId: expect.stringMatching(/^pr_/),
+        orderId: orderCreated.id,
+        statusId: statusFactory.id,
+        companyId
+      })
+    )
   })
 })
 
@@ -102,13 +177,16 @@ describe('getById Order', () => {
 
   beforeAll(async () => {
     orderFactory = await factory.create('order')
+
+    await factory.create('transaction', {
+      orderId: orderFactory.id,
+      statusId: orderFactory.statusId,
+      userId: orderFactory.userId
+    })
   })
 
-  afterAll(async () => {
-    await truncate()
-  })
   it('get order by id', async () => {
-    expect.assertions(31)
+    expect.assertions(33)
 
     const orderfinded = await orderDomain.getById(orderFactory.id, companyId)
 
@@ -118,6 +196,7 @@ describe('getById Order', () => {
     expect(orderfinded).toHaveProperty('statusId', orderFactory.statusId)
     expect(orderfinded).toHaveProperty('customerId', orderFactory.customerId)
     expect(orderfinded).toHaveProperty('userId', orderFactory.userId)
+    expect(orderfinded).toHaveProperty('transactions')
 
     expect(orderfinded.status).toHaveProperty('id', orderFactory.statusId)
     expect(orderfinded.status.id).toMatch(/^st_/)
@@ -146,6 +225,21 @@ describe('getById Order', () => {
     expect(orderfinded.user).toHaveProperty('document')
     expect(orderfinded.user).toHaveProperty('password')
     expect(orderfinded.user).toHaveProperty('firstAccess')
+
+    expect(orderfinded.transactions).toContainEqual(
+      expect.objectContaining({
+        id: expect.stringMatching(/^td_/),
+        quantity: 10,
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        deletedAt: null,
+        productId: expect.stringMatching(/^pr_/),
+        orderId: orderFactory.id,
+        userId: orderFactory.userId,
+        statusId: orderFactory.statusId,
+        companyId
+      })
+    )
   })
 
   it('try get order by id with invalid id', async () => {
@@ -163,10 +257,6 @@ describe('getById Order', () => {
 describe('getAll Order', () => {
   beforeAll(async () => {
     await factory.create('order')
-  })
-
-  afterAll(async () => {
-    await truncate()
   })
 
   it('get all order', async () => {
