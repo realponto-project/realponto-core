@@ -1,4 +1,4 @@
-const { omit } = require('ramda')
+const { omit, path } = require('ramda')
 
 const database = require('../../database')
 const { NotFoundError } = require('../../utils/helpers/errors')
@@ -18,13 +18,16 @@ class UserDomain {
       transaction
     })
 
-    return UserModel.findByPk(userCreated.id, {
-      include: [CompanyModel]
+    return await UserModel.findByPk(userCreated.id, {
+      include: [CompanyModel],
+      transaction
     })
   }
 
-  async update(id, companyId, bodyData, options = {}) {
+  async update(id, bodyData, options = {}) {
     const { transaction = null } = options
+
+    const companyId = path(['companyId'], bodyData)
 
     const user = await UserModel.findByPk(id, {
       where: { companyId }
@@ -36,14 +39,18 @@ class UserDomain {
 
     await user.update(omit(['password'], bodyData), { transaction })
 
-    return UserModel.findByPk(id, {
+    await user.reload()
+
+    return await UserModel.findByPk(id, {
       where: { companyId },
-      include: [CompanyModel]
+      include: [CompanyModel],
+      transaction
     })
   }
 
-  async updatePassword(id, companyId, bodyData, options = {}) {
+  async updatePassword(id, bodyData, options = {}) {
     const { transaction = null } = options
+    const companyId = path(['companyId'], bodyData)
 
     const user = await UserModel.findOne({
       where: { id, companyId, activated: true }
@@ -63,15 +70,18 @@ class UserDomain {
 
     await user.update({ password: bodyData.newPassword }, { transaction })
 
-    return UserModel.findByPk(id, {
+    await user.reload()
+
+    return await UserModel.findByPk(id, {
       where: { companyId },
-      include: [CompanyModel]
+      include: [CompanyModel],
+      transaction
     })
   }
 
   async getById(id, companyId) {
-    return await UserModel.findByPk(id, {
-      where: { companyId },
+    return await UserModel.findOne({
+      where: { id, companyId },
       include: [CompanyModel]
     })
   }
