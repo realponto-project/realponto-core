@@ -17,7 +17,8 @@ describe('controller Customer', () => {
   })
   describe('create customer', () => {
     it('should create customer without address', async () => {
-      expect.hasAssertions()
+      expect.assertions(3)
+
       const customerMock = generatorFakerCustomer()
 
       const response = await request(app)
@@ -49,7 +50,8 @@ describe('controller Customer', () => {
     })
 
     it('should create customer with address', async () => {
-      expect.hasAssertions()
+      expect.assertions(3)
+
       const customerMock = generatorFakerCustomer()
       const addressMock = generatorFakerAddress()
 
@@ -98,7 +100,7 @@ describe('controller Customer', () => {
     })
 
     it('should be not able create customer when not sended customer', async () => {
-      expect.hasAssertions()
+      expect.assertions(2)
 
       const response = await request(app)
         .post('/api/customers')
@@ -116,7 +118,8 @@ describe('controller Customer', () => {
     })
 
     it('should update customer', async () => {
-      expect.hasAssertions()
+      expect.assertions(3)
+
       const customerMock = generatorFakerCustomer()
       const addressMock = generatorFakerAddress()
 
@@ -162,7 +165,8 @@ describe('controller Customer', () => {
     })
 
     it('should be not able create with invalid id', async () => {
-      expect.hasAssertions()
+      expect.assertions(2)
+
       const customerMock = generatorFakerCustomer()
 
       const response = await request(app)
@@ -182,7 +186,7 @@ describe('controller Customer', () => {
     })
 
     it('should return customer', async () => {
-      expect.hasAssertions()
+      expect.assertions(3)
 
       const response = await request(app)
         .get(`/api/customers/${customerFactory.id}`)
@@ -212,7 +216,7 @@ describe('controller Customer', () => {
     })
 
     it('should return object empty when sended invalid id', async () => {
-      expect.hasAssertions()
+      expect.assertions(3)
 
       const response = await request(app)
         .get(`/api/customers/${123}`)
@@ -230,8 +234,7 @@ describe('controller Customer', () => {
     })
 
     it('should retorn total and source', async () => {
-      // expect.assertions(3)
-      expect.hasAssertions()
+      expect.assertions(4)
 
       const response = await request(app)
         .get('/api/customers')
