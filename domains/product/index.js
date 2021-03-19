@@ -8,7 +8,7 @@ const OrderModel = database.model('order')
 const StatusModel = database.model('status')
 
 const buildSearchAndPagination = buildPagination('product')
-const statusCreate = 'initial_balance'
+const statusCreated = 'initial_balance'
 
 class ProductDomain {
   async create(bodyData, options = {}) {
@@ -20,7 +20,7 @@ class ProductDomain {
       const statusFinded = await StatusModel.findOne({
         where: {
           companyId: bodyData.companyId,
-          label: statusCreate
+          label: statusCreated
         }
       })
 
