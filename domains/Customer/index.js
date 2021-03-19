@@ -30,12 +30,14 @@ class CustomerDomain {
     })
 
     return CustomerModel.findByPk(customerCreated.id, {
-      include: [AddressModel, CompanyModel]
+      include: [AddressModel, CompanyModel],
+      transaction
     })
   }
 
-  async update(id, companyId, bodyData, options = {}) {
+  async update(id, bodyData, options = {}) {
     const { transaction = null } = options
+    const companyId = pathOr(null, ['companyId'], bodyData)
 
     const customer = await CustomerModel.findByPk(id, {
       where: { companyId },
@@ -66,15 +68,22 @@ class CustomerDomain {
 
     return CustomerModel.findByPk(id, {
       where: { companyId },
-      include: [AddressModel, CompanyModel]
+      include: [AddressModel, CompanyModel],
+      transaction
     })
   }
 
   async getById(id, companyId) {
-    return await CustomerModel.findByPk(id, {
+    if (!id) {
+      throw new Error('customer id should not be null!')
+    }
+
+    const customerFound = await CustomerModel.findByPk(id, {
       where: { companyId },
       include: [AddressModel, CompanyModel]
     })
+
+    return customerFound || {}
   }
 
   async getAll(query, companyId) {
