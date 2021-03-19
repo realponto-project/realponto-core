@@ -52,7 +52,8 @@ const getById = async (req, res, next) => {
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
-	@@ -73,15 +57,8 @@ const getById = async (req, res, next) => {
+  }
+}
 
 const getAll = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
