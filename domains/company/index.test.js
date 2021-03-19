@@ -9,26 +9,35 @@ describe('company Domain', () => {
   describe('create company', () => {
     it('create new company', async () => {
       expect.hasAssertions()
-      const companyCreated = await CompanyDomain.create({
-        ...fakerCompany()
-      })
-      expect(companyCreated).toHaveProperty('id', companyCreated.id)
-      expect(companyCreated).toHaveProperty('name', companyCreated.name)
-      expect(companyCreated).toHaveProperty('fullname', companyCreated.fullname)
-      expect(companyCreated).toHaveProperty('document', companyCreated.document)
-      expect(companyCreated).toHaveProperty('siteUrl', companyCreated.siteUrl)
+      const fakerCompanyMock = fakerCompany()
+      const companyCreated = await CompanyDomain.create(fakerCompanyMock)
+
+      expect(companyCreated).toHaveProperty('id')
+      expect(companyCreated).toHaveProperty('name', fakerCompanyMock.name)
+      expect(companyCreated).toHaveProperty(
+        'fullname',
+        fakerCompanyMock.fullname
+      )
+      expect(companyCreated).toHaveProperty(
+        'document',
+        fakerCompanyMock.document
+      )
+      expect(companyCreated).toHaveProperty('siteUrl', fakerCompanyMock.siteUrl)
       expect(companyCreated).toHaveProperty(
         'allowOrder',
-        companyCreated.allowOrder
+        fakerCompanyMock.allowOrder
       )
-      expect(companyCreated).toHaveProperty('allowPdv', companyCreated.allowPdv)
+      expect(companyCreated).toHaveProperty(
+        'allowPdv',
+        fakerCompanyMock.allowPdv
+      )
     })
 
     it('create company without name', async () => {
       expect.hasAssertions()
 
       await expect(
-        CompanyDomain.create(omit(['name'], { ...fakerCompany() }))
+        CompanyDomain.create(omit(['name'], fakerCompany()))
       ).rejects.toThrow(
         new ValidationError('notNull Violation: company.name cannot be null')
       )
@@ -38,7 +47,7 @@ describe('company Domain', () => {
       expect.hasAssertions()
 
       await expect(
-        CompanyDomain.create(omit(['document'], { ...fakerCompany() }))
+        CompanyDomain.create(omit(['document'], fakerCompany()))
       ).rejects.toThrow(
         new ValidationError(
           'notNull Violation: company.document cannot be null'
@@ -59,9 +68,10 @@ describe('company Domain', () => {
 
       expect.hasAssertions()
 
-      const productUpdated = await CompanyDomain.update(companyFactory.id, {
-        ...companyMock
-      })
+      const productUpdated = await CompanyDomain.update(
+        companyFactory.id,
+        companyMock
+      )
 
       expect(productUpdated).toHaveProperty('id', companyFactory.id)
       expect(productUpdated).toHaveProperty('name', companyMock.name)
