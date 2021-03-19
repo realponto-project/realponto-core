@@ -18,7 +18,6 @@ class OrderDomain {
   async create(bodyData, options = {}) {
     const { transaction = null } = options
 
-    const companyId = pathOr(null, ['companyId'], bodyData)
     const statusId = pathOr(null, ['statusId'], bodyData)
     const customerId = pathOr(null, ['customerId'], bodyData)
     const userId = pathOr(null, ['userId'], bodyData)
@@ -90,11 +89,6 @@ class OrderDomain {
       }
 
       const balance = balanceOBJ[statusFinded.type]
-
-      // const balance = {
-      //   inputs: add(product.balance, quantity),
-      //   outputs: subtract(product.balance, quantity)
-      // }[statusFinded.type]
 
       await product.update({ balance }, { transaction })
     })
