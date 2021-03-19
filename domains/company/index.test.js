@@ -12,13 +12,16 @@ describe('company Domain', () => {
       const companyCreated = await CompanyDomain.create({
         ...fakerCompany()
       })
-      expect(companyCreated).toHaveProperty('id')
-      expect(companyCreated).toHaveProperty('name')
-      expect(companyCreated).toHaveProperty('fullname')
-      expect(companyCreated).toHaveProperty('document')
-      expect(companyCreated).toHaveProperty('siteUrl')
-      expect(companyCreated).toHaveProperty('allowOrder')
-      expect(companyCreated).toHaveProperty('allowPdv')
+      expect(companyCreated).toHaveProperty('id', companyCreated.id)
+      expect(companyCreated).toHaveProperty('name', companyCreated.name)
+      expect(companyCreated).toHaveProperty('fullname', companyCreated.fullname)
+      expect(companyCreated).toHaveProperty('document', companyCreated.document)
+      expect(companyCreated).toHaveProperty('siteUrl', companyCreated.siteUrl)
+      expect(companyCreated).toHaveProperty(
+        'allowOrder',
+        companyCreated.allowOrder
+      )
+      expect(companyCreated).toHaveProperty('allowPdv', companyCreated.allowPdv)
     })
 
     it('create company without name', async () => {
