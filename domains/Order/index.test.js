@@ -35,10 +35,11 @@ describe('create Order', () => {
       statusId: statusFactory.id,
       customerId: customerFactory.id,
       userId: userFactory.id,
+      companyId,
       products
     }
 
-    const orderCreated = await orderDomain.create(companyId, order)
+    const orderCreated = await orderDomain.create(order)
 
     expect(orderCreated).toHaveProperty('id')
     expect(orderCreated.id).toMatch(/^or_/)
@@ -73,11 +74,12 @@ describe('create Order', () => {
     const order = {
       statusId: status.id,
       customerId: customerFactory.id,
+      companyId,
       userId: userFactory.id,
       products: map((item) => ({ ...item, quantity: 100 }), products)
     }
 
-    await expect(orderDomain.create(companyId, order)).rejects.toThrow(
+    await expect(orderDomain.create(order)).rejects.toThrow(
       new ValidationError('Validation error: Validation min on balance failed')
     )
   })
@@ -88,10 +90,11 @@ describe('create Order', () => {
     const order = {
       statusId: statusFactory.id,
       customerId: customerFactory.id,
+      companyId,
       userId: userFactory.id
     }
 
-    await expect(orderDomain.create(companyId, order)).rejects.toThrow(
+    await expect(orderDomain.create(order)).rejects.toThrow(
       new Error('products is a required field')
     )
   })
@@ -106,7 +109,7 @@ describe('create Order', () => {
       products
     }
 
-    await expect(orderDomain.create(undefined, order)).rejects.toThrow(
+    await expect(orderDomain.create(order)).rejects.toThrow(
       new Error('company not found')
     )
   })
@@ -117,12 +120,13 @@ describe('create Order', () => {
       statusId: statusFactory.id,
       customerId: customerFactory.id,
       userId: userFactory.id,
+      companyId: 'co_5eb458ca-3466-4c89-99d2-e9ae57c0c362',
       products
     }
 
-    await expect(
-      orderDomain.create('co_5eb458ca-3466-4c89-99d2-e9ae57c0c362', order)
-    ).rejects.toThrow(new Error('status not found or not belongs to company'))
+    await expect(orderDomain.create(order)).rejects.toThrow(
+      new Error('status not found or not belongs to company')
+    )
   })
 
   it('try create order without statusId', async () => {
@@ -131,12 +135,13 @@ describe('create Order', () => {
     const order = {
       customerId: customerFactory.id,
       userId: userFactory.id,
+      companyId: 'co_5eb458ca-3466-4c89-99d2-e9ae57c0c362',
       products
     }
 
-    await expect(
-      orderDomain.create('co_5eb458ca-3466-4c89-99d2-e9ae57c0c362', order)
-    ).rejects.toThrow(new Error('statusId is a required field'))
+    await expect(orderDomain.create(order)).rejects.toThrow(
+      new Error('statusId is a required field')
+    )
   })
 
   it('create order without userId and customerId', async () => {
@@ -144,10 +149,11 @@ describe('create Order', () => {
 
     const order = {
       statusId: statusFactory.id,
+      companyId,
       products
     }
 
-    const orderCreated = await orderDomain.create(companyId, order)
+    const orderCreated = await orderDomain.create(order)
 
     expect(orderCreated).toHaveProperty('id')
     expect(orderCreated.id).toMatch(/^or_/)
@@ -258,7 +264,6 @@ describe('getAll Order', () => {
   beforeAll(async () => {
     await factory.create('order')
   })
-
   it('get all order', async () => {
     expect.assertions(3)
 

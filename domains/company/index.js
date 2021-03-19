@@ -9,6 +9,7 @@ const buildSearchAndPagination = buildPagination('company')
 class CompanyDomain {
   async create(bodyData, options = {}) {
     const { transaction = null } = options
+
     return await CompanyModel.create(bodyData, { transaction })
   }
 

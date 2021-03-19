@@ -1,27 +1,37 @@
 const { pathOr } = require('ramda')
+
 const database = require('../../database')
-const CustomerModel = database.model('customer')
-const AddressModel = database.model('address')
-const buildPagination = require('../../utils/helpers/searchSpec')
-const buildSearchAndPagination = buildPagination('customer')
+const CustomerDomain = require('../../domains/Customer')
 
 const create = async (req, res, next) => {
   const transaction = await database.transaction()
   const customer = pathOr({}, ['body'], req)
-  const address = pathOr(null, ['address'], customer)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-  let customerAddress = null
   try {
-    if (address) {
-      customerAddress = await AddressModel.create(address, { transaction })
-    }
-
-    const response = await CustomerModel.create(
+    const response = await CustomerDomain.create(
       {
         ...customer,
-        companyId,
-        ...(customerAddress ? { addressId: customerAddress.id } : {})
+        companyId
       },
+      { transaction }
+    )
+
+    await transaction.commit()
+    res.status(201).json(response)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
+const update = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const id = pathOr(null, ['params', 'id'], req)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  try {
+    const response = await CustomerDomain.update(
+      id,
+      { ...req.body, companyId },
       { transaction }
     )
 
@@ -33,25 +43,12 @@ const create = async (req, res, next) => {
   }
 }
 
-const update = async (req, res, next) => {
-  const id = pathOr(null, ['params', 'id'], req)
-  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-  try {
-    const response = await CustomerModel.findOne({ where: { companyId, id } })
-    await response.update(req.body)
-    await response.reload()
-
-    res.json(response)
-  } catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-}
-
 const getById = async (req, res, next) => {
   const id = pathOr(null, ['params', 'id'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+
   try {
-    const response = await CustomerModel.findOne({ where: { companyId, id } })
+    const response = await CustomerDomain.getById(id, companyId)
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -60,12 +57,10 @@ const getById = async (req, res, next) => {
 
 const getAll = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-  const query = buildSearchAndPagination({
-    ...pathOr({}, ['query'], req),
-    companyId
-  })
+  const query = pathOr({}, ['query'], req)
+
   try {
-    const { count, rows } = await CustomerModel.findAndCountAll(query)
+    const { count, rows } = await CustomerDomain.getAll(query, companyId)
     res.json({ total: count, source: rows })
   } catch (error) {
     res.status(400).json({ error: error.message })

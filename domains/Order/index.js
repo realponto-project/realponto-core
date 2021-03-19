@@ -15,9 +15,11 @@ const ProductModel = database.model('product')
 const buildSearchAndPagination = buildPagination('order')
 
 class OrderDomain {
-  async create(companyId, bodyData, options = {}) {
+  async create(bodyData, options = {}) {
     const { transaction = null } = options
+    const companyId = pathOr(null, ['companyId'], bodyData)
 
+    const companyId = pathOr(null, ['companyId'], bodyData)
     const statusId = pathOr(null, ['statusId'], bodyData)
     const customerId = pathOr(null, ['customerId'], bodyData)
     const userId = pathOr(null, ['userId'], bodyData)
@@ -101,11 +103,12 @@ class OrderDomain {
     await Promise.all(updateBalances)
 
     return await OrderModel.findByPk(orderCreated.id, {
-      include: [TransactionModel]
+      include: [TransactionModel],
+      transaction
     })
   }
 
-  async getById(id, companyId, bodyData, options = {}) {
+  async getById(id, companyId, options = {}) {
     return await OrderModel.findOne({
       where: { id, companyId },
       include: [
@@ -128,7 +131,9 @@ class OrderDomain {
       ? { where: { companyId } }
       : { where: where.orderWhere }
 
-    return await OrderModel.findAndCountAll({
+    const count = await OrderModel.count({})
+
+    const rows = await OrderModel.findAll({
       ...orderWhere,
       limit,
       offset,
@@ -140,6 +145,7 @@ class OrderDomain {
         TransactionModel
       ]
     })
+    return { count, rows }
   }
 }
 

@@ -15,13 +15,11 @@ module.exports = {
       },
       label: {
         type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
+        allowNull: false
       },
       value: {
         type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
+        allowNull: false
       },
       color: {
         type: Sequelize.STRING,
@@ -35,6 +33,11 @@ module.exports = {
       typeLabel: {
         type: Sequelize.ENUM(['Entrada', 'Saída']),
         allowNull: false
+      },
+      concatStatus: {
+        type: Sequelize.VIRTUAL,
+        allowNull: true,
+        unique: true
       },
       companyId: {
         type: Sequelize.STRING,
