@@ -26,14 +26,6 @@ const calculatorOffset = (values) => {
   return multiply(offsetSubOne)(limit)
 }
 
-// implentar busca no status com o operador or para buscar multiplos campos
-// include:[{
-//   model: StatusModel,
-//   // where: { [Sequelize.Op.or]: [
-//   //   { value: 'Entrada'}, { value: 'Reserva' }, { value: 'Troca' }
-//   // ] }
-// }]
-
 const parserDateToMoment = (type) => (value) => {
   let dateParser = moment(value).startOf('day').utc().toISOString()
 
