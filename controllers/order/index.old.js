@@ -5,7 +5,6 @@ const TransactionModel = database.model('transaction')
 const ProductModel = database.model('product')
 const UserModel = database.model('user')
 const SerialNumberModel = database.model('serialNumber')
-// const BalanceModel = database.model('balance')
 const StatusModel = database.model('status')
 const OrderProductModel = database.model('orderProduct')
 const CustomerModel = database.model('customer')
@@ -152,32 +151,6 @@ const updateBalance = ({ type, label }) => async ({
   quantity,
   companyId
 }) => {
-  // const productBalance = await BalanceModel.findOne({
-  //   where: { productId, companyId }
-  // })
-  // if (label === 'booking') {
-  //   await productBalance.update({
-  //     booking: productBalance.booking + quantity
-  //   })
-  // }
-
-  // if (label === 'booking_return') {
-  //   await productBalance.update({
-  //     booking: productBalance.booking_return + quantity
-  //   })
-  // }
-
-  // if (label !== 'booking' && label === 'booking_return') {
-  //   await productBalance.update({
-  //     quantity:
-  //       type === 'outputs'
-  //         ? productBalance.quantity - quantity
-  //         : productBalance.quantity + quantity
-  //   })
-  // }
-
-  // await productBalance.reload()
-  // return productBalance
   return 'productBalance'
 }
 

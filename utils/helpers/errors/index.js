@@ -4,7 +4,6 @@ class HttpError extends Error {
     this.name = 'Error'
     this.statusCode = statusCode
     this.errors = errors
-    // https://nodejs.org/api/errors.html#errors_error_capturestacktrace_targetobject_constructoropt
     Error.captureStackTrace(this, this.constructor)
   }
 }
