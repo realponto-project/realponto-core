@@ -24,7 +24,7 @@ if (config.use_env_variable) {
 }
 
 const ModelInstances = Models.map((model) => model(sequelize))
-// sequelize.sync({ force: true })
+
 ModelInstances.forEach(
   (modelInstance) =>
     modelInstance.associate && modelInstance.associate(sequelize.models)
