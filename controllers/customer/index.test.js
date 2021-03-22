@@ -41,10 +41,7 @@ describe('controller Customer', () => {
           deletedAt: null,
           companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0',
           addressId: null,
-          address: null,
-          company: expect.objectContaining({
-            id: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
-          })
+          address: null
         })
       )
     })
@@ -91,9 +88,6 @@ describe('controller Customer', () => {
             createdAt: expect.any(String),
             updatedAt: expect.any(String),
             deletedAt: null
-          }),
-          company: expect.objectContaining({
-            id: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
           })
         })
       )
@@ -156,9 +150,6 @@ describe('controller Customer', () => {
             createdAt: expect.any(String),
             updatedAt: expect.any(String),
             deletedAt: null
-          }),
-          company: expect.objectContaining({
-            id: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
           })
         })
       )
@@ -207,9 +198,6 @@ describe('controller Customer', () => {
           addressId: customerFactory.addressId,
           address: expect.objectContaining({
             id: customerFactory.addressId
-          }),
-          company: expect.objectContaining({
-            id: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
           })
         })
       )
