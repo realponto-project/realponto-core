@@ -37,7 +37,7 @@ const User = (sequelize) => {
       },
       birthday: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: true
       },
       document: {
         type: Sequelize.STRING,
