@@ -19,9 +19,13 @@ module.exports = {
         unique: true
       },
       discount: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: false,
         unique: true
+      },
+      quantityProduct: {
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
       amount: {
         type: Sequelize.INTEGER,
