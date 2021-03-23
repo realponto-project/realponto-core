@@ -8,7 +8,6 @@ const buildPagination = require('../../utils/helpers/searchSpec')
 
 const AddressModel = database.model('address')
 const CustomerModel = database.model('customer')
-const CompanyModel = database.model('company')
 
 const buildSearchAndPagination = buildPagination('customer')
 
@@ -30,7 +29,7 @@ class CustomerDomain {
     })
 
     return CustomerModel.findByPk(customerCreated.id, {
-      include: [AddressModel, CompanyModel],
+      include: [AddressModel],
       transaction
     })
   }
@@ -68,7 +67,7 @@ class CustomerDomain {
 
     return CustomerModel.findByPk(id, {
       where: { companyId },
-      include: [AddressModel, CompanyModel],
+      include: [AddressModel],
       transaction
     })
   }
@@ -80,7 +79,7 @@ class CustomerDomain {
 
     const customerFound = await CustomerModel.findByPk(id, {
       where: { companyId },
-      include: [AddressModel, CompanyModel]
+      include: [AddressModel]
     })
 
     return customerFound || {}

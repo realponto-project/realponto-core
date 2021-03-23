@@ -254,7 +254,7 @@ describe('getById Customer', () => {
   })
 
   it('get customer by id', async () => {
-    expect.assertions(9)
+    expect.assertions(8)
 
     const customerFinded = await customerDomain.getById(
       customerFactory.id,
@@ -278,7 +278,6 @@ describe('getById Customer', () => {
       'companyId',
       customerFactory.companyId
     )
-    expect(customerFinded).toHaveProperty('company')
   })
 })
 describe('getAll Customer', () => {

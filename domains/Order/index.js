@@ -105,13 +105,7 @@ class OrderDomain {
   async getById(id, companyId, options = {}) {
     return await OrderModel.findOne({
       where: { id, companyId },
-      include: [
-        StatusModel,
-        CompanyModel,
-        CustomerModel,
-        UserModel,
-        TransactionModel
-      ]
+      include: [StatusModel, CustomerModel, UserModel, TransactionModel]
     })
   }
 
@@ -131,13 +125,7 @@ class OrderDomain {
       ...orderWhere,
       limit,
       offset,
-      include: [
-        StatusModel,
-        CompanyModel,
-        CustomerModel,
-        UserModel,
-        TransactionModel
-      ]
+      include: [StatusModel, CustomerModel, UserModel, TransactionModel]
     })
     return { count, rows }
   }
