@@ -34,15 +34,6 @@ const update = async (req, res, next) => {
   }
 }
 
-const getById = async (req, res, next) => {
-  try {
-    const response = await PlanDomain.getById(req.params.id)
-    res.json(response)
-  } catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-}
-
 const getAll = async (req, res, next) => {
   try {
     const { count, rows } = await PlanDomain.getAll(req.query)
@@ -55,6 +46,5 @@ const getAll = async (req, res, next) => {
 module.exports = {
   create,
   update,
-  getById,
   getAll
 }

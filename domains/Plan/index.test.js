@@ -2,74 +2,65 @@ const PlanDomain = require('./index')
 const { fakerPlan } = require('../../utils/helpers/fakers')
 const factory = require('../../utils/helpers/factories')
 
-describe('create new plan', () => {
-  it('create new plan', async () => {
-    expect.hasAssertions()
-    const planCreated = await PlanDomain.create(fakerPlan())
+describe('plan doamain', () => {
+  describe('create new plan', () => {
+    it('create new plan', async () => {
+      expect.hasAssertions()
 
-    expect(planCreated).toHaveProperty('id')
-    expect(planCreated).toHaveProperty('activated')
-    expect(planCreated).toHaveProperty('description')
-    expect(planCreated).toHaveProperty('discount')
-    expect(planCreated).toHaveProperty('quantityProduct')
-    expect(planCreated).toHaveProperty('amount')
-  })
-})
+      const fakerPlanCreated = fakerPlan()
+      const planCreated = await PlanDomain.create(fakerPlanCreated)
 
-describe('update plan', () => {
-  let planFactory = null
-
-  beforeAll(async () => {
-    planFactory = await factory.create('plan')
-  })
-
-  it('update plan', async () => {
-    expect.hasAssertions()
-    const planMock = fakerPlan()
-
-    const planUpdated = await PlanDomain.update(planFactory.id, planMock)
-
-    expect(planUpdated).toHaveProperty('id', planFactory.id)
-    expect(planUpdated).toHaveProperty('activated', planMock.activated)
-    expect(planUpdated).toHaveProperty('description', planMock.description)
-    expect(planUpdated).toHaveProperty('discount', planMock.discount)
-    expect(planUpdated).toHaveProperty(
-      'quantityProduct',
-      planMock.quantityProduct
-    )
-    expect(planUpdated).toHaveProperty('amount', planMock.amount)
-  })
-})
-
-describe('get plan', () => {
-  let planFactory = null
-
-  beforeAll(async () => {
-    planFactory = await factory.create('plan')
+      expect(planCreated).toHaveProperty('id', planCreated.id)
+      expect(planCreated).toHaveProperty(
+        'activated',
+        fakerPlanCreated.activated
+      )
+      expect(planCreated).toHaveProperty(
+        'description',
+        fakerPlanCreated.description
+      )
+      expect(planCreated).toHaveProperty('discount', fakerPlanCreated.discount)
+      expect(planCreated).toHaveProperty(
+        'quantityProduct',
+        fakerPlanCreated.quantityProduct
+      )
+      expect(planCreated).toHaveProperty('amount', fakerPlanCreated.amount)
+    })
   })
 
-  it('getById plan', async () => {
-    expect.hasAssertions()
+  describe('update plan', () => {
+    let planFactory = null
 
-    const getPlanById = await PlanDomain.getById(planFactory.id)
+    beforeAll(async () => {
+      planFactory = await factory.create('plan')
+    })
 
-    expect(getPlanById).toHaveProperty('id', planFactory.id)
-    expect(getPlanById).toHaveProperty('activated', planFactory.activated)
-    expect(getPlanById).toHaveProperty('description', planFactory.description)
-    expect(getPlanById).toHaveProperty('discount', planFactory.discount)
-    expect(getPlanById).toHaveProperty(
-      'quantityProduct',
-      planFactory.quantityProduct
-    )
-    expect(getPlanById).toHaveProperty('amount', planFactory.amount)
+    it('update plan', async () => {
+      expect.hasAssertions()
+      const planMock = fakerPlan()
+
+      const planUpdated = await PlanDomain.update(planFactory.id, planMock)
+
+      expect(planUpdated).toHaveProperty('id', planFactory.id)
+      expect(planUpdated).toHaveProperty('activated', planMock.activated)
+      expect(planUpdated).toHaveProperty('description', planMock.description)
+      expect(planUpdated).toHaveProperty('discount', planMock.discount)
+      expect(planUpdated).toHaveProperty(
+        'quantityProduct',
+        planMock.quantityProduct
+      )
+      expect(planUpdated).toHaveProperty('amount', planMock.amount)
+    })
   })
 
-  it('getAll plan', async () => {
-    expect.hasAssertions()
+  describe('get plan', () => {
+    it('getAll plan', async () => {
+      expect.hasAssertions()
 
-    const getAllPlan = await PlanDomain.getAll({})
+      const getAllPlan = await PlanDomain.getAll({})
 
-    expect(getAllPlan).toHaveProperty('rows')
-    expect(getAllPlan).toHaveProperty('count')
+      expect(getAllPlan).toHaveProperty('rows')
+      expect(getAllPlan).toHaveProperty('count')
+    })
   })
 })

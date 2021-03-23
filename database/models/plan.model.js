@@ -20,7 +20,7 @@ const Plan = (sequelize) => {
       unique: true
     },
     discount: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       allowNull: false,
       unique: true
     },

@@ -43,7 +43,8 @@ const fakerPlan = () => {
     description: faker.lorem.word(),
     discount: faker.random.number(),
     quantityProduct: faker.random.number(),
-    amount: faker.random.number()
+    amount: faker.random.number(),
+    totalAmount: faker.random.number()
   }
 }
 

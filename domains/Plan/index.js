@@ -1,15 +1,15 @@
-const buildPagination = require('../../utils/helpers/searchSpec')
 const database = require('../../database')
 const PlanModel = database.model('plan')
+const buildPagination = require('../../utils/helpers/searchSpec')
 const planSchema = require('../../utils/helpers/Schemas/Plan')
 
-const buildSearchAndPagination = buildPagination('status')
+const buildSearchAndPagination = buildPagination('plan')
 
-class StatusDomain {
+class PlanDomain {
   async create(bodyData, options = {}) {
     const { transaction = null } = options
     await planSchema.validate(bodyData, { abortEarly: false })
-    return await PlanModel.create(bodyData, { transaction })
+    return PlanModel.create(bodyData, { transaction })
   }
 
   async update(id, bodyData, options = {}) {
@@ -19,16 +19,12 @@ class StatusDomain {
 
     const searchStatus = await PlanModel.findByPk(id)
 
-    return await searchStatus.update(bodyData, { transaction })
-  }
-
-  async getById(id) {
-    return await PlanModel.findOne({ where: { id } })
+    return searchStatus.update(bodyData, { transaction })
   }
 
   async getAll(query) {
-    return await PlanModel.findAndCountAll(buildSearchAndPagination(query))
+    return PlanModel.findAndCountAll(buildSearchAndPagination(query))
   }
 }
 
-module.exports = new StatusDomain()
+module.exports = new PlanDomain()
