@@ -66,38 +66,6 @@ describe('plan controller', () => {
     })
 
     describe('get plan controller', () => {
-      let planFactory = null
-
-      beforeAll(async () => {
-        planFactory = await factory.create('plan')
-      })
-
-      it('get plan by id', async () => {
-        expect.hasAssertions()
-        const res = await request(app)
-          .get(`/api/plan/${planFactory.id}`)
-          .set('Authorization', `Bearer ${token}`)
-          .set('Accept', 'application/json')
-        expect(res.request.method).toStrictEqual('GET')
-        expect(res.statusCode).toBe(200)
-        expect(res.body).toHaveProperty('activated', planFactory.activated)
-        expect(res.body).toHaveProperty('description', planFactory.description)
-        expect(res.body).toHaveProperty('discount', planFactory.discount)
-        expect(res.body).toHaveProperty(
-          'quantityProduct',
-          planFactory.quantityProduct
-        )
-        expect(res.body).toHaveProperty('amount', planFactory.amount)
-      })
-    })
-
-    describe('get plan controller', () => {
-      let planFactory = null
-
-      beforeAll(async () => {
-        planFactory = await factory.create('plan')
-      })
-
       it('get all plan', async () => {
         expect.hasAssertions()
         const res = await request(app)
@@ -113,7 +81,7 @@ describe('plan controller', () => {
             id: expect.stringMatching(/^pl_/),
             activated: expect.any(Boolean),
             description: expect.any(String),
-            discount: expect.any(Number),
+            discount: expect.any(String),
             quantityProduct: expect.any(Number),
             amount: expect.any(Number),
             createdAt: expect.any(String),

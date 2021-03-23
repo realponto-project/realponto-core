@@ -226,6 +226,12 @@ const searchSpecs = {
       updatedAt: parserDateGteAndLte('updatedAt')
     }),
     removeFiledsNilOrEmpty
+  ),
+  plan: pipe(
+    applySpec({
+      activated: pathOr(null, ['activated'])
+    }),
+    removeFiledsNilOrEmpty
   )
 }
 
