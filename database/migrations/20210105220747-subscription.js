@@ -4,30 +4,36 @@ module.exports = {
   up: (queryInterface, Sequelize) =>
     queryInterface.createTable('subscription', {
       id: {
-        allowNull: false,
         type: Sequelize.STRING,
-        primaryKey: true
-      },
-      expiratedDate: {
-        allowNull: false,
-        type: Sequelize.DATE
+        primaryKey: true,
+        allowNull: false
       },
       startDate: {
         allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: new Date()
+      },
+      endDate: {
+        allowNull: false,
         type: Sequelize.DATE
       },
-      description: {
-        type: Sequelize.STRING,
+      activated: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-        unique: true
+        defaultValue: true
       },
-      discount: {
-        type: Sequelize.STRING,
+      autoRenew: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-        unique: true
+        defaultValue: true
       },
-      amount: {
-        type: Sequelize.INTEGER,
+      paymentMethod: {
+        type: Sequelize.ENUM(['credit_card', 'boleto', 'cash']),
+        allowNull: false,
+        defaultValue: 'credit_card'
+      },
+      statusPayment: {
+        type: Sequelize.STRING,
         allowNull: false
       },
       companyId: {
