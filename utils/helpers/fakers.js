@@ -37,8 +37,20 @@ const fakerProduct = () => {
   }
 }
 
+const fakerPlan = () => {
+  return {
+    activated: faker.random.boolean(),
+    description: faker.lorem.word(),
+    discount: faker.random.number(),
+    quantityProduct: faker.random.number(),
+    amount: faker.random.number(),
+    totalAmount: faker.random.number()
+  }
+}
+
 module.exports = {
   fakerCompany,
+  fakerPlan,
   fakerProduct,
   fakerStatus
 }

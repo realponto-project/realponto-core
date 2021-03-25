@@ -4,12 +4,18 @@ const database = require('../../database')
 const { generatorFakerAddress } = require('./Faker/address')
 const { generatorFakerCustomer } = require('./Faker/customer')
 const { generatorFakerUser } = require('./Faker/user')
-const { fakerCompany, fakerStatus, fakerProduct } = require('./fakers')
+const {
+  fakerCompany,
+  fakerStatus,
+  fakerProduct,
+  fakerPlan
+} = require('./fakers')
 
 const AddressModel = database.model('address')
 const CompanyModel = database.model('company')
 const CustomerModel = database.model('customer')
 const ProductModel = database.model('product')
+const PlanModel = database.model('plan')
 const StatusModel = database.model('status')
 const UserModel = database.model('user')
 const OrderModel = database.model('order')
@@ -39,6 +45,8 @@ factory.define('product', ProductModel, () => ({
   ...fakerProduct(),
   companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 }))
+
+factory.define('plan', PlanModel, () => fakerPlan())
 
 factory.define('transaction', TransactionModel, () => ({
   quantity: 10,

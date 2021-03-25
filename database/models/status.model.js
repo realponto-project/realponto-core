@@ -39,7 +39,7 @@ const Status = (sequelize) => {
         allowNull: false
       },
       concatStatus: {
-        type: Sequelize.VIRTUAL,
+        type: Sequelize.STRING,
         allowNull: true,
         unique: true
       }

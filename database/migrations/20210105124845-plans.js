@@ -23,6 +23,10 @@ module.exports = {
         allowNull: false,
         unique: true
       },
+      quantityProduct: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       amount: {
         type: Sequelize.INTEGER,
         allowNull: false
