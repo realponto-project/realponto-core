@@ -8,15 +8,6 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
-      startDate: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: new Date()
-      },
-      endDate: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
       activated: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
@@ -32,7 +23,19 @@ module.exports = {
         allowNull: false,
         defaultValue: 'credit_card'
       },
-      statusPayment: {
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      amount: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      tid: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      authorization_code: {
         type: Sequelize.STRING,
         allowNull: false
       },

@@ -19,20 +19,13 @@ describe('create subscription', () => {
       companyId,
       planId: plan.id
     })
+    console.log('mooooooooooock', subscriptionCreated)
 
     expect(subscriptionCreated).toHaveProperty('id')
     expect(subscriptionCreated.id).toMatch(/^sb_/)
     expect(subscriptionCreated).toHaveProperty(
       'activated',
       subscriptionMock.activated
-    )
-    expect(subscriptionCreated).toHaveProperty(
-      'startDate',
-      subscriptionMock.startDate
-    )
-    expect(subscriptionCreated).toHaveProperty(
-      'endDate',
-      subscriptionMock.endDate
     )
     expect(subscriptionCreated).toHaveProperty(
       'autoRenew',
@@ -43,8 +36,17 @@ describe('create subscription', () => {
       subscriptionMock.paymentMethod
     )
     expect(subscriptionCreated).toHaveProperty(
-      'statusPayment',
-      subscriptionMock.statusPayment
+      'status',
+      subscriptionMock.status
+    )
+    expect(subscriptionCreated).toHaveProperty(
+      'amount',
+      subscriptionMock.amount
+    )
+    expect(subscriptionCreated).toHaveProperty('tId', subscriptionMock.tId)
+    expect(subscriptionCreated).toHaveProperty(
+      'authorization_code',
+      subscriptionMock.authorization_code
     )
     expect(subscriptionCreated).toHaveProperty('companyId', companyId)
   })

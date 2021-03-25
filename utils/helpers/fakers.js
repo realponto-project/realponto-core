@@ -51,11 +51,9 @@ const fakerPlan = () => {
 const fakerSubscription = () => {
   return {
     activated: faker.random.boolean(),
-    startDate: faker.date.recent(),
-    endDate: faker.date.future(),
     autoRenew: faker.random.boolean(),
     paymentMethod: 'credit_card',
-    statusPayment: faker.lorem.word()
+    amount: faker.random.number()
   }
 }
 
