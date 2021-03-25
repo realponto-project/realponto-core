@@ -19,7 +19,7 @@ class SubscriptionDomain {
     }
 
     return SubscricptionModel.create(
-      { ...bodyData, endDate: moment().add(13, 'months').format('L') },
+      { ...bodyData, endDate: moment().add(13, 'months') },
       { transaction }
     )
   }

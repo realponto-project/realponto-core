@@ -17,12 +17,15 @@ describe('subscription controller', () => {
 
     token = response.body.token
 
-    plan = await factory.create('plan')
+    plan = await factory.create('plan', { activated: true })
   })
   describe('post subscription', () => {
     it('create subscription', async () => {
       expect.hasAssertions()
-      const subscriptionMock = { ...fakerSubscription(), planId: plan.id }
+      const subscriptionMock = {
+        ...fakerSubscription(),
+        planId: plan.id
+      }
 
       const res = await request(app)
         .post('/api/subscription')
@@ -32,21 +35,15 @@ describe('subscription controller', () => {
       expect(res.statusCode).toBe(201)
       expect(res.request.method).toStrictEqual('POST')
       expect(res.body).toHaveProperty('activated', subscriptionMock.activated)
-      expect(res.body).toHaveProperty('startDate')
-      expect(new Date(res.body.startDate)).toStrictEqual(
-        subscriptionMock.startDate
-      )
-      expect(res.body).toHaveProperty('endDate')
-      expect(new Date(res.body.endDate)).toStrictEqual(subscriptionMock.endDate)
       expect(res.body).toHaveProperty('autoRenew', subscriptionMock.autoRenew)
       expect(res.body).toHaveProperty(
         'paymentMethod',
         subscriptionMock.paymentMethod
       )
-      expect(res.body).toHaveProperty(
-        'statusPayment',
-        subscriptionMock.statusPayment
-      )
+      expect(res.body).toHaveProperty('status')
+      expect(res.body).toHaveProperty('amount', subscriptionMock.amount)
+      expect(res.body).toHaveProperty('tId', subscriptionMock.tId)
+      expect(res.body).toHaveProperty('authorization_code')
       expect(res.body).toHaveProperty('companyId', companyId)
     })
   })
