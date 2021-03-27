@@ -1,7 +1,6 @@
 const yup = require('yup')
 
 const statusSchema = yup.object().shape({
-  activated: yup.boolean().required(),
   label: yup.string().required(),
   value: yup.string().required(),
   color: yup.string().required(),
