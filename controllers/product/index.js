@@ -13,7 +13,6 @@ const create = async (req, res, next) => {
       { ...req.body, companyId, userId },
       { transaction }
     )
-
     await transaction.commit()
     res.status(201).json(response)
   } catch (error) {

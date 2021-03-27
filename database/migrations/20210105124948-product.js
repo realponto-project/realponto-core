@@ -15,7 +15,7 @@ module.exports = {
       },
       balance: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         defaultValue: 0,
         validate: {
           min: 0
@@ -32,16 +32,16 @@ module.exports = {
       minQuantity: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue: 5
+        defaultValue: 1
       },
       buyPrice: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         defaultValue: 0
       },
       salePrice: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         defaultValue: 0
       },
       companyId: {
