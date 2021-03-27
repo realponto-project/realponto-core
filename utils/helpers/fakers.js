@@ -48,9 +48,19 @@ const fakerPlan = () => {
   }
 }
 
+const fakerSubscription = () => {
+  return {
+    activated: faker.random.boolean(),
+    autoRenew: faker.random.boolean(),
+    paymentMethod: 'credit_card',
+    amount: faker.random.number()
+  }
+}
+
 module.exports = {
   fakerCompany,
   fakerPlan,
   fakerProduct,
-  fakerStatus
+  fakerStatus,
+  fakerSubscription
 }

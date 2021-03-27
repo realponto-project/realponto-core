@@ -18,6 +18,7 @@ const serialNumberRoutes = require('./routes/serialNumber')
 const userRoutes = require('./routes/user')
 const transactionRoutes = require('./routes/transaction')
 const companyRoutes = require('./routes/company')
+const subscriptionRoutes = require('./routes/subscription')
 const registerRoutes = require('./routes/register')
 
 app.use(cors())
@@ -35,6 +36,7 @@ app.use(baseUrl, orderRoutes)
 app.use(baseUrl, productRoutes)
 app.use(baseUrl, planRoutes)
 app.use(baseUrl, userRoutes)
+app.use(baseUrl, subscriptionRoutes)
 app.use(baseUrl, customerRoutes)
 
 module.exports = app

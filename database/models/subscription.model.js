@@ -9,24 +9,47 @@ const Subscription = (sequelize) => {
       allowNull: false,
       defaultValue: uuidv4Generator('sb_')
     },
-    productName: {
+    activated: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
+    },
+    autoRenew: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
+    },
+    paymentMethod: {
+      type: Sequelize.ENUM(['credit_card', 'boleto', 'cash']),
+      allowNull: false,
+      defaultValue: 'credit_card'
+    },
+    status: {
       type: Sequelize.STRING,
       allowNull: false
     },
-    quantity: {
+    amount: {
       type: Sequelize.INTEGER,
-      allowNull: false,
-      defaultValue: 0
+      allowNull: false
     },
-    salePrice: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
-      defaultValue: 0
+    tid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    authorization_code: {
+      type: Sequelize.STRING,
+      allowNull: false
     }
   })
 
   Subscription.associate = (models) => {
-    models.orderProduct.belongsTo(models.company, {
+    models.subscription.belongsTo(models.company, {
+      foreignKey: {
+        allowNull: false
+      }
+    })
+
+    models.subscription.belongsTo(models.plan, {
       foreignKey: {
         allowNull: false
       }
