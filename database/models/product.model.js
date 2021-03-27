@@ -16,7 +16,7 @@ const Product = (sequelize) => {
     },
     balance: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       defaultValue: 0,
       validate: {
         min: 0
@@ -33,16 +33,16 @@ const Product = (sequelize) => {
     minQuantity: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 5
+      defaultValue: 1
     },
     buyPrice: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       defaultValue: 0
     },
     salePrice: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       defaultValue: 0
     }
   })
