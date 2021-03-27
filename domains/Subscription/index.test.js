@@ -19,7 +19,6 @@ describe('create subscription', () => {
       companyId,
       planId: plan.id
     })
-    console.log('mooooooooooock', subscriptionCreated)
 
     expect(subscriptionCreated).toHaveProperty('id')
     expect(subscriptionCreated.id).toMatch(/^sb_/)
