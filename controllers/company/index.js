@@ -14,6 +14,15 @@ const statusDefault = {
   typeLabel: 'Entrada'
 }
 
+const saleStatus = {
+  activated: true,
+  label: 'sale',
+  value: 'Venda',
+  color: '#17C9B2',
+  type: 'outputs',
+  typeLabel: 'Saída'
+}
+
 const create = async (req, res, next) => {
   const transaction = await database.transaction()
   const company = path(['company'], req.body)
@@ -24,6 +33,14 @@ const create = async (req, res, next) => {
     await StatusDomain.create(
       {
         ...statusDefault,
+        companyId: response.id
+      },
+      { transaction }
+    )
+
+    await StatusDomain.create(
+      {
+        ...saleStatus,
         companyId: response.id
       },
       { transaction }
