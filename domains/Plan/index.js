@@ -25,6 +25,10 @@ class PlanDomain {
   async getAll(query) {
     return PlanModel.findAndCountAll(buildSearchAndPagination(query))
   }
+
+  async getPlanById(planId) {
+    return PlanModel.findByPk(planId)
+  }
 }
 
 module.exports = new PlanDomain()

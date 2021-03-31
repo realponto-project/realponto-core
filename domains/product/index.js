@@ -14,13 +14,15 @@ class ProductDomain {
     const { transaction = null } = options
     await productSchema.validate(bodyData, { abortEarly: false })
     const productCreated = await ProductModel.create(bodyData, { transaction })
+
     if (productCreated.balance > 0) {
       const statusFinded = await StatusModel.findOne({
         where: {
           companyId: bodyData.companyId,
-          label: statusCreated
+          value: statusCreated
         }
       })
+      console.log(statusFinded)
       const orderCreated = await OrderModel.create(
         {
           companyId: bodyData.companyId,

@@ -1,5 +1,5 @@
 const database = require('../../database')
-const SubscricptionModel = database.model('subscription')
+const SubscriptionModel = database.model('subscription')
 const PlanModel = database.model('plan')
 const SubscriptionSchema = require('../../utils/helpers/Schemas/Subscription')
 const moment = require('moment')
@@ -18,10 +18,18 @@ class SubscriptionDomain {
       throw new Error('Erro')
     }
 
-    return SubscricptionModel.create(
+    return SubscriptionModel.create(
       { ...bodyData, endDate: moment().add(13, 'months') },
       { transaction }
     )
+  }
+
+  async getSubscriptionActivated(companyId) {
+    const response = await SubscriptionModel.findOne({
+      where: { companyId }
+    })
+    console.log('---------------->>', response)
+    return response
   }
 }
 

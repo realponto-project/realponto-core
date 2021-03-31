@@ -11,7 +11,7 @@ const authentication = async (req, res, next) => {
 
   try {
     const user = await UserModel.findOne({ where: { email } })
-
+    console.log(user)
     if (!(await user.checkPassword(password))) {
       throw new Error('Email or password do not match')
     }
