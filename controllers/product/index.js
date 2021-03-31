@@ -7,13 +7,12 @@ const create = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const userId = pathOr(null, ['decoded', 'user', 'id'], req)
   const transaction = await database.transaction()
-
+  console.log('----------------->>', companyId, userId, req.body)
   try {
     const response = await ProductDomain.create(
       { ...req.body, companyId, userId },
       { transaction }
     )
-
     await transaction.commit()
     res.status(201).json(response)
   } catch (error) {

@@ -34,11 +34,6 @@ module.exports = {
         type: Sequelize.ENUM(['Entrada', 'Saída']),
         allowNull: false
       },
-      concatStatus: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        unique: true
-      },
       companyId: {
         type: Sequelize.STRING,
         references: {

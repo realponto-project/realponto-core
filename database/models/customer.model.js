@@ -19,12 +19,11 @@ const Customer = (sequelize) => {
     },
     document: {
       type: Sequelize.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: true
     },
     phone: {
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: true
     }
   })
 

@@ -2,12 +2,22 @@ const buildPagination = require('../../utils/helpers/searchSpec')
 const database = require('../../database')
 const StatusModel = database.model('status')
 const statusSchema = require('../../utils/helpers/Schemas/status')
+const Sequelize = require('sequelize')
+const { Op } = Sequelize
+const { iLike } = Op
 
 const buildSearchAndPagination = buildPagination('status')
 
 class StatusDomain {
   async create(bodyData, options = {}) {
     const { transaction = null } = options
+    const findStatus = await StatusModel.findOne({
+      where: { label: { [iLike]: `%${bodyData.label}%` } }
+    })
+    if (findStatus) {
+      return findStatus
+    }
+
     await statusSchema.validate(bodyData, { abortEarly: false })
     return await StatusModel.create(bodyData, { transaction })
   }
