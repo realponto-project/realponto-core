@@ -1,4 +1,5 @@
-const { omit, path } = require('ramda')
+const { omit, path, pathOr } = require('ramda')
+const { hash } = require('bcrypt')
 
 const database = require('../../database')
 const { NotFoundError } = require('../../utils/helpers/errors')
@@ -12,11 +13,15 @@ const buildSearchAndPagination = buildPagination('user')
 
 class UserDomain {
   async create(bodyData, options = {}) {
+    const password = path(['password'], bodyData)
     const { transaction = null } = options
-
-    const userCreated = await UserModel.create(bodyData, {
-      transaction
-    })
+    const passwordHash = await hash(password, 10)
+    const userCreated = await UserModel.create(
+      { ...bodyData, password: passwordHash },
+      {
+        transaction
+      }
+    )
 
     return await UserModel.findByPk(userCreated.id, {
       include: [CompanyModel],
@@ -60,6 +65,8 @@ class UserDomain {
       throw new NotFoundError('user not found')
     }
 
+    const password = await hash(bodyData.newPassword, 10)
+
     await UserUpdatePwdSchema.validate(bodyData)
 
     const checkedPassword = await user.checkPassword(bodyData.password)
@@ -68,15 +75,11 @@ class UserDomain {
       throw new Error('Password do not match with password saved')
     }
 
-    await user.update({ password: bodyData.newPassword }, { transaction })
+    await user.update({ password }, { transaction })
 
     await user.reload()
 
-    return await UserModel.findByPk(id, {
-      where: { companyId },
-      include: [CompanyModel],
-      transaction
-    })
+    return user
   }
 
   async getById(id, companyId) {

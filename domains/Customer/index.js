@@ -14,24 +14,36 @@ const buildSearchAndPagination = buildPagination('customer')
 class CustomerDomain {
   async create(bodyData, options = {}) {
     const { transaction = null } = options
-
+    const companyId = pathOr(null, ['companyId'], bodyData)
+    const document = pathOr(null, ['document'], bodyData)
+    let verifyClient = null
     const address = pathOr({}, ['address'], bodyData)
-
-    if (await AddressSchema.isValid(address)) {
-      const addressCreated = await addressDomain.create(address, {
-        transaction
+    if (document) {
+      verifyClient = await CustomerModel.findOne({
+        where: { companyId, document },
+        include: [AddressModel]
       })
-      bodyData.addressId = addressCreated.id
     }
 
-    const customerCreated = await CustomerModel.create(bodyData, {
-      transaction
-    })
+    if (!verifyClient) {
+      if (await AddressSchema.isValid(address)) {
+        const addressCreated = await addressDomain.create(address, {
+          transaction
+        })
+        bodyData.addressId = addressCreated.id
+      }
 
-    return CustomerModel.findByPk(customerCreated.id, {
-      include: [AddressModel],
-      transaction
-    })
+      const customerCreated = await CustomerModel.create(bodyData, {
+        transaction
+      })
+
+      return CustomerModel.findByPk(customerCreated.id, {
+        include: [AddressModel],
+        transaction
+      })
+    }
+
+    return verifyClient
   }
 
   async update(id, bodyData, options = {}) {

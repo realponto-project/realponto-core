@@ -3,12 +3,11 @@ const CompanyDomain = require('../../domains/company')
 const StatusDomain = require('../../domains/status')
 const UserDomain = require('../../domains/User')
 const database = require('../../database')
-const Company = require('../../database/models/company.model')
 
 const statusDefault = {
   activated: true,
-  label: 'initial_balance',
-  value: 'Saldo inicial',
+  value: 'initial_balance',
+  label: 'Saldo inicial',
   color: '#17C9B2',
   type: 'inputs',
   typeLabel: 'Entrada'

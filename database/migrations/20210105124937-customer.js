@@ -10,19 +10,19 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       socialName: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: false
       },
       document: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: false
       },
       phone: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: false
       },
       addressId: {
         type: Sequelize.STRING,
