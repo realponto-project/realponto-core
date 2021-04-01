@@ -1,8 +1,13 @@
 const { path } = require('ramda')
+const moment = require('moment')
+
 const CompanyDomain = require('../../domains/company')
 const StatusDomain = require('../../domains/status')
 const UserDomain = require('../../domains/User')
 const database = require('../../database')
+
+const PlanModel = database.model('plan')
+const SubscriptionModel = database.model('subscription')
 
 const statusDefault = {
   activated: true,
@@ -52,6 +57,26 @@ const create = async (req, res, next) => {
       },
       { transaction }
     )
+
+    const plan = await PlanModel.findOne({
+      where: { description: 'Free' },
+      raw: true
+    })
+
+    if (!plan) throw new Error('Plan not found')
+
+    await SubscriptionModel.create(
+      {
+        activated: true,
+        autoRenew: false,
+        amount: 0,
+        companyId: response.id,
+        planId: plan.id,
+        endDate: moment().add(1, 'months')
+      },
+      { transaction }
+    )
+
     res.status(201).json(response)
     await transaction.commit()
   } catch (error) {
