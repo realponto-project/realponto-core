@@ -21,24 +21,33 @@ const Subscription = (sequelize) => {
     },
     paymentMethod: {
       type: Sequelize.ENUM(['credit_card', 'boleto', 'cash']),
-      allowNull: false,
+      // allowNull: false,
       defaultValue: 'credit_card'
     },
     status: {
-      type: Sequelize.STRING,
-      allowNull: false
+      type: Sequelize.STRING
+      // allowNull: false
     },
     amount: {
       type: Sequelize.INTEGER,
       allowNull: false
     },
     tid: {
-      type: Sequelize.STRING,
-      allowNull: false
+      type: Sequelize.STRING
+      // allowNull: false
     },
     authorization_code: {
-      type: Sequelize.STRING,
-      allowNull: false
+      type: Sequelize.STRING
+      // allowNull: false
+    },
+    startDate: {
+      allowNull: false,
+      type: Sequelize.DATE,
+      defaultValue: new Date()
+    },
+    endDate: {
+      allowNull: false,
+      type: Sequelize.DATE
     }
   })
 
