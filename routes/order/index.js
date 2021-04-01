@@ -10,4 +10,6 @@ router.get('/orders', orderController.getAll)
 router.get('/orders/:id', orderController.getById)
 router.put('/orders/:id', orderControllerOld.update)
 
+router.post('/orders-pdv', orderController.createPdv)
+
 module.exports = router

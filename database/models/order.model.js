@@ -13,6 +13,16 @@ const Order = (sequelize) => {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: false
+    },
+    type: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      defaultValue: null
+    },
+    payment: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      defaultValue: null
     }
   })
 
