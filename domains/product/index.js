@@ -22,7 +22,7 @@ class ProductDomain {
           value: statusCreated
         }
       })
-      console.log(statusFinded)
+
       const orderCreated = await OrderModel.create(
         {
           companyId: bodyData.companyId,
@@ -68,6 +68,10 @@ class ProductDomain {
         companyId
       })
     )
+  }
+
+  async getProductByBarCode(barCode, companyId) {
+    return await ProductModel.findOne({ where: { barCode, companyId } })
   }
 }
 module.exports = new ProductDomain()

@@ -1,4 +1,8 @@
 const { pathOr } = require('ramda')
+const Sequelize = require('sequelize')
+
+const { Op } = Sequelize
+const { iLike } = Op
 
 const database = require('../../database')
 const OrderDomain = require('../../domains/Order')
@@ -27,20 +31,23 @@ const create = async (req, res, next) => {
 const createPdv = async (req, res, next) => {
   const transaction = await database.transaction()
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-
+ 
   try {
     const statusPdv = await StatusModel.findOne({
       where: {
         companyId,
         activated: true,
-        label: 'sale',
-        value: 'Venda'
+        value: {
+          [iLike]: '%sale%'
+        }
       },
       attributes: ['id'],
       raw: true
     })
 
-    if (!statusPdv) res.status(500).json({ message: 'Status not found' })
+    if (!statusPdv) {
+      throw new Error('Status not found!')
+    }
 
     await PdvSchema.validate(req.body)
 
