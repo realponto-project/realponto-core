@@ -7,7 +7,6 @@ const create = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const userId = pathOr(null, ['decoded', 'user', 'id'], req)
   const transaction = await database.transaction()
-  console.log('----------------->>', companyId, userId, req.body)
   try {
     const response = await ProductDomain.create(
       { ...req.body, companyId, userId },
@@ -63,9 +62,22 @@ const getAll = async (req, res, next) => {
     res.status(400).json({ error: error.message })
   }
 }
+
+const getProductByBarCode = async (req, res, next) => {
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const barcode = pathOr(null, ['params', 'barcode'], req)
+  try {
+    const response = await ProductDomain.getProductByBarCode(barcode, companyId)
+    res.json(response)
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
 module.exports = {
   create,
   update,
   getById,
-  getAll
+  getAll,
+  getProductByBarCode
 }
