@@ -57,7 +57,10 @@ class Metrics {
       customers: { value: customers },
       orders: { value: orders },
       ordersTotal: buildResponse,
-      ordersToday: ordersToday ? ordersToday : [],
+      ordersToday: ordersToday ? [{
+        name: 'Vendas',
+        value: ordersToday.total,
+      }] : [],
     })
   }
 }
