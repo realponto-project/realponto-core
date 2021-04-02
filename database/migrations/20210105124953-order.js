@@ -13,6 +13,16 @@ module.exports = {
         allowNull: false,
         defaultValue: false
       },
+      type: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
+      payment: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
       amount: {
         type: Sequelize.INTEGER,
         allowNull: false,
