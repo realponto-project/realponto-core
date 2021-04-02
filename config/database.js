@@ -4,11 +4,11 @@ require('dotenv').config({
 
 module.exports = {
   development: {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    password: process.env.DB_PWD,
-    username: process.env.DB_USERNAME,
-    database: process.env.DB_DATABASE,
+    host: 'localhost',
+    port: 5432,
+    password: 'postgres',
+    username: 'postgres',
+    database: 'realponto-core-postgres',
     dialect: 'postgres',
     define: {
       freezeTableName: true,

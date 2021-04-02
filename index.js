@@ -22,7 +22,7 @@ const subscriptionRoutes = require('./routes/subscription')
 const registerRoutes = require('./routes/register')
 const metricsRoutes = require('./routes/metrics')
 
-app.use(cors())
+app.use(cors('*'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
