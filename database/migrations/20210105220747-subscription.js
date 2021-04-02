@@ -19,25 +19,25 @@ module.exports = {
         defaultValue: true
       },
       paymentMethod: {
-        type: Sequelize.ENUM(['credit_card', 'boleto', 'cash']),
-        // allowNull: false,
-        defaultValue: 'credit_card'
+        type: Sequelize.ENUM(['credit_card', 'boleto', 'cash', 'free']),
+        allowNull: false,
+        defaultValue: 'free'
       },
       status: {
-        type: Sequelize.STRING
-        // allowNull: false
+        type: Sequelize.STRING,
+        allowNull: false
       },
       amount: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
       tid: {
-        type: Sequelize.STRING
-        // allowNull: false
+        type: Sequelize.STRING,
+        allowNull: true
       },
       authorization_code: {
-        type: Sequelize.STRING
-        // allowNull: false
+        type: Sequelize.STRING,
+        allowNull: true
       },
       companyId: {
         type: Sequelize.STRING,
