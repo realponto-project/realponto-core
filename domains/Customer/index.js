@@ -49,6 +49,9 @@ class CustomerDomain {
   async update(id, bodyData, options = {}) {
     const { transaction = null } = options
     const companyId = pathOr(null, ['companyId'], bodyData)
+    const document = pathOr(null, ['document'], bodyData)
+
+    let verifyClient = null
 
     const customer = await CustomerModel.findByPk(id, {
       where: { companyId },
@@ -57,6 +60,19 @@ class CustomerDomain {
 
     if (!customer) {
       throw new NotFoundError('customer not found')
+    }
+
+    if (document) {
+      verifyClient = await CustomerModel.findOne({
+        where: { companyId, document },
+        include: [AddressModel]
+      })
+    }
+
+    if (verifyClient) {
+      if (document !== customer.document) {
+        throw new NotFoundError('customer with same document')
+      }
     }
 
     const address = pathOr({}, ['address'], bodyData)
