@@ -90,8 +90,6 @@ const updatePassword = async (req, res, next) => {
       { transaction }
     )
 
-    console.log('awoioiupoipoipo')
-
     await transaction.commit()
     res.json(response)
   } catch (error) {

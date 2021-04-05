@@ -10,7 +10,7 @@ describe('controller Customer', () => {
 
   beforeAll(async () => {
     const { body } = await request(app).post('/auth/login').send({
-      email: 'alexandre_soares@hotmail.com',
+      email: 'alexandre_santos@hotmail.com',
       password: '123456'
     })
 

@@ -11,6 +11,8 @@ const buildSearchAndPagination = buildPagination('status')
 class StatusDomain {
   async create(bodyData, options = {}) {
     const { transaction = null } = options
+    await statusSchema.validate(bodyData, { abortEarly: false })
+
     const findStatus = await StatusModel.findOne({
       where: { label: { [iLike]: `%${bodyData.label}%` } }
     })
@@ -18,7 +20,6 @@ class StatusDomain {
       return findStatus
     }
 
-    await statusSchema.validate(bodyData, { abortEarly: false })
     return await StatusModel.create(bodyData, { transaction })
   }
 
