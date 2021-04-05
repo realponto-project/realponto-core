@@ -1,13 +1,10 @@
 const { path } = require('ramda')
 const moment = require('moment')
-const Sequelize = require('sequelize')
 
 const CompanyDomain = require('../../domains/company')
 const StatusDomain = require('../../domains/status')
 const UserDomain = require('../../domains/User')
 const database = require('../../database')
-const { Op } = Sequelize
-const { iLike } = Op
 
 const PlanModel = database.model('plan')
 const SubscriptionModel = database.model('subscription')
@@ -28,16 +25,6 @@ const saleStatus = {
   color: '#5DA0FC',
   type: 'outputs',
   typeLabel: 'Saída'
-}
-
-const freePlan = {
-  activated: true,
-  description: 'Free',
-  discount: 'OFF 100%',
-  quantityProduct: 30,
-  amount: 0,
-  createdAt: new Date(),
-  updatedAt: new Date(),
 }
 
 const create = async (req, res, next) => {
@@ -71,14 +58,12 @@ const create = async (req, res, next) => {
       { transaction }
     )
 
-    let plan = await PlanModel.findOne({
-      where: { description: { [iLike]: `%Free%` } },
+    const plan = await PlanModel.findOne({
+      where: { description: 'Free' },
       raw: true
     })
 
-    if (!plan) {
-      plan = await PlanModel.create(freePlan)
-    }
+    if (!plan) throw new Error('Plan not found')
 
     await SubscriptionModel.create(
       {

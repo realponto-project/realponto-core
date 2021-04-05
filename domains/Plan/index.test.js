@@ -19,7 +19,10 @@ describe('plan doamain', () => {
         'description',
         fakerPlanCreated.description
       )
-      expect(planCreated).toHaveProperty('discount', fakerPlanCreated.discount)
+      expect(planCreated).toHaveProperty(
+        'discount',
+        String(fakerPlanCreated.discount)
+      )
       expect(planCreated).toHaveProperty(
         'quantityProduct',
         fakerPlanCreated.quantityProduct

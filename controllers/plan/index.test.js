@@ -28,7 +28,7 @@ describe('plan controller', () => {
       expect(res.request.method).toStrictEqual('POST')
       expect(res.body).toHaveProperty('activated', planMock.activated)
       expect(res.body).toHaveProperty('description', planMock.description)
-      expect(res.body).toHaveProperty('discount', planMock.discount)
+      expect(res.body).toHaveProperty('discount', String(planMock.discount))
       expect(res.body).toHaveProperty(
         'quantityProduct',
         planMock.quantityProduct

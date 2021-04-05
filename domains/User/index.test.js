@@ -1,4 +1,5 @@
 const { prop } = require('ramda')
+const { hash } = require('bcrypt')
 
 const factory = require('../../utils/helpers/factories')
 const userDomain = require('.')
@@ -69,14 +70,16 @@ describe('update User', () => {
 describe('update password', () => {
   let userFactory = null
   beforeAll(async () => {
+    const password = await hash('123', 10)
+
     userFactory = await factory.create('user', {
-      password: '123',
+      password,
       activated: true
     })
   })
 
   it('update password', async () => {
-    expect.hasAssertions()
+    expect.assertions(12)
 
     const newPassword = prop('password', generatorFakerUser())
 
@@ -95,7 +98,6 @@ describe('update password', () => {
     expect(userUpdated).toHaveProperty('birthday', userFactory.birthday)
     expect(userUpdated).toHaveProperty('firstAccess', userFactory.firstAccess)
     expect(userUpdated).toHaveProperty('companyId', companyId)
-    expect(userUpdated).toHaveProperty('company')
     expect(userUpdated).toHaveProperty('password')
     expect(await userUpdated.checkPassword('123')).toBeFalsy()
     expect(await userUpdated.checkPassword(newPassword)).toBeTruthy()
@@ -129,6 +131,7 @@ describe('update password', () => {
     ).rejects.toThrow(new Error('Password do not match with password saved'))
   })
 })
+
 describe('getById user', () => {
   let userFactory = null
   beforeAll(async () => {

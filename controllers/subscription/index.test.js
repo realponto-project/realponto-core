@@ -32,6 +32,8 @@ describe('subscription controller', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('Accept', 'application/json')
         .send(subscriptionMock)
+
+      console.log(subscriptionMock)
       expect(res.statusCode).toBe(201)
       expect(res.request.method).toStrictEqual('POST')
       expect(res.body).toHaveProperty('activated', subscriptionMock.activated)
