@@ -40,7 +40,7 @@ const fakerProduct = () => {
 
 const fakerPlan = () => {
   return {
-    activated: faker.random.boolean(),
+    activated: true,
     description: faker.lorem.word(),
     discount: faker.random.number(),
     quantityProduct: faker.random.number(),
