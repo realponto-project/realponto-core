@@ -1,3 +1,5 @@
+const UserDomain = require('../../domains/User')
+
 const request = require('supertest')
 const { compareSync } = require('bcrypt')
 
@@ -19,7 +21,7 @@ describe('controller User', () => {
 
   describe('create User', () => {
     it('should create with userMock', async () => {
-      expect.assertions(26)
+      expect.hasAssertions()
       const userMock = generatorFakerUser()
 
       const response = await request(app)
@@ -63,7 +65,7 @@ describe('controller User', () => {
     })
 
     it('should return status code 403 to request without token', async () => {
-      expect.assertions(1)
+      expect.hasAssertions()
 
       const userMock = generatorFakerUser()
 
@@ -76,7 +78,7 @@ describe('controller User', () => {
     })
 
     it('should return status code 400 when request not sended body data', async () => {
-      expect.assertions(1)
+      expect.hasAssertions()
 
       const response = await request(app)
         .post('/api/users')
@@ -94,7 +96,8 @@ describe('controller User', () => {
     })
 
     it('should update with userMock', async () => {
-      expect.assertions(25)
+      expect.hasAssertions()
+
       const userMock = generatorFakerUser()
 
       const response = await request(app)
@@ -137,7 +140,8 @@ describe('controller User', () => {
     })
 
     it('should return status code 404 when request not sended Id params', async () => {
-      expect.assertions(1)
+      expect.hasAssertions()
+
       const userMock = generatorFakerUser()
 
       const response = await request(app)
@@ -149,7 +153,7 @@ describe('controller User', () => {
       expect(response.status).toBe(404)
     })
     it('should return status code 400 when request sended email already existing', async () => {
-      expect.assertions(1)
+      expect.hasAssertions()
 
       const { email } = await factory.create('user')
 
@@ -170,7 +174,8 @@ describe('controller User', () => {
     })
 
     it('should get with userFactory.id', async () => {
-      expect.assertions(25)
+      expect.hasAssertions()
+
       const userMock = generatorFakerUser()
 
       const response = await request(app)
@@ -218,7 +223,7 @@ describe('controller User', () => {
     })
 
     it('should return null when request not sended Id params', async () => {
-      expect.assertions(2)
+      expect.hasAssertions()
 
       const response = await request(app)
         .get(`/api/users/${123}`)
@@ -269,34 +274,34 @@ describe('controller User', () => {
   })
 
   describe('update Password', () => {
-    let userFactory = null
     let token = null
+    let userFactory = null
+
     beforeAll(async () => {
       userFactory = await factory.create('user', {
         activated: true,
-        password: '12345'
+        password: '123456'
       })
 
       const response = await request(app).post('/auth/login').send({
         email: userFactory.email,
-        password: '12345'
+        password: '123456'
       })
 
       token = response.body.token
     })
 
     it('should update with userMock', async () => {
-      expect.assertions(26)
+      expect.hasAssertions()
 
       const response = await request(app)
         .put(`/api/users-update-password`)
         .set('Authorization', `Bearer ${token}`)
         .set('Accept', 'application/json')
         .send({
-          password: '12345',
+          password: '123456',
           newPassword: '123'
         })
-
       expect(response.status).toBe(200)
       expect(response.request.method).toBe('PUT')
       expect(response.body).toHaveProperty('id', userFactory.id)
@@ -337,7 +342,7 @@ describe('controller User', () => {
     })
 
     it('should return status code 400 when request sended invalid password', async () => {
-      expect.assertions(1)
+      expect.hasAssertions()
 
       const response = await request(app)
         .put(`/api/users-update-password`)

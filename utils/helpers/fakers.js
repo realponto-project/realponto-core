@@ -1,4 +1,5 @@
 const faker = require('faker')
+const moment = require('moment')
 
 const fakerStatus = () => {
   const response = {
@@ -50,10 +51,16 @@ const fakerPlan = () => {
 
 const fakerSubscription = () => {
   return {
-    activated: faker.random.boolean(),
-    autoRenew: faker.random.boolean(),
-    paymentMethod: 'credit_card',
-    amount: faker.random.number()
+    cardHash: faker.random.uuid(),
+    planId: faker.random.uuid(),
+    amount: faker.random.number(),
+    start_date: moment(),
+    end_date: moment().add(30, 'day'),
+    status: 'free',
+    activated: true,
+    autoRenew: false,
+    paymentMethod: 'cash',
+    authorization_code: null
   }
 }
 

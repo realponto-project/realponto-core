@@ -1,4 +1,4 @@
-const { omit, path, pathOr } = require('ramda')
+const { omit, path } = require('ramda')
 const { hash } = require('bcrypt')
 
 const database = require('../../database')

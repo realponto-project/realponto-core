@@ -46,7 +46,8 @@ module.exports = async () => {
         activated: true,
         name: 'Alexandre Soares',
         email: 'alexandre_santos@hotmail.com',
-        password: '123456',
+        password:
+          '$2b$10$5xUqXkUwblWquZumoLYSRuGUYHupV0Lir0z9M8gsTxA1uUwtGbONa',
         firstAccess: true,
         phone: '+55 11 970707070',
         birthday: new Date(),

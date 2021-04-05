@@ -27,7 +27,6 @@ const create = async (req, res, next) => {
   })
 
   try {
-    console.log('serialNumbers.map(payload)', serialNumbers.map(payload))
     const response = await SerialNumberModel.bulkCreate(
       serialNumbers.map(payload),
       { transaction }
@@ -84,7 +83,6 @@ const getAll = async (req, res, next) => {
     ...pathOr({}, ['query'], req),
     companyId
   })
-  console.log(query, req.query)
   try {
     const response = await SerialNumberModel.findAll({ ...query, include })
     res.json(response)

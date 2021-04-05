@@ -33,11 +33,23 @@ module.exports = {
       },
       tid: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
+        defaultValue: null
       },
       authorization_code: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
+        defaultValue: null
+      },
+      start_date: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: null
+      },
+      end_date: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: null
       },
       companyId: {
         type: Sequelize.STRING,
@@ -56,15 +68,6 @@ module.exports = {
         },
         onUpdate: 'cascade',
         onDelete: 'restrict'
-      },
-      startDate: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: new Date()
-      },
-      endDate: {
-        allowNull: false,
-        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,

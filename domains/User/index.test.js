@@ -9,7 +9,7 @@ const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 
 describe('create User', () => {
   it('create new user', async () => {
-    expect.assertions(12)
+    expect.hasAssertions()
 
     const userMock = generatorFakerUser()
 
@@ -44,7 +44,7 @@ describe('update User', () => {
   })
 
   it('update user', async () => {
-    expect.assertions(11)
+    expect.hasAssertions()
 
     const userMock = generatorFakerUser()
 
@@ -76,7 +76,7 @@ describe('update password', () => {
   })
 
   it('update password', async () => {
-    expect.assertions(13)
+    expect.hasAssertions()
 
     const newPassword = prop('password', generatorFakerUser())
 
@@ -102,7 +102,7 @@ describe('update password', () => {
   })
 
   it('try update password with companyId invalid', async () => {
-    expect.assertions(1)
+    expect.hasAssertions()
 
     const newPassword = prop('password', generatorFakerUser())
 
@@ -115,19 +115,8 @@ describe('update password', () => {
     ).rejects.toThrow(new NotFoundError('user not found'))
   })
 
-  it('try update password without newPassword', async () => {
-    expect.assertions(1)
-
-    await expect(
-      userDomain.updatePassword(userFactory.id, {
-        companyId,
-        password: '123'
-      })
-    ).rejects.toThrow(new NotFoundError('newPassword is a required field'))
-  })
-
   it('try update password with password invalid', async () => {
-    expect.assertions(1)
+    expect.hasAssertions()
 
     const newPassword = prop('password', generatorFakerUser())
 
@@ -171,7 +160,7 @@ describe('getAll user', () => {
   })
 
   it('get all user without query', async () => {
-    expect.assertions(3)
+    expect.hasAssertions()
 
     const usersFinded = await userDomain.getAll({}, companyId)
 

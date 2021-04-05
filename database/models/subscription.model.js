@@ -35,19 +35,22 @@ const Subscription = (sequelize) => {
     tid: {
       type: Sequelize.STRING,
       allowNull: true,
+      defaultValue: null
     },
     authorization_code: {
       type: Sequelize.STRING,
-      allowNull: true
+      allowNull: true,
+      defaultValue: null
     },
-    startDate: {
-      allowNull: false,
+    start_date: {
       type: Sequelize.DATE,
-      defaultValue: new Date()
-    },
-    endDate: {
       allowNull: false,
-      type: Sequelize.DATE
+      defaultValue: null
+    },
+    end_date: {
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: null
     }
   })
 

@@ -19,7 +19,7 @@ class ProductDomain {
       const statusFinded = await StatusModel.findOne({
         where: {
           companyId: bodyData.companyId,
-          value: statusCreated
+          label: statusCreated
         }
       })
 

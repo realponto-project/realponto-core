@@ -14,7 +14,7 @@ class SubscriptionDomain {
       where: { id: bodyData.planId, activated: true }
     })
 
-    if (searchPlanActivated === null) {
+    if (!searchPlanActivated) {
       throw new Error('Erro')
     }
 
@@ -28,7 +28,6 @@ class SubscriptionDomain {
     const response = await SubscriptionModel.findOne({
       where: { companyId }
     })
-    console.log('---------------->>', response)
     return response
   }
 }
