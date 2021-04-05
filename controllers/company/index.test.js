@@ -25,6 +25,7 @@ describe('company controller', () => {
   describe('post company', () => {
     it('create company', async () => {
       expect.hasAssertions()
+
       const res = await request(app).post('/register').send(companyMock)
       expect(res.statusCode).toBe(201)
       expect(res.body).toHaveProperty('name', companyMock.company.name)

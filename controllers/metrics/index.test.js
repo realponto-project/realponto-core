@@ -1,6 +1,7 @@
 const request = require('supertest')
 
 const app = require('../../index')
+const factory = require('../../utils/helpers/factories')
 
 describe('controller Metrics', () => {
   let token = null
@@ -10,11 +11,13 @@ describe('controller Metrics', () => {
       password: '123456'
     })
 
+    await factory.create('order')
+
     token = body.token
   })
 
   it('should get metrics to home basic dash', async () => {
-    expect.hasAssertions()
+    expect.assertions(2)
     const response = await request(app)
       .get('/api/summary-home-basic')
       .set('Authorization', `Bearer ${token}`)

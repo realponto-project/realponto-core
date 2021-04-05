@@ -24,8 +24,14 @@ module.exports = {
     }
   },
   test: {
-    dialect: 'sqlite',
-    storage: './database/database-test.sqlite',
+    // dialect: 'sqlite',
+    // storage: './database/database-test.sqlite',
+    host: 'localhost',
+    port: 5430,
+    password: 'postgres',
+    username: 'postgres',
+    database: 'realponto-core-postgres-test',
+    dialect: 'postgres',
     define: {
       freezeTableName: true,
       paranoid: true,

@@ -120,9 +120,9 @@ describe('create Address', () => {
     expect(addressCreated).toHaveProperty(
       'complementary',
       addressMock.complementary,
-      undefined
+      null
     )
-    expect(addressCreated).toHaveProperty('reference', undefined)
+    expect(addressCreated).toHaveProperty('reference', null)
   })
 })
 

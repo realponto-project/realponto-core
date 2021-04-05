@@ -1,7 +1,5 @@
-const UserDomain = require('../../domains/User')
-
 const request = require('supertest')
-const { compareSync } = require('bcrypt')
+const { compareSync, hash } = require('bcrypt')
 
 const app = require('../../index')
 const factory = require('../../utils/helpers/factories')
@@ -280,7 +278,7 @@ describe('controller User', () => {
     beforeAll(async () => {
       userFactory = await factory.create('user', {
         activated: true,
-        password: '123456'
+        password: await hash('12345', 10)
       })
 
       const response = await request(app).post('/auth/login').send({
@@ -292,7 +290,7 @@ describe('controller User', () => {
     })
 
     it('should update with userMock', async () => {
-      expect.hasAssertions()
+      expect.assertions(14)
 
       const response = await request(app)
         .put(`/api/users-update-password`)
@@ -324,21 +322,6 @@ describe('controller User', () => {
         'companyId',
         'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
       )
-      expect(response.body).toHaveProperty('company')
-      expect(response.body.company).toHaveProperty(
-        'id',
-        'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
-      )
-      expect(response.body.company).toHaveProperty('name')
-      expect(response.body.company).toHaveProperty('fullname')
-      expect(response.body.company).toHaveProperty('siteUrl')
-      expect(response.body.company).toHaveProperty('document')
-      expect(response.body.company).toHaveProperty('passwordUserDefault')
-      expect(response.body.company).toHaveProperty('companyLogo')
-      expect(response.body.company).toHaveProperty('trialDays')
-      expect(response.body.company).toHaveProperty('subscription')
-      expect(response.body.company).toHaveProperty('allowPdv')
-      expect(response.body.company).toHaveProperty('allowOrder')
     })
 
     it('should return status code 400 when request sended invalid password', async () => {

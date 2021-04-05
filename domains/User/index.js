@@ -65,9 +65,9 @@ class UserDomain {
       throw new NotFoundError('user not found')
     }
 
-    const password = await hash(bodyData.newPassword, 10)
-
     await UserUpdatePwdSchema.validate(bodyData)
+
+    const password = await hash(bodyData.newPassword, 10)
 
     const checkedPassword = await user.checkPassword(bodyData.password)
 
@@ -75,11 +75,7 @@ class UserDomain {
       throw new Error('Password do not match with password saved')
     }
 
-    await user.update({ password }, { transaction })
-
-    await user.reload()
-
-    return user
+    return await user.update({ password }, { transaction })
   }
 
   async getById(id, companyId) {

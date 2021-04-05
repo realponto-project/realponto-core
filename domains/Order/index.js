@@ -118,7 +118,7 @@ class OrderDomain {
       ? { where: { companyId } }
       : { where: where.orderWhere }
 
-    const count = await OrderModel.count({})
+    const count = await OrderModel.count({ ...orderWhere })
 
     const rows = await OrderModel.findAll({
       ...orderWhere,
@@ -126,6 +126,7 @@ class OrderDomain {
       offset,
       include: [StatusModel, CustomerModel, UserModel, TransactionModel]
     })
+
     return { count, rows }
   }
 }

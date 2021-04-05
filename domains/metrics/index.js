@@ -42,6 +42,7 @@ class Metrics {
       ],
       raw: true
     })
+
     const orders = await OrderModel.count({
       where: { companyId },
       include: [{ model: StatusModel, where: { label: 'sale' } }]
