@@ -229,7 +229,8 @@ const searchSpecs = {
   ),
   plan: pipe(
     applySpec({
-      activated: pathOr(null, ['activated'])
+      activated: pathOr(null, ['activated']),
+      description: iLikeOperation('description')
     }),
     removeFiledsNilOrEmpty
   )
