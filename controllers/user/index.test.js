@@ -283,7 +283,7 @@ describe('controller User', () => {
 
       const response = await request(app).post('/auth/login').send({
         email: userFactory.email,
-        password: '123456'
+        password: '12345'
       })
 
       token = response.body.token
@@ -297,7 +297,7 @@ describe('controller User', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('Accept', 'application/json')
         .send({
-          password: '123456',
+          password: '12345',
           newPassword: '123'
         })
       expect(response.status).toBe(200)

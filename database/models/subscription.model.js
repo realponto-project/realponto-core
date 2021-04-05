@@ -42,15 +42,14 @@ const Subscription = (sequelize) => {
       allowNull: true,
       defaultValue: null
     },
-    start_date: {
+    startDate: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: null
+      defaultValue: new Date()
     },
-    end_date: {
+    endDate: {
       type: Sequelize.DATE,
-      allowNull: false,
-      defaultValue: null
+      allowNull: false
     }
   })
 
