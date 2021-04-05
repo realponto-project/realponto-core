@@ -1,14 +1,14 @@
 const SubscriptionDomain = require('.')
-const { fakerSubscription } = require('../../utils/helpers/fakers')
-const factory = require('../../utils/helpers/factories')
+const PlanDomain = require('../Plan')
+const { fakerSubscription, fakerPlan } = require('../../utils/helpers/fakers')
 
 const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 
 describe('create subscription', () => {
-  let plan = null
+  let planCreated = null
 
   beforeAll(async () => {
-    plan = await factory.create('plan')
+    planCreated = await PlanDomain.create(fakerPlan())
   })
   it('create new subscription', async () => {
     expect.hasAssertions()
@@ -17,7 +17,7 @@ describe('create subscription', () => {
     const subscriptionCreated = await SubscriptionDomain.create({
       ...subscriptionMock,
       companyId,
-      planId: plan.id
+      planId: planCreated.id
     })
 
     expect(subscriptionCreated).toHaveProperty('id')

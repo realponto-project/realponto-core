@@ -11,7 +11,8 @@ const authentication = async (req, res, next) => {
 
   try {
     const user = await UserModel.findOne({ where: { email } })
-    if (user && !(await user.checkPassword(password))) {
+
+    if (!(await user.checkPassword(password))) {
       throw new Error('Email or password do not match')
     }
     const userWithoutPwd = await UserModel.findByPk(user.id, {
@@ -32,7 +33,6 @@ const authentication = async (req, res, next) => {
 
 const checkToken = (req, res, next) => {
   const token = req.headers['x-access-token'] || req.headers.authorization
-
   if (token) {
     jwt.verify(token.slice(7, token.length), secret, (err, decoded) => {
       if (err) {

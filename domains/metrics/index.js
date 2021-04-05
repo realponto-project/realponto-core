@@ -1,7 +1,7 @@
-const { pathOr, prop, pipe, map } = require('ramda')
+const { pathOr } = require('ramda')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
-const { gte, lte, iLike } = Op
+const { gte, lte } = Op
 const moment = require('moment')
 
 const database = require('../../database')
@@ -12,12 +12,16 @@ const StatusModel = database.model('status')
 class Metrics {
   async getMetrics(payload, options = {}) {
     const companyId = pathOr(null, ['companyId'], payload)
-    const customers = await CustomerModel.count({ where: { companyId }})
+    const customers = await CustomerModel.count({ where: { companyId } })
     const ordersLast15Days = await OrderModel.findAll({
-      where: { 
+      where: {
         companyId,
         createdAt: {
-          [gte]: moment().subtract(14, 'day').startOf('day').utc().toISOString(),
+          [gte]: moment()
+            .subtract(14, 'day')
+            .startOf('day')
+            .utc()
+            .toISOString(),
           [lte]: moment().endOf('day').utc().toISOString()
         }
       },
@@ -36,32 +40,33 @@ class Metrics {
         Sequelize.fn('date_trunc', 'day', Sequelize.col('order.createdAt')),
         'status.id'
       ],
-      raw: true,
+      raw: true
     })
-    const orders = await OrderModel.count({ where: { companyId }, include: [{ model: StatusModel, where: { label : 'sale' }}]})
+    const orders = await OrderModel.count({
+      where: { companyId },
+      include: [{ model: StatusModel, where: { label: 'sale' } }]
+    })
 
     const buildResponse = ordersLast15Days
-      .filter(item => item['status.label'] === 'sale')
-      .map(order => {
-        return ({
+      .filter((item) => item['status.label'] === 'sale')
+      .map((order) => {
+        return {
           name: order.name,
           total: order.total,
           resumeDate: moment(order.name).toISOString().substr(8, 2)
-        })
+        }
       })
 
-    const filterOrders = item => moment(item.name).add(1, 'day').format('DD') === moment().format('DD')
+    const filterOrders = (item) =>
+      moment(item.name).add(1, 'day').format('DD') === moment().format('DD')
     const ordersToday = buildResponse.find(filterOrders)
 
-    return ({
+    return {
       customers: { value: customers },
       orders: { value: orders },
       ordersTotal: buildResponse,
-      ordersToday: ordersToday ? [{
-        name: 'Vendas',
-        value: ordersToday.total,
-      }] : [],
-    })
+      ordersToday: ordersToday || []
+    }
   }
 }
 

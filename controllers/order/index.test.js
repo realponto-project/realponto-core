@@ -6,12 +6,12 @@ const factory = require('../../utils/helpers/factories')
 describe('controller Order', () => {
   let token = null
   beforeAll(async () => {
-    const { body } = await request(app).post('/auth/login').send({
+    const response = await request(app).post('/auth/login').send({
       email: 'alexandre_santos@hotmail.com',
       password: '123456'
     })
 
-    token = body.token
+    token = response.body.token
   })
 
   describe('create', () => {

@@ -14,32 +14,36 @@ describe('controller Metrics', () => {
   })
 
   it('should get metrics to home basic dash', async () => {
-    expect.assertions(2)
-    await request(app)
+    expect.hasAssertions()
+    const response = await request(app)
       .get('/api/summary-home-basic')
       .set('Authorization', `Bearer ${token}`)
       .send({
         customers: { value: 1234 },
         orders: { value: 3 },
-        ordersTotal: [{
-          name: '01/03/2021',
-          resumeDate: '01',
-          total: 10
-        },
-        {
-          name: '02/03/2021',
-          resumeDate: '02',
-          total: 20
-        },
-        {
-          name: '03/03/2021',
-          resumeDate: '03',
-          total: 1
-        }],
-        ordersToday: [{
-          name: 'Vendas',
-          value: 1
-        }]
+        ordersTotal: [
+          {
+            name: '01/03/2021',
+            resumeDate: '01',
+            total: 10
+          },
+          {
+            name: '02/03/2021',
+            resumeDate: '02',
+            total: 20
+          },
+          {
+            name: '03/03/2021',
+            resumeDate: '03',
+            total: 1
+          }
+        ],
+        ordersToday: [
+          {
+            name: 'Vendas',
+            value: 1
+          }
+        ]
       })
 
     expect(response).toHaveProperty('status', 200)
