@@ -13,11 +13,15 @@ const {
   always,
   concat,
   prop,
-  propOr
+  propOr,
+  omit,
+  __,
+  path,
+  merge
 } = require('ramda')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
-const { gte, lte, iLike } = Op
+const { gte, lte, iLike, or, and } = Op
 
 const calculatorOffset = (values) => {
   const pageOffset = pipe(pathOr(1, ['page']), Number)(values)
@@ -53,6 +57,17 @@ const iLikeOperation = (propName) => (values) => {
 
   return {
     [iLike]: concat(concat('%', propValue), '%')
+  }
+}
+
+const orOperation = (values) => {
+  const valuesWithoutCompanyId = omit(['companyId'], values)
+  if (isEmpty(valuesWithoutCompanyId)) {
+    return null
+  }
+
+  return {
+    [or]: valuesWithoutCompanyId
   }
 }
 
@@ -186,15 +201,21 @@ const searchSpecs = {
   ),
   user: pipe(
     applySpec({
+      activated: pathOr(null, ['activated']),
       name: iLikeOperation('name'),
       phone: iLikeOperation('phone'),
       email: iLikeOperation('email'),
       companyId: pathOr(null, ['companyId']),
-      document: pathOr(null, ['document']),
+      document: iLikeOperation('document'),
       createdAt: parserDateGteAndLte('createdAt'),
       updatedAt: parserDateGteAndLte('updatedAt')
     }),
-    removeFiledsNilOrEmpty
+    removeFiledsNilOrEmpty,
+    applySpec({
+      or: orOperation,
+      companyId: prop('companyId')
+    }),
+    (item) => merge(path(['or'], item), { companyId: prop('companyId', item) })
   ),
   product: pipe(
     applySpec({
@@ -220,12 +241,17 @@ const searchSpecs = {
   customer: pipe(
     applySpec({
       name: iLikeOperation('name'),
-      document: pathOr(null, ['document']),
+      document: iLikeOperation('document'),
       companyId: pathOr(null, ['companyId']),
       createdAt: parserDateGteAndLte('createdAt'),
       updatedAt: parserDateGteAndLte('updatedAt')
     }),
-    removeFiledsNilOrEmpty
+    removeFiledsNilOrEmpty,
+    applySpec({
+      or: orOperation,
+      companyId: prop('companyId')
+    }),
+    (item) => merge(path(['or'], item), { companyId: prop('companyId', item) })
   ),
   plan: pipe(
     applySpec({
