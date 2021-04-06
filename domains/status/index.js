@@ -39,7 +39,7 @@ class StatusDomain {
       where: { label: { [iLike]: `%${bodyData.label}%` }, companyId }
     })
 
-    if (findStatus && findStatus.label !== bodyData.label) {
+    if (findStatus && searchStatus.label !== bodyData.label) {
       throw new NotFoundError('status with same label')
     }
 
