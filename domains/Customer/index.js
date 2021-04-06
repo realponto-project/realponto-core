@@ -1,4 +1,4 @@
-const { pathOr } = require('ramda')
+const { pathOr, isEmpty } = require('ramda')
 
 const database = require('../../database')
 const addressDomain = require('../Address')
@@ -26,7 +26,8 @@ class CustomerDomain {
     }
 
     if (!verifyClient) {
-      if (await AddressSchema.isValid(address)) {
+      if (address) {
+        await AddressSchema.validate(address)
         const addressCreated = await addressDomain.create(address, {
           transaction
         })
@@ -77,7 +78,9 @@ class CustomerDomain {
 
     const address = pathOr({}, ['address'], bodyData)
 
-    if (await AddressSchema.isValid(address)) {
+    if (!isEmpty(address)) {
+      await AddressSchema.validate(address)
+
       if (customer.address) {
         await addressDomain.update(customer.addressId, address, {
           transaction
@@ -89,9 +92,22 @@ class CustomerDomain {
 
         bodyData.addressId = id
       }
+    } else if (customer.address) {
+      bodyData.addressId = null
     }
 
     await customer.update(bodyData, { transaction })
+
+    if (isEmpty(address) && customer.address) {
+      const address = await AddressModel.findByPk(customer.addressId, {
+        transaction
+      })
+
+      await address.destroy({
+        force: true,
+        transaction
+      })
+    }
 
     return CustomerModel.findByPk(id, {
       where: { companyId },
