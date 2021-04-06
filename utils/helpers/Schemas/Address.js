@@ -7,8 +7,8 @@ const AddressSchema = yup.object().shape({
   city: yup.string().required(),
   states: yup.string().required(),
   zipcode: yup.string().required(),
-  complementary: yup.string().required(),
-  reference: yup.string().required()
+  complementary: yup.string(),
+  reference: yup.string()
 })
 
 module.exports = AddressSchema
