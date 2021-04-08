@@ -1,4 +1,4 @@
-const { pathOr, isEmpty } = require('ramda')
+const { pathOr, isEmpty, isNil } = require('ramda')
 
 const database = require('../../database')
 const addressDomain = require('../Address')
@@ -18,6 +18,7 @@ class CustomerDomain {
     const document = pathOr(null, ['document'], bodyData)
     let verifyClient = null
     const address = pathOr({}, ['address'], bodyData)
+
     if (document) {
       verifyClient = await CustomerModel.findOne({
         where: { companyId, document },
@@ -26,7 +27,7 @@ class CustomerDomain {
     }
 
     if (!verifyClient) {
-      if (address) {
+      if (isNil(address)) {
         await AddressSchema.validate(address)
         const addressCreated = await addressDomain.create(address, {
           transaction
