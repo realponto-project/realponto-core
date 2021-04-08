@@ -61,7 +61,7 @@ const iLikeOperation = (propName) => (values) => {
 }
 
 const orOperation = (values) => {
-  const valuesWithoutCompanyId = omit(['companyId'], values)
+  const valuesWithoutCompanyId = omit(['companyId', 'activated'], values)
   if (isEmpty(valuesWithoutCompanyId)) {
     return null
   }
@@ -117,21 +117,21 @@ const removeFiledsNilOrEmpty = (values) => {
   const fields = values
   const fieldFormmat = Object.keys(fields).reduce((curr, prev) => {
     if (!curr[prev] && fields[prev]) {
-      if (fields[prev] == 'true') {
+      if (fields[prev] === 'true') {
         curr = {
           ...curr,
           [prev]: true
         }
       }
 
-      if (fields[prev] == 'false') {
+      if (fields[prev] === 'false') {
         curr = {
           ...curr,
           [prev]: false
         }
       }
 
-      if (fields[prev] != 'true' && fields != 'false') {
+      if (fields[prev] !== 'true' && fields !== 'false') {
         curr = {
           ...curr,
           [prev]: fields[prev]
@@ -201,7 +201,7 @@ const searchSpecs = {
   ),
   user: pipe(
     applySpec({
-      activated: pathOr(null, ['activated']),
+      activated: path(['activated']),
       name: iLikeOperation('name'),
       phone: iLikeOperation('phone'),
       email: iLikeOperation('email'),
@@ -213,9 +213,19 @@ const searchSpecs = {
     removeFiledsNilOrEmpty,
     applySpec({
       or: orOperation,
-      companyId: prop('companyId')
+      companyId: prop('companyId'),
+      activated: prop('activated')
     }),
-    (item) => merge(path(['or'], item), { companyId: prop('companyId', item) })
+    (item) =>
+      merge(
+        path(['or'], item),
+        prop('activated', item)
+          ? {
+              companyId: prop('companyId', item),
+              activated: prop('activated', item)
+            }
+          : { companyId: prop('companyId', item) }
+      )
   ),
   product: pipe(
     applySpec({
