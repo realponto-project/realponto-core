@@ -33,6 +33,7 @@ class InvalidParamsError extends HttpError {
 }
 
 module.exports = {
+  HttpError,
   NotFoundError,
   UnauthorizedError,
   InvalidParamsError

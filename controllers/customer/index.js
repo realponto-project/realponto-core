@@ -39,7 +39,7 @@ const update = async (req, res, next) => {
     res.json(response)
   } catch (error) {
     await transaction.rollback()
-    res.status(400).json({ error: error.message })
+    next(error)
   }
 }
 

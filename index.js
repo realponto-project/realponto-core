@@ -3,6 +3,7 @@ require('dotenv').config({})
 const Express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const errorFormatter = require('./utils/helpers/errors/formatter')
 
 const app = Express()
 const baseUrl = '/api'
@@ -40,5 +41,11 @@ app.use(baseUrl, planRoutes)
 app.use(baseUrl, userRoutes)
 app.use(baseUrl, subscriptionRoutes)
 app.use(baseUrl, customerRoutes)
+
+app.use((err, req, res, next) => {
+  const formattedError = errorFormatter(err)
+
+  res.status(formattedError.status || 500).json(formattedError)
+})
 
 module.exports = app
