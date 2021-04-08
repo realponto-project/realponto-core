@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize')
 const { compare } = require('bcrypt')
 const uuidv4Generator = require('../../utils/helpers/hash')
+const { replace } = require('ramda')
 
 const User = (sequelize) => {
   const User = sequelize.define('user', {
@@ -30,7 +31,10 @@ const User = (sequelize) => {
     phone: {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: ''
+      defaultValue: '',
+      set(value) {
+        this.setDataValue('phone', replace(/\D/g, '', value || ''))
+      }
     },
     badget: {
       type: Sequelize.STRING,
@@ -43,7 +47,10 @@ const User = (sequelize) => {
     document: {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: ''
+      defaultValue: '',
+      set(value) {
+        this.setDataValue('document', replace(/\W/g, '', value || ''))
+      }
     },
     password: {
       type: Sequelize.STRING,
