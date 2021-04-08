@@ -1,4 +1,4 @@
-const { omit, path, pathOr } = require('ramda')
+const { omit, path, pathOr, replace, pipe } = require('ramda')
 const { hash } = require('bcrypt')
 
 const database = require('../../database')
@@ -33,7 +33,10 @@ class UserDomain {
     const { transaction = null } = options
 
     const companyId = path(['companyId'], bodyData)
-    const document = path(['document'], bodyData)
+    const document = pipe(
+      pathOr('', ['document']),
+      replace(/\W/g, '')
+    )(bodyData)
 
     const user = await UserModel.findByPk(id, {
       where: { companyId }
@@ -43,12 +46,14 @@ class UserDomain {
       throw new NotFoundError('user not found')
     }
 
-    const verifyDocument = await UserModel.findOne({
-      where: document ? { document, companyId } : { companyId }
-    })
+    if (document) {
+      const verifyDocument = await UserModel.findOne({
+        where: { document, companyId }
+      })
 
-    if (verifyDocument) {
-      throw new NotFoundError('user alredy exist with this document')
+      if (verifyDocument) {
+        throw new NotFoundError('user alredy exist with this document')
+      }
     }
 
     await user.update(omit(['password'], bodyData), { transaction })
