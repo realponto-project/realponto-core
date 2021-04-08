@@ -2,7 +2,7 @@ const Sequelize = require('sequelize')
 const uuidv4Generator = require('../../utils/helpers/hash')
 const { isValid: isValidCpf } = require('@fnando/cpf')
 const { isValid: isValidCnpj } = require('@fnando/cnpj')
-const { isEmpty, replace } = require('ramda')
+const { isEmpty, replace, isNil } = require('ramda')
 
 const Customer = (sequelize) => {
   const Customer = sequelize.define('customer', {
@@ -24,11 +24,15 @@ const Customer = (sequelize) => {
       type: Sequelize.STRING,
       allowNull: true,
       set(value) {
-        this.setDataValue('document', replace(/\D/g, '', value))
+        this.setDataValue('document', replace(/\D/g, '', value || ''))
       },
       validate: {
         isCpfOrCnpj(value) {
-          if (!isEmpty(value) && !isValidCnpj(value) && !isValidCpf(value)) {
+          if (
+            !(isEmpty(value) || isNil(value)) &&
+            !isValidCnpj(value) &&
+            !isValidCpf(value)
+          ) {
             throw new Error('Value is not cpnj nor cpf')
           }
         }
