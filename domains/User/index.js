@@ -51,7 +51,7 @@ class UserDomain {
         where: { document, companyId }
       })
 
-      if (verifyDocument) {
+      if (verifyDocument && verifyDocument.id !== id) {
         throw new NotFoundError('user alredy exist with this document')
       }
     }
