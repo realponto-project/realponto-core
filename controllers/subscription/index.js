@@ -31,20 +31,27 @@ const create = async (req, res, next) => {
       ]
     }
 
-    const conectionPagarme = await pagarme.client.connect({
-      api_key: process.env.API_KEY
-    })
-
-    const {
-      tid,
-      authorization_code,
-      status
-    } = await conectionPagarme.transactions.create(transactionSpecPagarme)
+    // const conectionPagarme = await pagarme.client.connect({
+    //   api_key: process.env.API_KEY
+    // })
+    const status = ''
+    // const {
+    //   tid,
+    //   authorization_code,
+    //   status
+    // } = await conectionPagarme.transactions.create(transactionSpecPagarme)
 
     const activated = !!(status === 'paid' || status === 'autorizated')
 
     const response = await SubscriptionDomain.create(
-      { ...req.body, companyId, tid, authorization_code, status, activated },
+      {
+        ...req.body,
+        companyId,
+        tid: '',
+        authorization_code: '',
+        status: '',
+        activated
+      },
       { transaction }
     )
     await transaction.commit()

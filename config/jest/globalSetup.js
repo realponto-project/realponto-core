@@ -1,21 +1,25 @@
 const database = require('../../database')
+const moment = require('moment')
 
 const CompanyModel = database.model('company')
 const StatusModel = database.model('status')
 const UserModel = database.model('user')
 const PlanModel = database.model('plan')
+const SubscriptionModel = database.model('subscription')
 
 module.exports = async () => {
-  await PlanModel.findOrCreate({
+  await CompanyModel.findOrCreate({
     where: {
-      id: 'pl_ecbb9b10-5821-4ab6-a490-67962c601af9',
-      activated: true,
-      description: 'Free',
-      discount: 'free',
-      quantityProduct: 30,
-      amount: 0
+      id: 'co_5eb458ca-3466-4c89-99d2-e9ae57c0c362',
+      name: 'Company JLC',
+      fullname: 'Fullname company social JLC ltda',
+      document: '46700988888',
+      siteUrl: 'www.jlc.com.br',
+      allowOrder: true,
+      allowPdv: false
     }
   })
+
   await CompanyModel.findOrCreate({
     where: {
       id: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0',
@@ -27,15 +31,32 @@ module.exports = async () => {
       allowPdv: false
     }
   })
-  await CompanyModel.findOrCreate({
+
+  await PlanModel.findOrCreate({
     where: {
-      id: 'co_5eb458ca-3466-4c89-99d2-e9ae57c0c362',
-      name: 'Company JLC',
-      fullname: 'Fullname company social JLC ltda',
-      document: '46700988888',
-      siteUrl: 'www.jlc.com.br',
-      allowOrder: true,
-      allowPdv: false
+      id: 'pl_ecbb9b10-5821-4ab6-a490-67962c601af9',
+      activated: true,
+      description: 'Free',
+      discount: 'free',
+      quantityProduct: 999,
+      amount: 0
+    }
+  })
+
+  await SubscriptionModel.findOrCreate({
+    where: {
+      id: 'sb_fb7c8635-54c3-44b6-b97f-bb61bf73dcc9',
+      activated: true,
+      autoRenew: true,
+      paymentMethod: 'credit_card',
+      status: 'paid',
+      amount: 0,
+      tid: null,
+      authorization_code: null,
+      startDate: moment('20210101', 'YYYYMMDD'),
+      endDate: moment('20210101', 'YYYYMMDD').add(1, 'year'),
+      companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0',
+      planId: 'pl_ecbb9b10-5821-4ab6-a490-67962c601af9'
     }
   })
   await StatusModel.findOrCreate({

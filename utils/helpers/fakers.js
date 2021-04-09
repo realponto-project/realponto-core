@@ -30,7 +30,7 @@ const fakerProduct = () => {
   return {
     balance: 0,
     activated: faker.random.boolean(),
-    name: faker.commerce.product(),
+    name: `${faker.commerce.product()} ${faker.random.number()}`,
     barCode: faker.random.uuid(),
     minQuantity: faker.random.number(),
     buyPrice: faker.random.number(),

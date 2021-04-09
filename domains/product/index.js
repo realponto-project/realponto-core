@@ -17,7 +17,7 @@ class ProductDomain {
   async create(bodyData, options = {}) {
     const { transaction = null } = options
     await productSchema.validate(bodyData, { abortEarly: false })
-    const productCreated = await ProductModel.create(bodyData, { transaction })
+
     const count = await ProductModel.count({
       where: { companyId: bodyData.companyId }
     })
@@ -26,6 +26,12 @@ class ProductDomain {
       include: [{ model: SubscriptionModel, include: [PlanModel] }]
     })
 
+    if (
+      count >= pathOr(0, ['subscription', 'plan', 'quantityProduct'], company)
+    ) {
+      throw new Error('Quantity product pass limit')
+    }
+
     const findProduct = await ProductModel.findOne({
       where: {
         companyId: bodyData.companyId,
@@ -33,15 +39,11 @@ class ProductDomain {
       }
     })
 
-    if (
-      count >= pathOr(0, ['subscription', 'plan', 'quantityProduct'], company)
-    ) {
-      throw new Error('Quantity product pass limit')
-    }
-
     if (findProduct) {
       throw new Error('Product with same name')
     }
+
+    const productCreated = await ProductModel.create(bodyData, { transaction })
 
     if (productCreated.balance > 0) {
       const statusFinded = await StatusModel.findOne({
@@ -79,6 +81,18 @@ class ProductDomain {
     await productSchema.validate(bodyData, { abortEarly: false })
 
     const searchProduct = await ProductModel.findByPk(id, { transaction })
+
+    const findProduct = await ProductModel.findOne({
+      where: {
+        companyId: bodyData.companyId,
+        name: bodyData.name
+      }
+    })
+
+    if (findProduct && findProduct.id !== id) {
+      throw new Error('Product with same name')
+    }
+
     await searchProduct.update(bodyData, { transaction })
 
     const productUpdated = await ProductModel.findByPk(id, { transaction })

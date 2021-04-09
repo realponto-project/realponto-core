@@ -17,7 +17,7 @@ class CustomerDomain {
     const companyId = pathOr(null, ['companyId'], bodyData)
     const document = pathOr(null, ['document'], bodyData)
     let verifyClient = null
-    const address = pathOr({}, ['address'], bodyData)
+    const address = pathOr(null, ['address'], bodyData)
 
     if (document) {
       verifyClient = await CustomerModel.findOne({
@@ -27,7 +27,6 @@ class CustomerDomain {
     }
 
     if (!verifyClient) {
-      console.log(isNil(address))
       if (!isNil(address)) {
         await AddressSchema.validate(address)
         const addressCreated = await addressDomain.create(address, {
@@ -101,7 +100,7 @@ class CustomerDomain {
     await customer.update(bodyData, { transaction })
 
     if (isEmpty(address) && customer.address) {
-      const address = await AddressModel.findByPk(customer.addressId, {
+      const address = await AddressModel.findByPk(customer.address.id, {
         transaction
       })
 

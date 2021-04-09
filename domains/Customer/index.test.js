@@ -82,18 +82,19 @@ describe('create Customer', () => {
 })
 
 describe('update Customer', () => {
-  let customerFactory = null
   let customerFactoryWithoutAddress = null
+
   beforeAll(async () => {
-    customerFactory = await factory.create('customer')
     customerFactoryWithoutAddress = await factory.create('customer', {
-      addressId: null
+      addressId: null,
+      address: null
     })
   })
 
   it('update only customer', async () => {
     expect.assertions(8)
 
+    const customerFactory = await factory.create('customer')
     const customerMock = generatorFakerCustomer()
 
     const customerupdated = await customerDomain.update(customerFactory.id, {
@@ -109,17 +110,15 @@ describe('update Customer', () => {
     )
     expect(customerupdated).toHaveProperty('document', customerMock.document)
     expect(customerupdated).toHaveProperty('phone', customerMock.phone)
-    expect(customerupdated).toHaveProperty(
-      'addressId',
-      customerFactory.addressId
-    )
-    expect(customerupdated).toHaveProperty('address')
+    expect(customerupdated).toHaveProperty('addressId', null)
+    expect(customerupdated).toHaveProperty('address', null)
     expect(customerupdated).toHaveProperty('companyId', companyId)
   })
 
   it('update customer and address', async () => {
     expect.assertions(17)
 
+    const customerFactory = await factory.create('customer')
     const customerMock = generatorFakerCustomer()
     const addressMock = generatorFakerAddress()
 
