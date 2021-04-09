@@ -1,7 +1,11 @@
 const buildPagination = require('../../utils/helpers/searchSpec')
 const database = require('../../database')
 const productSchema = require('../../utils/helpers/Schemas/product')
+const { pathOr } = require('ramda')
 const ProductModel = database.model('product')
+const CompanyModel = database.model('company')
+const SubscriptionModel = database.model('subscription')
+const PlanModel = database.model('plan')
 const TransactionModel = database.model('transaction')
 const OrderModel = database.model('order')
 const StatusModel = database.model('status')
@@ -14,6 +18,30 @@ class ProductDomain {
     const { transaction = null } = options
     await productSchema.validate(bodyData, { abortEarly: false })
     const productCreated = await ProductModel.create(bodyData, { transaction })
+    const count = await ProductModel.count({
+      where: { companyId: bodyData.companyId }
+    })
+
+    const company = await CompanyModel.findByPk(bodyData.companyId, {
+      include: [{ model: SubscriptionModel, include: [PlanModel] }]
+    })
+
+    const findProduct = await ProductModel.findOne({
+      where: {
+        companyId: bodyData.companyId,
+        name: bodyData.name
+      }
+    })
+
+    if (
+      count >= pathOr(0, ['subscription', 'plan', 'quantityProduct'], company)
+    ) {
+      throw new Error('Quantity product pass limit')
+    }
+
+    if (findProduct) {
+      throw new Error('Product with same name')
+    }
 
     if (productCreated.balance > 0) {
       const statusFinded = await StatusModel.findOne({

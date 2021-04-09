@@ -44,8 +44,8 @@ describe('update status', () => {
     expect(statusUpdated).toHaveProperty('label', statusMock.label)
     expect(statusUpdated).toHaveProperty('value', statusMock.value)
     expect(statusUpdated).toHaveProperty('color', statusMock.color)
-    expect(statusUpdated).toHaveProperty('type', statusMock.type)
-    expect(statusUpdated).toHaveProperty('typeLabel', statusMock.typeLabel)
+    expect(statusUpdated).toHaveProperty('type', statusFactory.type)
+    expect(statusUpdated).toHaveProperty('typeLabel', statusFactory.typeLabel)
     expect(statusFactory).toHaveProperty(
       'companyId',
       'co_4095e6c0-056d-4b6d-b857-a35584634ad0'

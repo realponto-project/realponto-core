@@ -140,7 +140,6 @@ describe('company controller', () => {
           passwordUserDefault: expect.any(String),
           companyLogo: expect.any(String),
           trialDays: expect.any(Number),
-          subscription: expect.any(Boolean),
           allowPdv: expect.any(Boolean),
           allowOrder: expect.any(Boolean),
           createdAt: expect.any(String),

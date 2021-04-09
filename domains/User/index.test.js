@@ -24,7 +24,10 @@ describe('create User', () => {
     expect(userCreated).toHaveProperty('activated', userMock.activated)
     expect(userCreated).toHaveProperty('name', userMock.name)
     expect(userCreated).toHaveProperty('email', userMock.email)
-    expect(userCreated).toHaveProperty('phone', userMock.phone)
+    expect(userCreated).toHaveProperty(
+      'phone',
+      userMock.phone.replace(/\D/g, '')
+    )
     expect(userCreated).toHaveProperty('badget', userMock.badget)
     expect(userCreated).toHaveProperty('birthday', userMock.birthday)
     expect(userCreated).toHaveProperty('password')
@@ -59,7 +62,10 @@ describe('update User', () => {
     expect(userUpdated).toHaveProperty('activated', userMock.activated)
     expect(userUpdated).toHaveProperty('name', userMock.name)
     expect(userUpdated).toHaveProperty('email', userMock.email)
-    expect(userUpdated).toHaveProperty('phone', userMock.phone)
+    expect(userUpdated).toHaveProperty(
+      'phone',
+      userMock.phone.replace(/\D/g, '')
+    )
     expect(userUpdated).toHaveProperty('badget', userMock.badget)
     expect(userUpdated).toHaveProperty('birthday', userMock.birthday)
     expect(userUpdated).toHaveProperty('firstAccess', userMock.firstAccess)
@@ -93,7 +99,10 @@ describe('update password', () => {
     expect(userUpdated).toHaveProperty('activated', true)
     expect(userUpdated).toHaveProperty('name', userFactory.name)
     expect(userUpdated).toHaveProperty('email', userFactory.email)
-    expect(userUpdated).toHaveProperty('phone', userFactory.phone)
+    expect(userUpdated).toHaveProperty(
+      'phone',
+      userFactory.phone.replace(/\D/g, '')
+    )
     expect(userUpdated).toHaveProperty('badget', userFactory.badget)
     expect(userUpdated).toHaveProperty('birthday', userFactory.birthday)
     expect(userUpdated).toHaveProperty('firstAccess', userFactory.firstAccess)
@@ -148,7 +157,10 @@ describe('getById user', () => {
     expect(userFinded).toHaveProperty('activated', userFactory.activated)
     expect(userFinded).toHaveProperty('name', userFactory.name)
     expect(userFinded).toHaveProperty('email', userFactory.email)
-    expect(userFinded).toHaveProperty('phone', userFactory.phone)
+    expect(userFinded).toHaveProperty(
+      'phone',
+      userFactory.phone.replace(/\D/g, '')
+    )
     expect(userFinded).toHaveProperty('badget', userFactory.badget)
     expect(userFinded).toHaveProperty('birthday', userFactory.birthday)
     expect(userFinded).toHaveProperty('firstAccess', userFactory.firstAccess)

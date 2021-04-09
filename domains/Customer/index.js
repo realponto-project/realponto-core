@@ -27,7 +27,8 @@ class CustomerDomain {
     }
 
     if (!verifyClient) {
-      if (isNil(address)) {
+      console.log(isNil(address))
+      if (!isNil(address)) {
         await AddressSchema.validate(address)
         const addressCreated = await addressDomain.create(address, {
           transaction

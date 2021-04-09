@@ -1,12 +1,15 @@
 const buildPagination = require('../../utils/helpers/searchSpec')
 const database = require('../../database')
 const StatusModel = database.model('status')
-const statusSchema = require('../../utils/helpers/Schemas/status')
+const {
+  statusSchema,
+  statusSchemaUpdate
+} = require('../../utils/helpers/Schemas/status')
 const { NotFoundError } = require('../../utils/helpers/errors')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
 const { iLike } = Op
-const { pathOr } = require('ramda')
+const { pathOr, omit } = require('ramda')
 
 const buildSearchAndPagination = buildPagination('status')
 
@@ -30,20 +33,21 @@ class StatusDomain {
   async update(id, bodyData, options = {}) {
     const { transaction = null } = options
     const companyId = pathOr(null, ['companyId'], bodyData)
+    const status = omit(['type', 'typeLabel'], bodyData)
 
-    await statusSchema.validate(bodyData, { abortEarly: false })
+    await statusSchemaUpdate.validate(status, { abortEarly: false })
 
     const searchStatus = await StatusModel.findByPk(id)
 
     const findStatus = await StatusModel.findOne({
-      where: { label: { [iLike]: `%${bodyData.label}%` }, companyId }
+      where: { label: { [iLike]: `%${status.label}%` }, companyId }
     })
 
-    if (findStatus && searchStatus.label !== bodyData.label) {
+    if (findStatus && searchStatus.label !== status.label) {
       throw new NotFoundError('status with same label')
     }
 
-    return await searchStatus.update(bodyData, { transaction })
+    return await searchStatus.update(status, { transaction })
   }
 
   async getById(id, companyId) {
