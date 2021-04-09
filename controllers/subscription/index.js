@@ -31,15 +31,15 @@ const create = async (req, res, next) => {
       ]
     }
 
-    // const conectionPagarme = await pagarme.client.connect({
-    //   api_key: process.env.API_KEY
-    // })
-    const status = ''
-    // const {
-    //   tid,
-    //   authorization_code,
-    //   status
-    // } = await conectionPagarme.transactions.create(transactionSpecPagarme)
+    const conectionPagarme = await pagarme.client.connect({
+      api_key: process.env.API_KEY
+    })
+    const {
+      tid,
+      // eslint-disable-next-line camelcase
+      authorization_code,
+      status
+    } = await conectionPagarme.transactions.create(transactionSpecPagarme)
 
     const activated = !!(status === 'paid' || status === 'autorizated')
 
@@ -47,9 +47,9 @@ const create = async (req, res, next) => {
       {
         ...req.body,
         companyId,
-        tid: '',
-        authorization_code: '',
-        status: '',
+        tid,
+        authorization_code,
+        status,
         activated
       },
       { transaction }

@@ -1,7 +1,7 @@
 const buildPagination = require('../../utils/helpers/searchSpec')
 const database = require('../../database')
 const productSchema = require('../../utils/helpers/Schemas/product')
-const { pathOr } = require('ramda')
+const { omit, pathOr } = require('ramda')
 const ProductModel = database.model('product')
 const CompanyModel = database.model('company')
 const SubscriptionModel = database.model('subscription')
@@ -80,12 +80,14 @@ class ProductDomain {
     const { transaction = null } = options
     await productSchema.validate(bodyData, { abortEarly: false })
 
+    const userUpdates = omit(['balance'], bodyData)
+
     const searchProduct = await ProductModel.findByPk(id, { transaction })
 
     const findProduct = await ProductModel.findOne({
       where: {
-        companyId: bodyData.companyId,
-        name: bodyData.name
+        companyId: userUpdates.companyId,
+        name: userUpdates.name
       }
     })
 
@@ -93,7 +95,7 @@ class ProductDomain {
       throw new Error('Product with same name')
     }
 
-    await searchProduct.update(bodyData, { transaction })
+    await searchProduct.update(userUpdates, { transaction })
 
     const productUpdated = await ProductModel.findByPk(id, { transaction })
     return productUpdated
