@@ -41,11 +41,6 @@ const Company = (sequelize) => {
       allowNull: false,
       defaultValue: 7
     },
-    subscription: {
-      type: Sequelize.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
-    },
     allowPdv: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
@@ -60,6 +55,11 @@ const Company = (sequelize) => {
 
   Company.associate = (models) => {
     models.company.belongsTo(models.address, {
+      foreignKey: {
+        allowNull: true
+      }
+    })
+    models.company.hasOne(models.subscription, {
       foreignKey: {
         allowNull: true
       }

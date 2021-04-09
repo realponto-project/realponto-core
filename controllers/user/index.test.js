@@ -35,7 +35,10 @@ describe('controller User', () => {
       expect(response.body).toHaveProperty('activated', userMock.activated)
       expect(response.body).toHaveProperty('name', userMock.name)
       expect(response.body).toHaveProperty('email', userMock.email)
-      expect(response.body).toHaveProperty('phone', userMock.phone)
+      expect(response.body).toHaveProperty(
+        'phone',
+        userMock.phone.replace(/\D/g, '')
+      )
       expect(response.body).toHaveProperty('badget', userMock.badget)
       expect(response.body).toHaveProperty('birthday')
       expect(new Date(response.body.birthday)).toStrictEqual(userMock.birthday)
@@ -57,7 +60,6 @@ describe('controller User', () => {
       expect(response.body.company).toHaveProperty('passwordUserDefault')
       expect(response.body.company).toHaveProperty('companyLogo')
       expect(response.body.company).toHaveProperty('trialDays')
-      expect(response.body.company).toHaveProperty('subscription')
       expect(response.body.company).toHaveProperty('allowPdv')
       expect(response.body.company).toHaveProperty('allowOrder')
     })
@@ -110,7 +112,10 @@ describe('controller User', () => {
       expect(response.body).toHaveProperty('activated', userMock.activated)
       expect(response.body).toHaveProperty('name', userMock.name)
       expect(response.body).toHaveProperty('email', userMock.email)
-      expect(response.body).toHaveProperty('phone', userMock.phone)
+      expect(response.body).toHaveProperty(
+        'phone',
+        userMock.phone.replace(/\D/g, '')
+      )
       expect(response.body).toHaveProperty('badget', userMock.badget)
       expect(response.body).toHaveProperty('birthday')
       expect(new Date(response.body.birthday)).toStrictEqual(userMock.birthday)
@@ -132,7 +137,6 @@ describe('controller User', () => {
       expect(response.body.company).toHaveProperty('passwordUserDefault')
       expect(response.body.company).toHaveProperty('companyLogo')
       expect(response.body.company).toHaveProperty('trialDays')
-      expect(response.body.company).toHaveProperty('subscription')
       expect(response.body.company).toHaveProperty('allowPdv')
       expect(response.body.company).toHaveProperty('allowOrder')
     })
@@ -188,7 +192,10 @@ describe('controller User', () => {
       expect(response.body).toHaveProperty('activated', userFactory.activated)
       expect(response.body).toHaveProperty('name', userFactory.name)
       expect(response.body).toHaveProperty('email', userFactory.email)
-      expect(response.body).toHaveProperty('phone', userFactory.phone)
+      expect(response.body).toHaveProperty(
+        'phone',
+        userFactory.phone.replace(/\D/g, '')
+      )
       expect(response.body).toHaveProperty('badget', userFactory.badget)
       expect(response.body).toHaveProperty('birthday')
       expect(new Date(response.body.birthday)).toStrictEqual(
@@ -215,7 +222,6 @@ describe('controller User', () => {
       expect(response.body.company).toHaveProperty('passwordUserDefault')
       expect(response.body.company).toHaveProperty('companyLogo')
       expect(response.body.company).toHaveProperty('trialDays')
-      expect(response.body.company).toHaveProperty('subscription')
       expect(response.body.company).toHaveProperty('allowPdv')
       expect(response.body.company).toHaveProperty('allowOrder')
     })
@@ -306,7 +312,10 @@ describe('controller User', () => {
       expect(response.body).toHaveProperty('activated', userFactory.activated)
       expect(response.body).toHaveProperty('name', userFactory.name)
       expect(response.body).toHaveProperty('email', userFactory.email)
-      expect(response.body).toHaveProperty('phone', userFactory.phone)
+      expect(response.body).toHaveProperty(
+        'phone',
+        userFactory.phone.replace(/\D/g, '')
+      )
       expect(response.body).toHaveProperty('badget', userFactory.badget)
       expect(response.body).toHaveProperty('birthday')
       expect(new Date(response.body.birthday)).toStrictEqual(
