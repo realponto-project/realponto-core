@@ -39,6 +39,13 @@ class StatusDomain {
 
     const searchStatus = await StatusModel.findByPk(id)
 
+    if (
+      searchStatus.value === 'initial_balance' ||
+      searchStatus.value === 'sale'
+    ) {
+      throw new Error('Invalid name')
+    }
+
     const findStatus = await StatusModel.findOne({
       where: { label: { [iLike]: `%${status.label}%` }, companyId }
     })
