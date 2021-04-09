@@ -2,6 +2,9 @@ const jwt = require('jsonwebtoken')
 const { pathOr } = require('ramda')
 const database = require('../../database')
 const UserModel = database.model('user')
+const SubscriptionModel = database.model('subscription')
+const PlanModel = database.model('plan')
+const CompanyModel = database.model('company')
 
 const secret = process.env.SECRET_KEY_JWT || 'mySecretKey'
 
