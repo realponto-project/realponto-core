@@ -4,7 +4,7 @@ const factory = require('../../utils/helpers/factories')
 
 const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 
-describe('create new product', () => {
+describe.only('create new product', () => {
   let user = null
 
   beforeAll(async () => {
@@ -13,8 +13,11 @@ describe('create new product', () => {
 
   it('create product when balance equal 10', async () => {
     expect.hasAssertions()
+
+    const productMock = fakerProduct()
+
     const productCreated = await ProductDomain.create({
-      ...fakerProduct(),
+      ...productMock,
       companyId,
       userId: user.id,
       balance: 10
@@ -36,8 +39,11 @@ describe('create new product', () => {
 
   it('create product when balance equal 0', async () => {
     expect.hasAssertions()
+
+    const productMock = fakerProduct()
+
     const productCreated = await ProductDomain.create({
-      ...fakerProduct(),
+      ...productMock,
       companyId,
       userId: user.id,
       balance: 0
