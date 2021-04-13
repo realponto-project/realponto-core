@@ -27,10 +27,34 @@ const saleStatus = {
   typeLabel: 'Saída'
 }
 
+const plan =  {
+  activated: true,
+  description: 'Free',
+  discount: 'free',
+  quantityProduct: 30,
+  amount: 0,
+  createdAt: new Date(),
+  updatedAt: new Date()
+}
+
 const create = async (req, res, next) => {
   const transaction = await database.transaction()
-  const company = path(['company'], req.body)
-  const user = path(['user'], req.body)
+  const company = path(['body', 'company'], req)
+  const user = path(['body', 'user'], req)
+  
+  let planFound = await PlanModel.findOne({
+    where: { description: 'Free' },
+    raw: true
+  })
+
+  if(!planFound) {
+    await PlanModel.create(plan);
+     planFound = await PlanModel.findOne({
+    where: { description: 'Free' },
+    raw: true
+  })
+  }
+
   try {
     const response = await CompanyDomain.create(company, { transaction })
 
@@ -58,12 +82,7 @@ const create = async (req, res, next) => {
       { transaction }
     )
 
-    const plan = await PlanModel.findOne({
-      where: { description: 'Free' },
-      raw: true
-    })
-
-    if (!plan) throw new Error('Plan not found')
+    if (!planFound) throw new Error('Plan not found')
 
     await SubscriptionModel.create(
       {
@@ -71,7 +90,7 @@ const create = async (req, res, next) => {
         autoRenew: false,
         amount: 0,
         companyId: response.id,
-        planId: plan.id,
+        planId: planFound.id,
         endDate: moment().add(1, 'months'),
         paymentMethod: 'free',
         status: 'free'

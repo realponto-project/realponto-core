@@ -13,25 +13,25 @@ module.exports = {
         allowNull: false,
         defaultValue: false
       },
-      type: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        defaultValue: null
+      installments: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: null,
       },
       payment: {
         type: Sequelize.STRING,
         allowNull: true,
         defaultValue: null
       },
-      amount: {
+      discount: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0
       },
-      payment_methods: {
-        type: Sequelize.STRING,
+      originType: {
+        type: Sequelize.ENUM(['order', 'pdv']),
         allowNull: false,
-        defaultValue: ''
+        defaultValue: 'order'
       },
       statusId: {
         type: Sequelize.STRING,

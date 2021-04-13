@@ -12,6 +12,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      price: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        default: 0
+      },
       userId: {
         type: Sequelize.STRING,
         references: {

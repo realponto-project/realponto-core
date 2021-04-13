@@ -14,16 +14,26 @@ const Order = (sequelize) => {
       allowNull: false,
       defaultValue: false
     },
-    type: {
-      type: Sequelize.STRING,
-      allowNull: true,
-      defaultValue: null
-    },
     payment: {
       type: Sequelize.STRING,
       allowNull: true,
       defaultValue: null
-    }
+    },
+    originType: {
+      type: Sequelize.ENUM(['order', 'pdv']),
+      allowNull: false,
+      defaultValue: 'order'
+    },
+    installments: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: null
+    },
+    discount: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
   })
 
   Order.associate = (models) => {
