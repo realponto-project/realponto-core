@@ -109,63 +109,17 @@ class OrderDomain {
     })
   }
 
-  // async create(bodyData, options = {}) {
-  //   const { transaction = null } = options
-  //   const companyId = pathOr(null, ['companyId'], bodyData)
-
-  //   const statusId = pathOr(null, ['statusId'], bodyData)
-  //   const customerId = pathOr(null, ['customerId'], bodyData)
-  //   const userId = pathOr(null, ['userId'], bodyData)
-
-  //   const companyFinded = await CompanyModel.findByPk(companyId)
-
-  //   await OrderSchema.validate(bodyData)
-
-  //   if (!companyFinded) {
-  //     throw new Error('company not found')
-  //   }
-
- 
-
-  //   if (!statusFinded) {
-  //     throw new Error('status not found or not belongs to company')
-  //   }
-
-  //   const customerFinded = await CustomerModel.findOne({
-  //     where: { id: customerId, companyId }
-  //   })
-
-  //   if (customerId && !customerFinded) {
-  //     throw new Error('customer not found or not belongs to company')
-  //   }
-
-  //   const userFinded = await UserModel.findOne({
-  //     where: { id: userId, companyId }
-  //   })
-
-  //   if (userId && !userFinded) {
-  //     throw new Error('user not found or not belongs to company')
-  //   }
-  //   const orderCreated = await OrderModel.create(
-  //     {
-  //       companyId,
-  //       statusId,
-  //       customerId,
-  //       userId,
-  //       pendingReview: statusFinded.fakeTransaction
-  //     },
-  //     { transaction }
-  //   )
-
-  
-  // }
-
-  // async getById(id, companyId, options = {}) {
-  //   return await OrderModel.findOne({
-  //     where: { id, companyId },
-  //     include: [StatusModel, CustomerModel, UserModel, TransactionModel]
-  //   })
-  // }
+  async getById(id, companyId, options = {}) {
+    return await OrderModel.findOne({
+      where: { id, companyId },
+      include: [
+        { model: StatusModel},
+        { model: CustomerModel, include: [AddressModel] },
+        { model: UserModel },
+        { model: TransactionModel, include: [ProductModel]}
+      ]
+    })
+  }
 
   async getAll(query, companyId) {
     const { where, offset, limit } = buildSearchAndPagination({

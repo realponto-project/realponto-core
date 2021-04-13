@@ -7,9 +7,7 @@ router.put('/orders-finished/:id', orderControllerOld.finishedOrder)
 router.post('/orders', orderController.create)
 router.get('/orders-summary', orderControllerOld.getSummaryToChart)
 router.get('/orders', orderController.getAll)
-// router.get('/orders/:id', orderController.getById)
+router.get('/orders/:id', orderController.getById)
 router.put('/orders/:id', orderControllerOld.update)
-
-// router.post('/orders-pdv', orderController.createPdv)
 
 module.exports = router
