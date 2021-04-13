@@ -24,7 +24,7 @@ class StatusDomain {
     })
 
     if (findStatus) {
-      return findStatus
+      throw new Error('Status already exist')
     }
 
     return await StatusModel.create(bodyData, { transaction })

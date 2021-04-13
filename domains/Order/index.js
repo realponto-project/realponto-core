@@ -1,4 +1,12 @@
-const { pathOr, isEmpty, map, add, subtract, applySpec, pipe } = require('ramda')
+const {
+  pathOr,
+  isEmpty,
+  map,
+  add,
+  subtract,
+  applySpec,
+  pipe
+} = require('ramda')
 
 const database = require('../../database')
 const buildPagination = require('../../utils/helpers/searchSpec')
@@ -23,25 +31,34 @@ class OrderDomain {
     const userId = pathOr(null, ['userId'], payload)
     const customer = pathOr({}, ['customers'], payload)
     let customerCreated = {}
-    if(!isEmpty(customer)) {
-      const findCustomer = await CustomerModel.findOne({ where: { document: customer.document }})
+    if (!isEmpty(customer)) {
+      const findCustomer = await CustomerModel.findOne({
+        where: { document: customer.document }
+      })
       if (findCustomer) {
         customerCreated = findCustomer
       } else {
-        const address = await AddressMode.create(omit(['document', 'name'], customer), { transaction })
-        customerCreated = await CustomerModel.create({
-          ...customer,
-          companyId,
-          addressId: address.id,
-        }, { transaction })
+        const address = await AddressModel.create(
+          omit(['document', 'name'], customer),
+          { transaction }
+        )
+        customerCreated = await CustomerModel.create(
+          {
+            ...customer,
+            companyId,
+            addressId: address.id
+          },
+          { transaction }
+        )
       }
     }
 
     const buildOrder = applySpec({
       payment: pathOr('cash', ['paymentMethod']),
-      originType:  pathOr('pdv', ['originType']),
+      originType: pathOr('pdv', ['originType']),
       installments: pathOr(0, ['installments']),
-      companyId: pathOr(0, ['companyId']),
+      userId: pathOr(null, ['userId']),
+      companyId: pathOr(0, ['companyId'])
     })(payload)
 
     let defaultStatus = {
@@ -49,17 +66,19 @@ class OrderDomain {
     }
 
     if (originType === 'pdv') {
-      defaultStatus = await StatusModel.findOne({ where: { companyId, value : 'sale' }})
+      defaultStatus = await StatusModel.findOne({
+        where: { companyId, value: 'sale' }
+      })
       buildOrder.userId = userId
     }
-      
+
     const statusFinded = await StatusModel.findOne({
       where: { id: defaultStatus.id, companyId }
     })
 
     const orderCreated = await OrderModel.create(
       {
-        ... buildOrder,
+        ...buildOrder,
         statusId: defaultStatus.id,
         customerId: pathOr(null, ['id'], customerCreated)
       },
@@ -68,13 +87,13 @@ class OrderDomain {
 
     const products = pathOr([], ['products'], payload)
     const formatProducts = (product) => ({
-      productId: product.id,
+      productId: product.productId,
       quantity: product.quantity,
       orderId: orderCreated.id,
       userId,
       statusId: defaultStatus.id,
       companyId,
-      price: product.salePrice
+      price: product.price
     })
 
     const productsPayload = map(formatProducts, products)
@@ -98,13 +117,16 @@ class OrderDomain {
     await Promise.all(updateBalances)
 
     return await OrderModel.findByPk(orderCreated.id, {
-      include: [{
-        model: TransactionModel, include: [ProductModel]
-      },
-      {
-        model: CustomerModel, include: [AddressModel]
-      }
-    ],
+      include: [
+        {
+          model: TransactionModel,
+          include: [ProductModel]
+        },
+        {
+          model: CustomerModel,
+          include: [AddressModel]
+        }
+      ],
       transaction
     })
   }
@@ -113,10 +135,10 @@ class OrderDomain {
     return await OrderModel.findOne({
       where: { id, companyId },
       include: [
-        { model: StatusModel},
+        { model: StatusModel },
         { model: CustomerModel, include: [AddressModel] },
         { model: UserModel },
-        { model: TransactionModel, include: [ProductModel]}
+        { model: TransactionModel, include: [ProductModel] }
       ]
     })
   }
