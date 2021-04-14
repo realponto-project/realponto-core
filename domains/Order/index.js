@@ -150,8 +150,6 @@ class OrderDomain {
       companyId
     })
 
-    console.log(where)
-
     const orderWhere = isEmpty(where.orderWhere)
       ? { where: { companyId } }
       : { where: where.orderWhere }

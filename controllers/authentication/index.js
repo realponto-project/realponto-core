@@ -15,6 +15,10 @@ const authentication = async (req, res, next) => {
   try {
     const user = await UserModel.findOne({ where: { email } })
 
+    if (!user || !user.activated) {
+      throw new Error('User activated not found')
+    }
+
     if (!(await user.checkPassword(password))) {
       throw new Error('Email or password do not match')
     }
