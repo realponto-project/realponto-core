@@ -6,7 +6,8 @@ const {
   subtract,
   applySpec,
   pipe,
-  omit
+  omit,
+  path
 } = require('ramda')
 
 const database = require('../../database')
@@ -56,8 +57,10 @@ class OrderDomain {
 
     const buildOrder = applySpec({
       payment: pathOr('cash', ['paymentMethod']),
+      orderDate: path(['orderDate']),
       originType: pathOr('pdv', ['originType']),
       installments: pathOr(0, ['installments']),
+      customerId: pathOr(null, ['customerId']),
       userId: pathOr(null, ['userId']),
       companyId: pathOr(0, ['companyId'])
     })(payload)
@@ -71,6 +74,7 @@ class OrderDomain {
         where: { companyId, value: 'sale' }
       })
       buildOrder.userId = userId
+      buildOrder.customerId = pathOr(null, ['id'], customerCreated)
     }
 
     const statusFinded = await StatusModel.findOne({
@@ -80,8 +84,7 @@ class OrderDomain {
     const orderCreated = await OrderModel.create(
       {
         ...buildOrder,
-        statusId: defaultStatus.id,
-        customerId: pathOr(null, ['id'], customerCreated)
+        statusId: defaultStatus.id
       },
       { transaction }
     )
