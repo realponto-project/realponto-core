@@ -29,6 +29,11 @@ const Order = (sequelize) => {
       allowNull: false,
       defaultValue: null
     },
+    orderDate: {
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: new Date()
+    },
     discount: {
       type: Sequelize.INTEGER,
       allowNull: false,

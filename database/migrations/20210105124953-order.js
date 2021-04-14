@@ -33,6 +33,11 @@ module.exports = {
         allowNull: false,
         defaultValue: 'order'
       },
+      orderDate: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: new Date()
+      },
       statusId: {
         type: Sequelize.STRING,
         references: {
