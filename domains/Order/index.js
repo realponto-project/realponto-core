@@ -159,7 +159,12 @@ class OrderDomain {
       ...orderWhere,
       limit,
       offset,
-      include: [StatusModel, CustomerModel, UserModel, TransactionModel]
+      include: [
+        { model: StatusModel },
+        { model: CustomerModel, include: [AddressModel] },
+        { model: UserModel },
+        { model: TransactionModel, include: [ProductModel] }
+      ]
     })
 
     return { count, rows }
