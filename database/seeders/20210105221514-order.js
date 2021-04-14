@@ -3,7 +3,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) =>
     queryInterface.bulkInsert(
-      'orders',
+      'order',
       [
         {
           id: 'or_b8c2e248-4c84-4301-a03f-952ea72bcf94',
@@ -13,7 +13,8 @@ module.exports = {
           customerId: 'co_93ac00e9-dc56-457b-ada0-f719679c0a6b',
           companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          originType: 'order',
         },
         {
           id: 'or_479d7ec6-5897-457a-9967-693b8efceb7c',
@@ -23,11 +24,12 @@ module.exports = {
           customerId: null,
           companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          originType: 'order',
         }
       ],
       {}
     ),
 
-  down: (queryInterface) => queryInterface.bulkDelete('orders', null, {})
+  down: (queryInterface) => queryInterface.bulkDelete('order', null, {})
 }

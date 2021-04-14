@@ -16,13 +16,16 @@ const Plan = (sequelize) => {
     },
     description: {
       type: Sequelize.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     discount: {
       type: Sequelize.STRING,
       allowNull: false,
       unique: true
+    },
+    quantityProduct: {
+      type: Sequelize.INTEGER,
+      allowNull: false
     },
     amount: {
       type: Sequelize.INTEGER,

@@ -12,6 +12,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      price: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        default: 0
+      },
       userId: {
         type: Sequelize.STRING,
         references: {
@@ -42,7 +47,7 @@ module.exports = {
       orderId: {
         type: Sequelize.STRING,
         references: {
-          model: 'orders',
+          model: 'order',
           key: 'id'
         },
         onUpdate: 'cascade',

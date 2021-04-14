@@ -40,11 +40,6 @@ module.exports = {
         allowNull: false,
         defaultValue: 7
       },
-      subscription: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      },
       allowPdv: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

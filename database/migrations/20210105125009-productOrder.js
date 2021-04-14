@@ -20,7 +20,7 @@ module.exports = {
       orderId: {
         type: Sequelize.STRING,
         references: {
-          model: 'orders',
+          model: 'order',
           key: 'id'
         },
         onUpdate: 'cascade',

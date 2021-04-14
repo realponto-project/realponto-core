@@ -12,6 +12,8 @@ if (config.use_env_variable) {
     `${process.env[config.use_env_variable]}?sslmode=require`,
     config
   )
+} else if (env === 'test') {
+  sequelize = new Sequelize(config)
 } else {
   sequelize = new Sequelize(
     config.database,
@@ -22,7 +24,7 @@ if (config.use_env_variable) {
 }
 
 const ModelInstances = Models.map((model) => model(sequelize))
-// sequelize.sync({ force: true })
+
 ModelInstances.forEach(
   (modelInstance) =>
     modelInstance.associate && modelInstance.associate(sequelize.models)

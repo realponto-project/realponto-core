@@ -1,17 +1,52 @@
-const moment = require('moment')
-const { pathOr } = require('ramda')
-const database = require('../../database')
-const StatusModel = database.model('status')
-const buildPagination = require('../../utils/helpers/searchSpec')
+const { pathOr, path } = require('ramda')
 
-const buildSearchAndPagination = buildPagination('status')
+const database = require('../../database')
+const StatusDomain = require('../../domains/status')
+
+const create = async (req, res, next) => {
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const transaction = await database.transaction()
+
+  try {
+    const response = await StatusDomain.create(
+      { ...req.body, companyId },
+      { transaction }
+    )
+
+    await transaction.commit()
+    res.status(201).json(response)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
+const update = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const statusId = path(['params', 'id'], req)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+
+  try {
+    const response = await StatusDomain.update(
+      statusId,
+      { ...req.body, companyId },
+      {
+        transaction
+      }
+    )
+
+    await transaction.commit()
+    res.json(response)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
 
 const getById = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   try {
-    const response = await StatusModel.findOnw({
-      where: { companyId, id: req.params.id }
-    })
+    const response = await StatusDomain.getById(req.params.id, companyId)
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -20,12 +55,8 @@ const getById = async (req, res, next) => {
 
 const getAll = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-  const query = buildSearchAndPagination({
-    ...pathOr({}, ['query'], req),
-    companyId
-  })
   try {
-    const { count, rows } = await StatusModel.findAndCountAll(query)
+    const { count, rows } = await StatusDomain.getAll(req.query, companyId)
     res.json({ total: count, source: rows })
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -33,6 +64,8 @@ const getAll = async (req, res, next) => {
 }
 
 module.exports = {
+  create,
+  getAll,
   getById,
-  getAll
+  update
 }

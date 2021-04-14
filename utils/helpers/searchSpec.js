@@ -13,11 +13,14 @@ const {
   always,
   concat,
   prop,
-  propOr
+  propOr,
+  omit,
+  path,
+  merge
 } = require('ramda')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
-const { gte, lte, iLike } = Op
+const { gte, lte, iLike, or } = Op
 
 const calculatorOffset = (values) => {
   const pageOffset = pipe(pathOr(1, ['page']), Number)(values)
@@ -25,14 +28,6 @@ const calculatorOffset = (values) => {
   const offsetSubOne = subtract(pageOffset, 1)
   return multiply(offsetSubOne)(limit)
 }
-
-// implentar busca no status com o operador or para buscar multiplos campos
-// include:[{
-//   model: StatusModel,
-//   // where: { [Sequelize.Op.or]: [
-//   //   { value: 'Entrada'}, { value: 'Reserva' }, { value: 'Troca' }
-//   // ] }
-// }]
 
 const parserDateToMoment = (type) => (value) => {
   let dateParser = moment(value).startOf('day').utc().toISOString()
@@ -56,12 +51,22 @@ const minQuantityParser = (propName) => (values) => {
 const iLikeOperation = (propName) => (values) => {
   const propValue = propOr('', propName, values)
   if (isEmpty(propValue)) {
-    console.log(propValue)
     return null
   }
 
   return {
     [iLike]: concat(concat('%', propValue), '%')
+  }
+}
+
+const orOperation = (values) => {
+  const valuesWithoutCompanyId = omit(['companyId', 'activated'], values)
+  if (isEmpty(valuesWithoutCompanyId)) {
+    return null
+  }
+
+  return {
+    [or]: valuesWithoutCompanyId
   }
 }
 
@@ -111,21 +116,21 @@ const removeFiledsNilOrEmpty = (values) => {
   const fields = values
   const fieldFormmat = Object.keys(fields).reduce((curr, prev) => {
     if (!curr[prev] && fields[prev]) {
-      if (fields[prev] == 'true') {
+      if (fields[prev] === 'true') {
         curr = {
           ...curr,
           [prev]: true
         }
       }
 
-      if (fields[prev] == 'false') {
+      if (fields[prev] === 'false') {
         curr = {
           ...curr,
           [prev]: false
         }
       }
 
-      if (fields[prev] != 'true' && fields != 'false') {
+      if (fields[prev] !== 'true' && fields !== 'false') {
         curr = {
           ...curr,
           [prev]: fields[prev]
@@ -141,7 +146,8 @@ const removeFiledsNilOrEmpty = (values) => {
 const orderSpec = applySpec({
   user: pipe(
     applySpec({
-      name: iLikeOperation('user_name')
+      name: iLikeOperation('user_name'),
+      id: pathOr(null, ['userId'])
     }),
     removeFiledsNilOrEmpty
   ),
@@ -195,15 +201,31 @@ const searchSpecs = {
   ),
   user: pipe(
     applySpec({
+      activated: path(['activated']),
       name: iLikeOperation('name'),
       phone: iLikeOperation('phone'),
       email: iLikeOperation('email'),
       companyId: pathOr(null, ['companyId']),
-      document: pathOr(null, ['document']),
+      document: iLikeOperation('document'),
       createdAt: parserDateGteAndLte('createdAt'),
       updatedAt: parserDateGteAndLte('updatedAt')
     }),
-    removeFiledsNilOrEmpty
+    removeFiledsNilOrEmpty,
+    applySpec({
+      or: orOperation,
+      companyId: prop('companyId'),
+      activated: prop('activated')
+    }),
+    (item) =>
+      merge(
+        path(['or'], item),
+        prop('activated', item)
+          ? {
+              companyId: prop('companyId', item),
+              activated: prop('activated', item)
+            }
+          : { companyId: prop('companyId', item) }
+      )
   ),
   product: pipe(
     applySpec({
@@ -229,10 +251,22 @@ const searchSpecs = {
   customer: pipe(
     applySpec({
       name: iLikeOperation('name'),
-      document: pathOr(null, ['document']),
+      document: iLikeOperation('document'),
       companyId: pathOr(null, ['companyId']),
       createdAt: parserDateGteAndLte('createdAt'),
       updatedAt: parserDateGteAndLte('updatedAt')
+    }),
+    removeFiledsNilOrEmpty,
+    applySpec({
+      or: orOperation,
+      companyId: prop('companyId')
+    }),
+    (item) => merge(path(['or'], item), { companyId: prop('companyId', item) })
+  ),
+  plan: pipe(
+    applySpec({
+      activated: pathOr(null, ['activated']),
+      description: iLikeOperation('description')
     }),
     removeFiledsNilOrEmpty
   )

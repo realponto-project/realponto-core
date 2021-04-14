@@ -1,8 +1,10 @@
-const { compare } = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const { pathOr, omit } = require('ramda')
+const { pathOr } = require('ramda')
 const database = require('../../database')
 const UserModel = database.model('user')
+const SubscriptionModel = database.model('subscription')
+const PlanModel = database.model('plan')
+const CompanyModel = database.model('company')
 
 const secret = process.env.SECRET_KEY_JWT || 'mySecretKey'
 
@@ -11,13 +13,19 @@ const authentication = async (req, res, next) => {
   const password = pathOr(null, ['body', 'password'], req)
 
   try {
-    const user = await UserModel.findOne({ where: { email }, raw: true })
-    const userWithoutPwd = omit(['password'], user)
-    const checkedPassword = await compare(password, user.password)
+    const user = await UserModel.findOne({ where: { email } })
 
-    if (!checkedPassword) {
+    if (!user || !user.activated) {
+      throw new Error('User activated not found')
+    }
+
+    if (!(await user.checkPassword(password))) {
       throw new Error('Email or password do not match')
     }
+    const userWithoutPwd = await UserModel.findByPk(user.id, {
+      raw: true,
+      attributes: { exclude: ['password'] }
+    })
 
     const token = jwt.sign({ user: userWithoutPwd }, secret, {
       expiresIn: '24h'
@@ -32,7 +40,6 @@ const authentication = async (req, res, next) => {
 
 const checkToken = (req, res, next) => {
   const token = req.headers['x-access-token'] || req.headers.authorization
-
   if (token) {
     jwt.verify(token.slice(7, token.length), secret, (err, decoded) => {
       if (err) {

@@ -27,10 +27,13 @@ module.exports = {
         allowNull: false,
         defaultValue: ''
       },
-      birthday: {
+      badget: {
         type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: ''
+        allowNull: true
+      },
+      birthday: {
+        type: Sequelize.DATE,
+        allowNull: true
       },
       document: {
         type: Sequelize.STRING,

@@ -16,13 +16,11 @@ const Status = (sequelize) => {
     },
     label: {
       type: Sequelize.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     value: {
       type: Sequelize.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     color: {
       type: Sequelize.STRING,

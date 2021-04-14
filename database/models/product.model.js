@@ -14,14 +14,26 @@ const Product = (sequelize) => {
       allowNull: false,
       defaultValue: true
     },
+    balance: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0
+      }
+    },
     name: {
       type: Sequelize.STRING,
       allowNull: false
     },
+    barCode: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     minQuantity: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 5
+      defaultValue: 1
     },
     buyPrice: {
       type: Sequelize.INTEGER,
@@ -49,12 +61,6 @@ const Product = (sequelize) => {
     })
 
     models.product.belongsTo(models.company, {
-      foreignKey: {
-        allowNull: false
-      }
-    })
-
-    models.product.hasMany(models.balance, {
       foreignKey: {
         allowNull: false
       }

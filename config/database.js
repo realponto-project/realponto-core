@@ -1,12 +1,14 @@
-require('dotenv').config({})
+require('dotenv').config({
+  path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env'
+})
 
 module.exports = {
   development: {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    password: process.env.DB_PWD,
-    username: process.env.DB_USERNAME,
-    database: process.env.DB_DATABASE,
+    host: 'localhost',
+    port: 5432,
+    password: 'postgres',
+    username: 'postgres',
+    database: 'realponto-core-postgres',
     dialect: 'postgres',
     define: {
       freezeTableName: true,
@@ -22,9 +24,25 @@ module.exports = {
     }
   },
   test: {
-    use_env_variable: 'DATABASE_URL',
-    dialectOptions: {
-      ssl: true
+    // dialect: 'sqlite',
+    // storage: './database/database-test.sqlite',
+    host: 'localhost',
+    port: 5430,
+    password: 'postgres',
+    username: 'postgres',
+    database: 'realponto-core-postgres-test',
+    dialect: 'postgres',
+    define: {
+      freezeTableName: true,
+      paranoid: true,
+      timestamps: true
+    },
+    logging: false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
     }
   },
   production: {

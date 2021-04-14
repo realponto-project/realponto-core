@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) =>
-    queryInterface.createTable('orders', {
+    queryInterface.createTable('order', {
       id: {
         type: Sequelize.STRING,
         primaryKey: true,
@@ -13,15 +13,30 @@ module.exports = {
         allowNull: false,
         defaultValue: false
       },
-      amount: {
+      installments: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: null,
+      },
+      payment: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
+      discount: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0
       },
-      payment_methods: {
-        type: Sequelize.STRING,
+      originType: {
+        type: Sequelize.ENUM(['order', 'pdv']),
         allowNull: false,
-        defaultValue: ''
+        defaultValue: 'order'
+      },
+      orderDate: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: new Date()
       },
       statusId: {
         type: Sequelize.STRING,
@@ -75,5 +90,5 @@ module.exports = {
         defaultValue: null
       }
     }),
-  down: (queryInterface) => queryInterface.dropTable('orders')
+  down: (queryInterface) => queryInterface.dropTable('order')
 }

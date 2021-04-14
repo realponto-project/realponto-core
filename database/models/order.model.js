@@ -13,7 +13,32 @@ const Order = (sequelize) => {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: false
-    }
+    },
+    payment: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      defaultValue: null
+    },
+    originType: {
+      type: Sequelize.ENUM(['order', 'pdv']),
+      allowNull: false,
+      defaultValue: 'order'
+    },
+    installments: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: null
+    },
+    orderDate: {
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: new Date()
+    },
+    discount: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
   })
 
   Order.associate = (models) => {
