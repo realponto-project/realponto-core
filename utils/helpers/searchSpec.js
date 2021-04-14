@@ -15,13 +15,12 @@ const {
   prop,
   propOr,
   omit,
-  __,
   path,
   merge
 } = require('ramda')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
-const { gte, lte, iLike, or, and } = Op
+const { gte, lte, iLike, or } = Op
 
 const calculatorOffset = (values) => {
   const pageOffset = pipe(pathOr(1, ['page']), Number)(values)

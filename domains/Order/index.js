@@ -5,16 +5,13 @@ const {
   add,
   subtract,
   applySpec,
-  pipe,
   omit,
   path
 } = require('ramda')
 
 const database = require('../../database')
 const buildPagination = require('../../utils/helpers/searchSpec')
-const OrderSchema = require('../../utils/helpers/Schemas/Order')
 
-const CompanyModel = database.model('company')
 const CustomerModel = database.model('customer')
 const OrderModel = database.model('order')
 const StatusModel = database.model('status')
