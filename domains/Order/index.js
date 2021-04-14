@@ -153,6 +153,8 @@ class OrderDomain {
       companyId
     })
 
+    console.log(where)
+
     const orderWhere = isEmpty(where.orderWhere)
       ? { where: { companyId } }
       : { where: where.orderWhere }
@@ -166,7 +168,10 @@ class OrderDomain {
       include: [
         { model: StatusModel },
         { model: CustomerModel, include: [AddressModel] },
-        { model: UserModel },
+        {
+          model: UserModel,
+          where: where.user || undefined
+        },
         { model: TransactionModel, include: [ProductModel] }
       ]
     })

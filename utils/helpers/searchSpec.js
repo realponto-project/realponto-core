@@ -147,7 +147,8 @@ const removeFiledsNilOrEmpty = (values) => {
 const orderSpec = applySpec({
   user: pipe(
     applySpec({
-      name: iLikeOperation('user_name')
+      name: iLikeOperation('user_name'),
+      id: pathOr(null, ['userId'])
     }),
     removeFiledsNilOrEmpty
   ),
