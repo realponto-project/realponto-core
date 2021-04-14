@@ -5,13 +5,13 @@ const {
   add,
   subtract,
   applySpec,
-  pipe
+  pipe,
+  omit
 } = require('ramda')
 
 const database = require('../../database')
 const buildPagination = require('../../utils/helpers/searchSpec')
 const OrderSchema = require('../../utils/helpers/Schemas/Order')
-const { omit } = require('../../utils/helpers/Schemas/company')
 
 const CompanyModel = database.model('company')
 const CustomerModel = database.model('customer')
@@ -29,8 +29,9 @@ class OrderDomain {
     const originType = pathOr('pdv', ['originType'], payload)
     const companyId = pathOr(null, ['companyId'], payload)
     const userId = pathOr(null, ['userId'], payload)
-    const customer = pathOr({}, ['customers'], payload)
+    const customer = pathOr({}, ['customer'], payload)
     let customerCreated = {}
+
     if (!isEmpty(customer)) {
       const findCustomer = await CustomerModel.findOne({
         where: { document: customer.document }
