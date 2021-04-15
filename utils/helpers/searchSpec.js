@@ -284,6 +284,7 @@ const buildPagination = (whereSpec) =>
       always(25),
       pipe(pathOr(25, ['limit']), Number)
     ),
+    order: always([['updatedAt', 'DESC']]),
     where: searchSpecs[whereSpec]
   })
 

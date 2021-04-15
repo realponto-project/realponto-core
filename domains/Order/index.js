@@ -6,7 +6,8 @@ const {
   subtract,
   applySpec,
   omit,
-  path
+  path,
+  replace
 } = require('ramda')
 
 const database = require('../../database')
@@ -32,7 +33,9 @@ class OrderDomain {
 
     if (!isEmpty(customer)) {
       const findCustomer = await CustomerModel.findOne({
-        where: { document: customer.document }
+        where: {
+          document: replace(/\D/g, '', pathOr('', ['document'], customer))
+        }
       })
       if (findCustomer) {
         customerCreated = findCustomer
@@ -145,7 +148,7 @@ class OrderDomain {
   }
 
   async getAll(query, companyId) {
-    const { where, offset, limit } = buildSearchAndPagination({
+    const { where, offset, order, limit } = buildSearchAndPagination({
       ...query,
       companyId
     })
@@ -160,6 +163,7 @@ class OrderDomain {
       ...orderWhere,
       limit,
       offset,
+      order,
       include: [
         { model: StatusModel },
         { model: CustomerModel, include: [AddressModel] },
