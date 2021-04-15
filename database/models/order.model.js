@@ -74,7 +74,7 @@ const Order = (sequelize) => {
 
     models.order.hasMany(models.serialNumber, {
       foreignKey: {
-        allowNull: false
+        allowNull: true
       }
     })
 

@@ -1,4 +1,4 @@
-const { pathOr } = require('ramda')
+const { pathOr, isEmpty } = require('ramda')
 const database = require('../../database')
 
 const SerialNumberModel = database.model('serialNumber')
@@ -13,7 +13,7 @@ const include = [UserModel, ProductModel, OrderModel]
 const create = async (req, res, next) => {
   const transaction = await database.transaction()
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-  const userId = pathOr(null, ['body', 'userId'], req)
+  const userId = pathOr(null, ['decoded', 'user', 'id'], req)
   const orderId = pathOr(null, ['body', 'orderId'], req)
   const serialNumbers = pathOr([], ['body', 'serialNumbers'], req)
   const productId = pathOr(null, ['body', 'productId'], req)
@@ -91,9 +91,30 @@ const getAll = async (req, res, next) => {
   }
 }
 
+const updateSerial = async (req, res, next) => {
+  const serialId = pathOr(null, ['params', 'id'], req)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const serialNumber = pathOr('', ['body', 'serialNumber'], req)
+  try {
+    const response = await SerialNumberModel.findOne({
+      where: { companyId, id: serialId, activated: true }
+    })
+
+    if (serialNumber && !isEmpty(serialNumber)) {
+      await response.update({ serialNumber })
+      await response.reload()
+    }
+
+    res.json(response)
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
 module.exports = {
   create,
   update,
   getById,
-  getAll
+  getAll,
+  updateSerial
 }

@@ -33,7 +33,7 @@ const SerialNumber = (sequelize) => {
   SerialNumber.associate = (models) => {
     models.serialNumber.belongsTo(models.order, {
       foreignKey: {
-        allowNull: false
+        allowNull: true
       }
     })
 

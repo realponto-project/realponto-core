@@ -27,7 +27,7 @@ const saleStatus = {
   typeLabel: 'Saída'
 }
 
-const plan =  {
+const plan = {
   activated: true,
   description: 'Free',
   discount: 'free',
@@ -41,18 +41,18 @@ const create = async (req, res, next) => {
   const transaction = await database.transaction()
   const company = path(['body', 'company'], req)
   const user = path(['body', 'user'], req)
-  
+
   let planFound = await PlanModel.findOne({
     where: { description: 'Free' },
     raw: true
   })
 
-  if(!planFound) {
-    await PlanModel.create(plan);
-     planFound = await PlanModel.findOne({
-    where: { description: 'Free' },
-    raw: true
-  })
+  if (!planFound) {
+    await PlanModel.create(plan)
+    planFound = await PlanModel.findOne({
+      where: { description: 'Free' },
+      raw: true
+    })
   }
 
   try {
