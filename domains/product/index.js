@@ -58,7 +58,7 @@ class ProductDomain {
           companyId: bodyData.companyId,
           statusId: statusFinded.id,
           userId: bodyData.userId,
-          installments: 0,
+          installments: 0
         },
         { transaction }
       )
@@ -70,7 +70,7 @@ class ProductDomain {
           productId: productCreated.id,
           userId: bodyData.userId,
           companyId: bodyData.companyId,
-          price: productCreated.salePrice,
+          price: productCreated.salePrice
         },
         { transaction }
       )

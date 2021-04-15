@@ -27,7 +27,7 @@ const Order = (sequelize) => {
     installments: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: null
+      defaultValue: 0
     },
     orderDate: {
       type: Sequelize.DATE,
@@ -38,7 +38,7 @@ const Order = (sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
       defaultValue: 0
-    },
+    }
   })
 
   Order.associate = (models) => {

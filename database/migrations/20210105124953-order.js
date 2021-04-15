@@ -16,7 +16,7 @@ module.exports = {
       installments: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue: null,
+        defaultValue: 0
       },
       payment: {
         type: Sequelize.STRING,
