@@ -13,7 +13,7 @@ class SendgridService {
 
     const msg = {
       from: 'jessi_leandro@hotmail.com',
-      subject: 'Sending with SendGrid is Fun',
+      subject: 'Boas vindas',
       templateId: 'd-eb83e3f33e544391ba534890727eab26',
       personalizations: [
         {
