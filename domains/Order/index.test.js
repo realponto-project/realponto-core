@@ -24,7 +24,8 @@ describe('create Order', () => {
 
     products = productsFactory.map(({ id: productId }) => ({
       productId,
-      quantity: 10
+      quantity: 10,
+      price: 100
     }))
   })
 
@@ -36,7 +37,8 @@ describe('create Order', () => {
       customerId: customerFactory.id,
       userId: userFactory.id,
       companyId,
-      products
+      products,
+      originType: 'order'
     }
 
     const orderCreated = await orderDomain.create(order)
@@ -76,7 +78,8 @@ describe('create Order', () => {
       customerId: customerFactory.id,
       companyId,
       userId: userFactory.id,
-      products: map((item) => ({ ...item, quantity: 100 }), products)
+      products: map((item) => ({ ...item, quantity: 100 }), products),
+      originType: 'order'
     }
 
     await expect(orderDomain.create(order)).rejects.toThrow(
@@ -91,11 +94,12 @@ describe('create Order', () => {
       statusId: statusFactory.id,
       customerId: customerFactory.id,
       companyId,
-      userId: userFactory.id
+      userId: userFactory.id,
+      originType: 'order'
     }
 
     await expect(orderDomain.create(order)).rejects.toThrow(
-      new Error('products is a required field')
+      new Error('products cannoot is empty')
     )
   })
 
@@ -106,11 +110,12 @@ describe('create Order', () => {
       statusId: statusFactory.id,
       customerId: customerFactory.id,
       userId: userFactory.id,
-      products
+      products,
+      originType: 'order'
     }
 
     await expect(orderDomain.create(order)).rejects.toThrow(
-      new Error('company not found')
+      new Error('status not found or not belongs to company')
     )
   })
   it('try create order other companyId', async () => {
@@ -121,7 +126,8 @@ describe('create Order', () => {
       customerId: customerFactory.id,
       userId: userFactory.id,
       companyId: 'co_5eb458ca-3466-4c89-99d2-e9ae57c0c362',
-      products
+      products,
+      originType: 'order'
     }
 
     await expect(orderDomain.create(order)).rejects.toThrow(
@@ -136,11 +142,12 @@ describe('create Order', () => {
       customerId: customerFactory.id,
       userId: userFactory.id,
       companyId: 'co_5eb458ca-3466-4c89-99d2-e9ae57c0c362',
-      products
+      products,
+      originType: 'order'
     }
 
     await expect(orderDomain.create(order)).rejects.toThrow(
-      new Error('statusId is a required field')
+      new Error('status not found or not belongs to company')
     )
   })
 
@@ -150,7 +157,8 @@ describe('create Order', () => {
     const order = {
       statusId: statusFactory.id,
       companyId,
-      products
+      products,
+      originType: 'order'
     }
 
     const orderCreated = await orderDomain.create(order)

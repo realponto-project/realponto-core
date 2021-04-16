@@ -81,6 +81,9 @@ class OrderDomain {
       where: { id: defaultStatus.id, companyId }
     })
 
+    if (!statusFinded)
+      throw new Error('status not found or not belongs to company')
+
     const orderCreated = await OrderModel.create(
       {
         ...buildOrder,
@@ -90,6 +93,9 @@ class OrderDomain {
     )
 
     const products = pathOr([], ['products'], payload)
+
+    if (isEmpty(products)) throw new Error('products cannoot is empty')
+
     const formatProducts = (product) => ({
       productId: product.productId,
       quantity: product.quantity,

@@ -25,14 +25,16 @@ describe('controller Order', () => {
 
       const products = productsFactory.map(({ id: productId }) => ({
         productId,
-        quantity: 10
+        quantity: 10,
+        price: 0
       }))
 
       const order = {
         statusId: statusFactory.id,
         customerId: customerFactory.id,
         userId: userFactory.id,
-        products
+        products,
+        originType: 'order'
       }
 
       const response = await request(app)

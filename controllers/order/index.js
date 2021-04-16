@@ -55,5 +55,5 @@ const getAll = async (req, res, next) => {
 module.exports = {
   create,
   getById,
-  getAll,
+  getAll
 }

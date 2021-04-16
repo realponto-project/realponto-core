@@ -51,7 +51,8 @@ factory.define('plan', PlanModel, () => fakerPlan())
 factory.define('transaction', TransactionModel, () => ({
   quantity: 10,
   productId: factory.assoc('product', 'id'),
-  companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
+  companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0',
+  price: 0
 }))
 
 factory.define('order', OrderModel, () => ({

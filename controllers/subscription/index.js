@@ -1,9 +1,10 @@
+/* eslint-disable camelcase */
 const { pathOr } = require('ramda')
-const pagarme = require('pagarme')
 
 const database = require('../../database')
 const SubscriptionDomain = require('../../domains/Subscription')
 const PlanDomain = require('../../domains/Plan')
+const PagarMeService = require('../../services/pagarMe')
 
 const create = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
@@ -31,15 +32,13 @@ const create = async (req, res, next) => {
       ]
     }
 
-    const conectionPagarme = await pagarme.client.connect({
-      api_key: process.env.API_KEY
-    })
+    const pagarMeService = new PagarMeService()
+
     const {
       tid,
-      // eslint-disable-next-line camelcase
       authorization_code,
       status
-    } = await conectionPagarme.transactions.create(transactionSpecPagarme)
+    } = await pagarMeService.createTransactions(transactionSpecPagarme)
 
     const activated = !!(status === 'paid' || status === 'autorizated')
 
