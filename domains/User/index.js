@@ -56,6 +56,21 @@ class UserDomain {
       }
     }
 
+    if (bodyData.activated === false && user.activated === true) {
+      const countUsersActived = await UserModel.count({
+        where: {
+          companyId,
+          activated: true
+        },
+        raw: true,
+        transaction
+      })
+
+      if (countUsersActived === 1) {
+        throw new Error('Cannot inactivate all users')
+      }
+    }
+
     await user.update(omit(['password'], bodyData), { transaction })
 
     const userUpdated = await UserModel.findByPk(id, {
@@ -63,17 +78,6 @@ class UserDomain {
       include: [CompanyModel],
       transaction
     })
-
-    const countUsersActived = await UserModel.count({
-      where: {
-        companyId,
-        activated: true
-      },
-      raw: true,
-      transaction
-    })
-
-    if (countUsersActived === 0) throw new Error('Cannot inactivate all users')
 
     return userUpdated
   }
