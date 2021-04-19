@@ -35,6 +35,10 @@ const Product = (sequelize) => {
       allowNull: false,
       defaultValue: 1
     },
+    category: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     buyPrice: {
       type: Sequelize.INTEGER,
       allowNull: false,

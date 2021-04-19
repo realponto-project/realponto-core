@@ -21,6 +21,10 @@ module.exports = {
           min: 0
         }
       },
+      category: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: false
