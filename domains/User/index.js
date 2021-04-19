@@ -56,15 +56,30 @@ class UserDomain {
       }
     }
 
+    if (bodyData.activated === false && user.activated === true) {
+      const countUsersActived = await UserModel.count({
+        where: {
+          companyId,
+          activated: true
+        },
+        raw: true,
+        transaction
+      })
+
+      if (countUsersActived === 1) {
+        throw new Error('Cannot inactivate all users')
+      }
+    }
+
     await user.update(omit(['password'], bodyData), { transaction })
 
-    await user.reload()
-
-    return await UserModel.findByPk(id, {
+    const userUpdated = await UserModel.findByPk(id, {
       where: { companyId },
       include: [CompanyModel],
       transaction
     })
+
+    return userUpdated
   }
 
   async updatePassword(id, bodyData, options = {}) {

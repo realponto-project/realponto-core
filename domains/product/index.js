@@ -58,7 +58,8 @@ class ProductDomain {
           companyId: bodyData.companyId,
           statusId: statusFinded.id,
           userId: bodyData.userId,
-          installments: 0
+          installments: 0,
+          orderDate: new Date()
         },
         { transaction }
       )
