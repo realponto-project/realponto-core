@@ -82,12 +82,16 @@ class OrderDomain {
       where: { id: defaultStatus.id, companyId }
     })
 
-    if (!statusFinded)
+    if (!statusFinded) {
       throw new Error('status not found or not belongs to company')
+    }
+
+    const protocolNumber = await OrderModel.count({ where: { companyId } })
 
     const orderCreated = await OrderModel.create(
       {
         ...buildOrder,
+        protocol: protocolNumber,
         statusId: defaultStatus.id
       },
       { transaction }

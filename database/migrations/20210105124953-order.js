@@ -27,6 +27,10 @@ module.exports = {
         allowNull: true,
         defaultValue: null
       },
+      protocol: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       discount: {
         type: Sequelize.INTEGER,
         allowNull: false,
