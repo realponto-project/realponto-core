@@ -231,6 +231,7 @@ const searchSpecs = {
     applySpec({
       activated: pathOr(null, ['activated']),
       name: iLikeOperation('name'),
+      category: pathOr(null, ['category']),
       companyId: pathOr(null, ['companyId']),
       minQuantity: minQuantityParser('minQuantity'),
       createdAt: parserDateGteAndLte('createdAt'),
