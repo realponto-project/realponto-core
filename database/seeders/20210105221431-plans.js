@@ -44,6 +44,16 @@ module.exports = {
           amount: 0,
           createdAt: new Date(),
           updatedAt: new Date()
+        },
+        {
+          id: 'pl_9ed7ca8a-a146-11eb-bcbc-0242ac130002',
+          activated: true,
+          description: 'ilimited',
+          discount: '-',
+          quantityProduct: 999999999,
+          amount: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ],
       {}
