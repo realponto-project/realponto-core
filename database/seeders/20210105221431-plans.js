@@ -9,7 +9,7 @@ module.exports = {
           id: 'pl_f941055e-1df7-4e6d-9d4d-698694b869fd',
           activated: true,
           description: 'Anual',
-          discount: 'OFF 15%',
+          discount: '',
           quantityProduct: 1000,
           amount: 4499,
           createdAt: new Date(),
