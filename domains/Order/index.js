@@ -58,6 +58,7 @@ class OrderDomain {
     const buildOrder = applySpec({
       payment: pathOr('cash', ['paymentMethod']),
       orderDate: pathOr(new Date(), ['orderDate']),
+      note: pathOr('', ['note']),
       originType: pathOr('pdv', ['originType']),
       installments: pathOr(0, ['installments']),
       customerId: pathOr(null, ['customerId']),

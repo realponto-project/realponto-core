@@ -18,6 +18,10 @@ module.exports = {
         allowNull: false,
         defaultValue: 0
       },
+      note: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       payment: {
         type: Sequelize.STRING,
         allowNull: true,
