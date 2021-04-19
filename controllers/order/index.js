@@ -1,14 +1,7 @@
 const { pathOr } = require('ramda')
-const Sequelize = require('sequelize')
-
-const { Op } = Sequelize
-const { iLike } = Op
 
 const database = require('../../database')
 const OrderDomain = require('../../domains/Order')
-const PdvSchema = require('../../utils/helpers/Schemas/Pdv')
-
-const StatusModel = database.model('status')
 
 const create = async (req, res, next) => {
   const transaction = await database.transaction()
