@@ -1,5 +1,6 @@
 const sgMail = require('@sendgrid/mail')
-const { pathOr, isEmpty } = require('ramda')
+const { pathOr, isEmpty, applySpec, always, path } = require('ramda')
+const yup = require('yup')
 
 class SendgridService {
   async sendMail(payload) {
@@ -11,19 +12,33 @@ class SendgridService {
 
     if (isEmpty(to)) throw new Error('to cannot be null')
 
-    const msg = {
-      from: 'jessi_leandro@hotmail.com',
-      subject: 'Boas vindas',
-      templateId: 'd-eb83e3f33e544391ba534890727eab26',
-      personalizations: [
-        {
-          to: [to],
-          dynamicTemplateData: to
-        }
-      ]
-    }
+    const payloadSchema = yup.object().shape({
+      subject: yup.string().required(),
+      templateId: yup.string().required()
+    })
 
-    return await sgMail.send(msg)
+    await payloadSchema.validate(payload, { abortEarly: false })
+
+    const buildMsg = applySpec({
+      from: always('noreply@alxa.com.br'),
+      subject: path(['subject']),
+      templateId: path(['templateId']),
+      personalizations: ({ to }) => [{ to: [to], dynamicTemplateData: to }]
+    })
+
+    // DADOS RECUPERAR SENHA
+
+    //   from: 'noreply@alxa.com.br',
+    //   subject: 'Recuperar senha',
+    //   templateId: 'd-e4638d1b007549efa883162ae5568f21',
+    //   personalizations: [
+    //     {
+    //       to: [to],
+    //       dynamicTemplateData: to
+    //     }
+    //   ]
+
+    return await sgMail.send(buildMsg(payload))
   }
 }
 
