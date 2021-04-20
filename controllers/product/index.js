@@ -74,10 +74,25 @@ const getProductByBarCode = async (req, res, next) => {
   }
 }
 
+const getTransactionsToChart = async (req, res, next) => {
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+
+  try {
+    const response = await ProductDomain.getTransactionsToChart(
+      req.params.id,
+      companyId
+    )
+    res.json(response)
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
 module.exports = {
   create,
   update,
   getById,
   getAll,
-  getProductByBarCode
+  getProductByBarCode,
+  getTransactionsToChart
 }

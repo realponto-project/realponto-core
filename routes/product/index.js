@@ -7,4 +7,9 @@ router.get('/products/:id', productController.getById)
 router.put('/products/:id', productController.update)
 router.get('/products-barcode/:barcode', productController.getProductByBarCode)
 
+router.get(
+  '/products-transactions/:id',
+  productController.getTransactionsToChart
+)
+
 module.exports = router

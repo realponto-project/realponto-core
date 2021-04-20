@@ -1,3 +1,5 @@
+const sequelize = require('sequelize')
+
 const buildPagination = require('../../utils/helpers/searchSpec')
 const database = require('../../database')
 const productSchema = require('../../utils/helpers/Schemas/product')
@@ -120,5 +122,25 @@ class ProductDomain {
   async getProductByBarCode(barCode, companyId) {
     return await ProductModel.findOne({ where: { barCode, companyId } })
   }
+
+  async getTransactionsToChart(id) {
+    const transactions = await TransactionModel.findAll({
+      where: { productId: id },
+      include: {
+        model: StatusModel,
+        attributes: ['typeLabel', 'label']
+      },
+      attributes: [
+        [sequelize.fn('COUNT', sequelize.col('status.typeLabel')), 'count'],
+        [sequelize.fn('sum', sequelize.col('quantity')), 'countItems']
+      ],
+
+      group: ['status.label', 'status.typeLabel', 'status.id'],
+      raw: true
+    })
+
+    return transactions
+  }
 }
+
 module.exports = new ProductDomain()
