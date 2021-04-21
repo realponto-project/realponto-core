@@ -9,6 +9,10 @@ const Order = (sequelize) => {
       allowNull: false,
       defaultValue: uuidv4Generator('or_')
     },
+    protocol: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
     pendingReview: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
