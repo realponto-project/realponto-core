@@ -516,6 +516,7 @@ const getSummaryToChart = async (req, res, next) => {
       limit,
       raw: true
     })
+
     res.json({
       source: parserSummaryData(rows),
       chartSettings: getStatusSummary(rows)
