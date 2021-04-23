@@ -182,7 +182,7 @@ class OrderDomain {
           model: UserModel,
           where: where.user || undefined
         },
-        { model: TransactionModel, include: [ProductModel] }
+        { model: TransactionModel, include: [ProductModel, StatusModel] }
       ]
     })
 
