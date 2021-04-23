@@ -16,7 +16,7 @@ const TransactionModal = database.model('transaction')
 const StatusModal = database.model('status')
 const ProductModel = database.model('product')
 
-const schemaCreteTransaction = yup.object().shape({
+const schemaCreateTransaction = yup.object().shape({
   orderId: yup.string().required(),
   statusId: yup.string().required(),
   userId: yup.string().required(),
@@ -35,7 +35,7 @@ class TransactionDomain {
   async create(payload, options = {}) {
     const { transaction = null } = options
 
-    await schemaCreteTransaction.validate(payload, { abortEarly: false })
+    await schemaCreateTransaction.validate(payload, { abortEarly: false })
 
     const quantities = await TransactionModal.findAll({
       where: { orderId: payload.orderId, productId: payload.productId },
