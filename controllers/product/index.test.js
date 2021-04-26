@@ -96,15 +96,12 @@ describe('product controller', () => {
       })
     })
 
-    describe('get product controller', () => {
-      let productFactory = null
-
-      beforeAll(async () => {
-        productFactory = await factory.create('product')
-      })
-
+    describe('get all product controller', () => {
       it('get all product', async () => {
         expect.hasAssertions()
+
+        await factory.create('product')
+
         const res = await request(app)
           .get('/api/products')
           .set('Authorization', `Bearer ${token}`)
@@ -112,7 +109,6 @@ describe('product controller', () => {
         expect(res.statusCode).toBe(200)
         expect(res.body).toHaveProperty('total', expect.any(Number))
         expect(res.body).toHaveProperty('source')
-        expect(res.body.total).toBeGreaterThan(0)
         expect(res.body.source).toContainEqual(
           expect.objectContaining({
             id: expect.stringMatching(/^pr_/),

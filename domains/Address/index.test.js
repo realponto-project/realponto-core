@@ -2,7 +2,7 @@ const { omit } = require('ramda')
 const { ValidationError } = require('sequelize')
 
 const addressDomain = require('.')
-const { generatorFakerAddress } = require('../../utils/helpers/Faker/address')
+const { generatorFakerAddress } = require('../../utils/helpers/fakers')
 const factory = require('../../utils/helpers/factories')
 describe('create Address', () => {
   it('create new address', async () => {
