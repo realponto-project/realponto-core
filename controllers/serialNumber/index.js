@@ -84,7 +84,10 @@ const getAll = async (req, res, next) => {
     companyId
   })
   try {
-    const response = await SerialNumberModel.findAll({ ...query, include })
+    const response = await SerialNumberModel.findAndCountAll({
+      ...query,
+      include
+    })
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })

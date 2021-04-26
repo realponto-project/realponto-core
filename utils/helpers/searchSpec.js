@@ -176,7 +176,7 @@ const orderSpec = applySpec({
     applySpec({
       companyId: pathOr(null, ['companyId']),
       pendingReview: pathOr(null, ['pendingReview']),
-      createdAt: parserDateGteAndLteForCreatedAt,
+      orderDate: parserDateGteAndLteForCreatedAt,
       updatedAt: parserDateGteAndLte('updatedAt')
     }),
     removeFiledsNilOrEmpty
