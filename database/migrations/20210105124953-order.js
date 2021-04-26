@@ -27,6 +27,11 @@ module.exports = {
         allowNull: true,
         defaultValue: null
       },
+      transportadora: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
       protocol: {
         type: Sequelize.INTEGER,
         allowNull: false
