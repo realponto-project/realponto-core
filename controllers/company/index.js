@@ -106,7 +106,7 @@ const create = async (req, res, next) => {
         user_name: user.name
       },
       subject: 'Bem Vindo ao Alxa',
-      templateId: 'd-6dac0fae2bff4eb583e31b938ad5569c'
+      templateId: 'd-b54f73f816a545808efe97d1f24a3673'
     })
 
     await transaction.commit()
