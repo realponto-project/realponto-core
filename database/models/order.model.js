@@ -32,6 +32,10 @@ const Order = (sequelize) => {
       type: Sequelize.STRING,
       allowNull: true
     },
+    responsibleUser: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     originType: {
       type: Sequelize.ENUM(['order', 'pdv']),
       allowNull: false,

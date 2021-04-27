@@ -21,6 +21,7 @@ const ProductModel = database.model('product')
 const AddressModel = database.model('address')
 
 const buildSearchAndPagination = buildPagination('order')
+
 class OrderDomain {
   async create(payload, options = {}) {
     const { transaction = null } = options
@@ -63,6 +64,7 @@ class OrderDomain {
       installments: pathOr(0, ['installments']),
       customerId: pathOr(null, ['customerId']),
       userId: pathOr(null, ['userId']),
+      responsibleUser: pathOr(null, ['responsibleUser']),
       companyId: pathOr(0, ['companyId'])
     })(payload)
 
@@ -147,7 +149,7 @@ class OrderDomain {
   }
 
   async getById(id, companyId, options = {}) {
-    return await OrderModel.findOne({
+    const order = await OrderModel.findOne({
       where: { id, companyId },
       include: [
         { model: StatusModel },
@@ -156,6 +158,15 @@ class OrderDomain {
         { model: TransactionModel, include: [ProductModel] }
       ]
     })
+    console.log(order)
+    const responsible = await UserModel.findByPk(order.responsibleUser, {
+      raw: true
+    })
+
+    return {
+      order,
+      responsible: omit(['password'], responsible)
+    }
   }
 
   async getAll(query, companyId) {
