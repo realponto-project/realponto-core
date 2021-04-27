@@ -55,11 +55,16 @@ class ProductDomain {
         }
       })
 
+      const protocolNumber = await OrderModel.count({
+        where: { companyId: bodyData.companyId }
+      })
+
       const orderCreated = await OrderModel.create(
         {
           companyId: bodyData.companyId,
           statusId: statusFinded.id,
           userId: bodyData.userId,
+          protocol: protocolNumber,
           installments: 0,
           orderDate: new Date()
         },

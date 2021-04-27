@@ -20,7 +20,7 @@ class SendgridService {
     await payloadSchema.validate(payload, { abortEarly: false })
 
     const buildMsg = applySpec({
-      from: always('noreply@alxa.com.br'),
+      from: always(process.env.SENDGRID_SENDER || 'noreply@alxa.com.br'),
       subject: path(['subject']),
       templateId: path(['templateId']),
       personalizations: ({ to }) => [{ to: [to], dynamicTemplateData: to }]

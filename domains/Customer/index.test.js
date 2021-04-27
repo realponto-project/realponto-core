@@ -1,6 +1,8 @@
 const customerDomain = require('.')
-const { generatorFakerCustomer } = require('../../utils/helpers/Faker/customer')
-const { generatorFakerAddress } = require('../../utils/helpers/Faker/address')
+const {
+  generatorFakerCustomer,
+  generatorFakerAddress
+} = require('../../utils/helpers/fakers')
 const factory = require('../../utils/helpers/factories')
 
 const { NotFoundError } = require('../../utils/helpers/errors')
