@@ -157,7 +157,7 @@ class OrderDomain {
         { model: TransactionModel, include: [ProductModel] }
       ]
     })
-    console.log(order)
+
     const responsible = await UserModel.findByPk(order.responsibleUser, {
       raw: true
     })
