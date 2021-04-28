@@ -27,7 +27,7 @@ module.exports = {
         allowNull: true,
         defaultValue: null
       },
-      transportadora: {
+      shippingCompany: {
         type: Sequelize.STRING,
         allowNull: true,
         defaultValue: null

@@ -18,7 +18,7 @@ const Order = (sequelize) => {
       allowNull: false,
       defaultValue: false
     },
-    transportadora: {
+    shippingCompany: {
       type: Sequelize.STRING,
       allowNull: true,
       defaultValue: null

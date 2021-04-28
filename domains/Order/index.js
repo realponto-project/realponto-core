@@ -58,7 +58,7 @@ class OrderDomain {
       payment: pathOr('cash', ['paymentMethod']),
       orderDate: pathOr(new Date(), ['orderDate']),
       note: pathOr('', ['note']),
-      transportadora: pathOr(null, ['customer', 'transportadora']),
+      shippingCompany: pathOr(null, ['customer', 'shippingCompany']),
       originType: pathOr('pdv', ['originType']),
       installments: pathOr(0, ['installments']),
       customerId: pathOr(null, ['customerId']),
