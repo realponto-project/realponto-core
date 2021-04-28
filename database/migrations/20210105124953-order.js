@@ -41,6 +41,10 @@ module.exports = {
         allowNull: false,
         defaultValue: 0
       },
+      responsibleUser: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       originType: {
         type: Sequelize.ENUM(['order', 'pdv']),
         allowNull: false,
