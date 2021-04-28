@@ -19,7 +19,6 @@ const UserModel = database.model('user')
 const TransactionModel = database.model('transaction')
 const ProductModel = database.model('product')
 const AddressModel = database.model('address')
-
 const buildSearchAndPagination = buildPagination('order')
 
 class OrderDomain {
