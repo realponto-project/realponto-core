@@ -41,9 +41,7 @@ class UserDomain {
       replace(/\W/g, '')
     )(bodyData)
 
-    const user = await UserModel.findByPk(id, {
-      where: { companyId }
-    })
+    const user = await UserModel.findByPk(id, { transaction })
 
     if (!user) {
       throw new NotFoundError('user not found')
@@ -51,7 +49,7 @@ class UserDomain {
 
     if (document) {
       const verifyDocument = await UserModel.findOne({
-        where: { document, companyId }
+        where: { document, companyId: user.companyId }
       })
 
       if (verifyDocument && verifyDocument.id !== id) {
@@ -74,7 +72,9 @@ class UserDomain {
       }
     }
 
-    await user.update(omit(['password'], bodyData), { transaction })
+    await user.update(omit(['password', 'companyId'], bodyData), {
+      transaction
+    })
 
     const userUpdated = await UserModel.findByPk(id, {
       where: { companyId },
@@ -112,10 +112,9 @@ class UserDomain {
 
   async resetPassword(id, bodyData, options = {}) {
     const { transaction = null } = options
-    const companyId = path(['companyId'], bodyData)
 
     const user = await UserModel.findOne({
-      where: { id, companyId, activated: true }
+      where: { id, activated: true }
     })
 
     if (!user) {
@@ -142,9 +141,8 @@ class UserDomain {
     return user
   }
 
-  async getById(id, companyId) {
-    return await UserModel.findOne({
-      where: { id, companyId },
+  async getById(id) {
+    return await UserModel.findByPk(id, {
       include: [CompanyModel]
     })
   }

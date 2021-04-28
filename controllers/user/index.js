@@ -72,9 +72,9 @@ const update = async (req, res, next) => {
 
 const getById = async (req, res, next) => {
   const id = pathOr(null, ['params', 'id'], req)
-  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  // const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   try {
-    const response = await UserDomain.getById(id, companyId)
+    const response = await UserDomain.getById(id)
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -119,18 +119,12 @@ const updatePassword = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
   const transaction = await database.transaction()
   const userId = pathOr(null, ['decoded', 'user', 'id'], req)
-  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const bodyData = pathOr({}, ['body'], req)
 
   try {
-    const response = await UserDomain.resetPassword(
-      userId,
-      {
-        ...bodyData,
-        companyId
-      },
-      { transaction }
-    )
+    const response = await UserDomain.resetPassword(userId, bodyData, {
+      transaction
+    })
 
     await transaction.commit()
     res.json(response)
