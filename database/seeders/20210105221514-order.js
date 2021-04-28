@@ -14,7 +14,7 @@ module.exports = {
           companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0',
           createdAt: new Date(),
           updatedAt: new Date(),
-          originType: 'order',
+          originType: 'order'
         },
         {
           id: 'or_479d7ec6-5897-457a-9967-693b8efceb7c',
@@ -25,7 +25,7 @@ module.exports = {
           companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0',
           createdAt: new Date(),
           updatedAt: new Date(),
-          originType: 'order',
+          originType: 'order'
         }
       ],
       {}

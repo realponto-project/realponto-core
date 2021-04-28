@@ -18,12 +18,21 @@ const Order = (sequelize) => {
       allowNull: false,
       defaultValue: false
     },
+    transportadora: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      defaultValue: null
+    },
     payment: {
       type: Sequelize.STRING,
       allowNull: true,
       defaultValue: null
     },
     note: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    responsibleUser: {
       type: Sequelize.STRING,
       allowNull: true
     },

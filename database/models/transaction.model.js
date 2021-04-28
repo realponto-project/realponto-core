@@ -17,7 +17,7 @@ const Transaction = (sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
       default: 0
-    },
+    }
   })
 
   Transaction.associate = (models) => {
