@@ -16,7 +16,9 @@ const {
   propOr,
   omit,
   path,
-  merge
+  merge,
+  append,
+  map
 } = require('ramda')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
@@ -285,7 +287,10 @@ const buildPagination = (whereSpec) =>
       always(25),
       pipe(pathOr(25, ['limit']), Number)
     ),
-    order: always([['updatedAt', 'DESC']]),
+    order: pipe(
+      pipe(pathOr([], ['order']), map(JSON.parse)),
+      append(['updatedAt', 'DESC'])
+    ),
     where: searchSpecs[whereSpec]
   })
 
