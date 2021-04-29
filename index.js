@@ -23,11 +23,13 @@ const subscriptionRoutes = require('./routes/subscription')
 const registerRoutes = require('./routes/register')
 const emailRoutes = require('./routes/email')
 const metricsRoutes = require('./routes/metrics')
+const catalogRoutes = require('./routes/catalog')
 
 app.use(cors('*'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.use('/catalog', catalogRoutes)
 app.use(emailRoutes)
 app.use(registerRoutes)
 app.use('/auth', authenticationRoutes)
