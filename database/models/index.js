@@ -11,6 +11,7 @@ const Company = require('./company.model')
 const Plan = require('./plan.model')
 const Subscription = require('./subscription.model')
 const Address = require('./address.model')
+const ProductImage = require('./productImage.model')
 
 module.exports = [
   Address,
@@ -25,5 +26,6 @@ module.exports = [
   OrderProduct,
   Company,
   Plan,
-  Subscription
+  Subscription,
+  ProductImage
 ]

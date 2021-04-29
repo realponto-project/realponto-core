@@ -1,5 +1,6 @@
 require('dotenv').config({})
 
+const path = require('path')
 const Express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -28,6 +29,7 @@ app.use(cors('*'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.use('/files', Express.static(path.resolve(__dirname, 'tmp', 'uploads')))
 app.use(emailRoutes)
 app.use(registerRoutes)
 app.use('/auth', authenticationRoutes)
