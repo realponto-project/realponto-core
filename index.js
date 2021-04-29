@@ -1,5 +1,6 @@
 require('dotenv').config({})
 
+const path = require('path')
 const Express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -29,6 +30,7 @@ const recoveryPasswordRoutes = require('./routes/recoveryPassword')
 app.use(cors('*'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use('/files', Express.static(path.resolve(__dirname, 'tmp', 'uploads')))
 
 app.use('/catalog', catalogRoutes)
 app.use(emailRoutes)
