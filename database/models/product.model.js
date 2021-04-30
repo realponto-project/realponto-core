@@ -23,7 +23,7 @@ const Product = (sequelize) => {
       }
     },
     description: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT,
       allowNull: true
     },
     name: {

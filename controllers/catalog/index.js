@@ -15,7 +15,20 @@ const getProducts = async (req, res, next) => {
       { ...req.query, activated: true },
       companyId
     )
+
     res.json({ count, rows })
+  } catch (err) {
+    next(err)
+  }
+}
+
+const getCompanyById = async (req, res, next) => {
+  const companyId = path(['params', 'companyId'], req)
+
+  try {
+    const company = await CompanyModel.findByPk(companyId)
+
+    res.json(company)
   } catch (err) {
     next(err)
   }
@@ -37,5 +50,6 @@ const getProductById = async (req, res, next) => {
 
 module.exports = {
   getProducts,
-  getProductById
+  getProductById,
+  getCompanyById
 }
