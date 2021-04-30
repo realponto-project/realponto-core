@@ -128,6 +128,16 @@ class ProductDomain {
     )
   }
 
+  async getAllWithImage(query, companyId) {
+    return await ProductModel.findAndCountAll({
+      ...buildSearchAndPagination({
+        ...query,
+        companyId
+      }),
+      include: ProductImageModel
+    })
+  }
+
   async getProductByBarCode(barCode, companyId) {
     return await ProductModel.findOne({ where: { barCode, companyId } })
   }
