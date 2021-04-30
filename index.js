@@ -30,7 +30,7 @@ const recoveryPasswordRoutes = require('./routes/recoveryPassword')
 app.use(cors('*'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use('/files', Express.static(path.resolve(__dirname, 'tmp', 'uploads')))
+app.use('/files', Express.static(path.resolve(__dirname, 'temp', 'uploads')))
 
 app.use('/catalog', catalogRoutes)
 app.use(emailRoutes)
