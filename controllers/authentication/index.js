@@ -37,6 +37,7 @@ const authentication = async (req, res, next) => {
 
 const checkToken = (req, res, next) => {
   const token = req.headers['x-access-token'] || req.headers.authorization
+
   if (token) {
     jwt.verify(token.slice(7, token.length), secret, (err, decoded) => {
       if (err) {

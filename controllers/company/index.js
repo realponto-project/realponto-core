@@ -7,6 +7,7 @@ const UserDomain = require('../../domains/User')
 const database = require('../../database')
 
 const sendgridService = require('../../services/sendgrid')
+const templatesSendgrid = require('../../utils/templates/sendgrid')
 
 const PlanModel = database.model('plan')
 const SubscriptionModel = database.model('subscription')
@@ -99,17 +100,16 @@ const create = async (req, res, next) => {
       },
       { transaction }
     )
+    await transaction.commit()
 
     await sendgridService.sendMail({
       to: {
         email: user.email,
         user_name: user.name
       },
-      subject: 'Bem Vindo ao Alxa',
-      templateId: 'd-b54f73f816a545808efe97d1f24a3673'
+      ...templatesSendgrid.welcome
     })
 
-    await transaction.commit()
     res.status(201).json(response)
   } catch (error) {
     console.log(error)

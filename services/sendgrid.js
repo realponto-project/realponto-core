@@ -26,18 +26,6 @@ class SendgridService {
       personalizations: ({ to }) => [{ to: [to], dynamicTemplateData: to }]
     })
 
-    // DADOS RECUPERAR SENHA
-
-    //   from: 'noreply@alxa.com.br',
-    //   subject: 'Recuperar senha',
-    //   templateId: 'd-e4638d1b007549efa883162ae5568f21',
-    //   personalizations: [
-    //     {
-    //       to: [to],
-    //       dynamicTemplateData: to
-    //     }
-    //   ]
-
     return await sgMail.send(buildMsg(payload))
   }
 }

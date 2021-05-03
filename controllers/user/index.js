@@ -2,6 +2,10 @@ const { omit, pathOr } = require('ramda')
 
 const database = require('../../database')
 const UserDomain = require('../../domains/User')
+const sendgridService = require('../../services/sendgrid')
+const tokenGenerate = require('../../utils/helpers/tokenGenerate')
+const dashUrl = require('../../utils/helpers/dashUrl')
+const templatesSendgrid = require('../../utils/templates/sendgrid')
 
 const CompanyModel = database.model('company')
 
@@ -20,7 +24,21 @@ const create = async (req, res, next) => {
       { transaction }
     )
 
+    const token = tokenGenerate({ user: { id: response.id } })
+
+    const { templateId, subject, url } = templatesSendgrid.inviteMember
     await transaction.commit()
+
+    await sendgridService.sendMail({
+      to: {
+        email: response.email,
+        user_name: response.name,
+        weblink: `https://${dashUrl}${url}${token}`
+      },
+      templateId,
+      subject
+    })
+
     res.status(201).json(response)
   } catch (error) {
     await transaction.rollback()
@@ -98,10 +116,63 @@ const updatePassword = async (req, res, next) => {
   }
 }
 
+const resetPassword = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const userId = pathOr(null, ['decoded', 'user', 'id'], req)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const bodyData = pathOr({}, ['body'], req)
+
+  try {
+    const response = await UserDomain.resetPassword(
+      userId,
+      {
+        ...bodyData,
+        companyId
+      },
+      { transaction }
+    )
+
+    await transaction.commit()
+    res.json(response)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
+const recoveryPassword = async (req, res, next) => {
+  const bodyData = pathOr({}, ['body'], req)
+
+  try {
+    const response = await UserDomain.recoveryPassword(bodyData)
+
+    const { templateId, subject, url } = templatesSendgrid.resetPassword
+
+    const token = tokenGenerate({
+      user: { id: response.id, companyId: response.companyId }
+    })
+
+    await sendgridService.sendMail({
+      to: {
+        email: response.email,
+        user_name: response.name,
+        weblink: `https://${dashUrl}${url}${token}`
+      },
+      templateId,
+      subject
+    })
+
+    res.json({})
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
 module.exports = {
   create,
   update,
   getById,
   getAll,
-  updatePassword
+  updatePassword,
+  resetPassword,
+  recoveryPassword
 }

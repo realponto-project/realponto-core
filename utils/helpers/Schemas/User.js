@@ -5,4 +5,8 @@ const UserUpdatePwdSchema = yup.object().shape({
   newPassword: yup.string().required()
 })
 
-module.exports = { UserUpdatePwdSchema }
+const UserResetPwdSchema = yup.object().shape({
+  newPassword: yup.string().required()
+})
+
+module.exports = { UserUpdatePwdSchema, UserResetPwdSchema }
