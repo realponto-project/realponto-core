@@ -27,6 +27,7 @@ class OrderDomain {
     const originType = pathOr('pdv', ['originType'], payload)
     const companyId = pathOr(null, ['companyId'], payload)
     const userId = pathOr(null, ['userId'], payload)
+    const responsibleUserId = pathOr(null, ['responsibleUserId'], payload)
     const customer = pathOr({}, ['customer'], payload)
     let customerCreated = {}
 
@@ -63,7 +64,7 @@ class OrderDomain {
       installments: pathOr(0, ['installments']),
       customerId: pathOr(null, ['customerId']),
       userId: pathOr(null, ['userId']),
-      responsibleUser: pathOr(null, ['responsibleUser']),
+      responsibleUserId: pathOr(null, ['responsibleUserId']),
       companyId: pathOr(0, ['companyId'])
     })(payload)
 
@@ -106,7 +107,7 @@ class OrderDomain {
       productId: product.productId,
       quantity: product.quantity,
       orderId: orderCreated.id,
-      userId,
+      userId: responsibleUserId,
       statusId: defaultStatus.id,
       companyId,
       price: product.price
@@ -154,18 +155,12 @@ class OrderDomain {
         { model: StatusModel },
         { model: CustomerModel, include: [AddressModel] },
         { model: UserModel },
+        { model: UserModel, as: 'responsibleUser' },
         { model: TransactionModel, include: [ProductModel] }
       ]
     })
 
-    const responsible = await UserModel.findByPk(order.responsibleUser, {
-      raw: true
-    })
-
-    return {
-      order,
-      responsible: omit(['password'], responsible)
-    }
+    return order
   }
 
   async getAll(query, companyId) {

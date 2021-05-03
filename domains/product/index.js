@@ -63,6 +63,7 @@ class ProductDomain {
       const orderCreated = await OrderModel.create(
         {
           companyId: bodyData.companyId,
+          responsibleUserId: null,
           statusId: statusFinded.id,
           userId: bodyData.userId,
           protocol: protocolNumber,

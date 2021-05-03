@@ -61,6 +61,7 @@ factory.define('order', OrderModel, () => ({
   statusId: factory.assoc('status', 'id', { fakeTransaction: false }),
   customerId: factory.assoc('customer', 'id'),
   userId: factory.assoc('user', 'id'),
+  responsibleUserId: factory.assoc('user', 'id'),
   protocol: random.number(),
   orderDate: date.future(),
   companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
