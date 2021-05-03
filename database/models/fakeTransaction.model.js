@@ -7,7 +7,7 @@ const FakeTransaction = (sequelize) => {
       type: Sequelize.STRING,
       primaryKey: true,
       allowNull: false,
-      defaultValue: uuidv4Generator('ftd_')
+      defaultValue: uuidv4Generator('ftr_')
     },
     quantity: {
       type: Sequelize.INTEGER,
