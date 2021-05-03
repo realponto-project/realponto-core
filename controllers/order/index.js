@@ -6,15 +6,15 @@ const OrderDomain = require('../../domains/Order')
 const create = async (req, res, next) => {
   const transaction = await database.transaction()
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-  const userIdDecoded = pathOr(null, ['decoded', 'user', 'id'], req)
-  const userIdResp = pathOr(userIdDecoded, ['body', 'userId'], req)
+  const userId = pathOr(null, ['decoded', 'user', 'id'], req)
+  const responsibleUserId = pathOr(userId, ['body', 'userId'], req)
   try {
     const response = await OrderDomain.create(
       {
         ...req.body,
         companyId,
-        responsibleUser: userIdResp,
-        userId: userIdDecoded
+        responsibleUserId,
+        userId
       },
       { transaction }
     )
