@@ -1,13 +1,10 @@
 require('dotenv').config({})
-
+const path = require('path')
 const Express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+
 const errorFormatter = require('./utils/helpers/errors/formatter')
-
-const app = Express()
-const baseUrl = '/api'
-
 const { authenticationController } = require('./controllers/')
 const authenticationRoutes = require('./routes/authentication')
 const customerRoutes = require('./routes/customer')
@@ -26,9 +23,13 @@ const metricsRoutes = require('./routes/metrics')
 const catalogRoutes = require('./routes/catalog')
 const recoveryPasswordRoutes = require('./routes/recoveryPassword')
 
+const app = Express()
+const baseUrl = '/api'
+
 app.use(cors('*'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use('/files', Express.static(path.resolve(__dirname, 'tmp', 'uploads')))
 
 app.use('/catalog', catalogRoutes)
 app.use(emailRoutes)

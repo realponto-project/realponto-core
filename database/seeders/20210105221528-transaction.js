@@ -6,7 +6,7 @@ module.exports = {
       'transaction',
       [
         {
-          id: 'td_035017b5-769c-4000-9bd9-77fd7b380018',
+          id: 'tr_035017b5-769c-4000-9bd9-77fd7b380018',
           quantity: 10,
           userId: 'us_a92a34bf-d0fc-4967-b78a-0ddf2955de4c',
           productId: 'pr_0b0ca960-2034-4048-8bde-a879d34e6b81',
@@ -17,7 +17,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          id: 'td_a0a703ec-b6c6-4064-afa5-6f2d6dd16e56',
+          id: 'tr_a0a703ec-b6c6-4064-afa5-6f2d6dd16e56',
           quantity: 10,
           userId: 'us_a92a34bf-d0fc-4967-b78a-0ddf2955de4c',
           productId: 'pr_a05b313b-8731-4d0f-9935-cce735c2d34d',

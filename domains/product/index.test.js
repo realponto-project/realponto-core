@@ -4,11 +4,13 @@ const factory = require('../../utils/helpers/factories')
 
 const companyId = 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
 
-describe.only('create new product', () => {
+describe('create new product', () => {
   let user = null
+  let responsibleUserFactory = null
 
   beforeAll(async () => {
     user = await factory.create('user')
+    responsibleUserFactory = await factory.create('user')
   })
 
   it('create product when balance equal 10', async () => {
@@ -20,6 +22,7 @@ describe.only('create new product', () => {
       ...productMock,
       companyId,
       userId: user.id,
+      responsibleUserId: responsibleUserFactory.id,
       balance: 10
     })
 

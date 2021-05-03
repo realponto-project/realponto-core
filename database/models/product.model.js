@@ -22,6 +22,10 @@ const Product = (sequelize) => {
         min: 0
       }
     },
+    description: {
+      type: Sequelize.TEXT,
+      allowNull: true
+    },
     name: {
       type: Sequelize.STRING,
       allowNull: false
@@ -57,6 +61,8 @@ const Product = (sequelize) => {
         allowNull: true
       }
     })
+
+    models.product.hasMany(models.productImage)
 
     models.product.hasMany(models.transaction, {
       foreignKey: {

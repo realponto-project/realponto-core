@@ -88,11 +88,58 @@ const getTransactionsToChart = async (req, res, next) => {
   }
 }
 
+const addImage = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const productId = path(['body', 'productId'], req)
+  const file = path(['file'], req)
+
+  try {
+    const response = await ProductDomain.addImage(productId, file, {
+      transaction
+    })
+
+    await transaction.commit()
+    res.json(response)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
+const getAllImagesByProductId = async (req, res, next) => {
+  const productId = path(['params', 'productId'], req)
+
+  try {
+    const response = await ProductDomain.getAllImagesByProductId(productId)
+
+    res.json(response)
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
+const deleteImage = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const productImageId = path(['params', 'productImageId'], req)
+
+  try {
+    await ProductDomain.removeImage(productImageId, { transaction })
+    await transaction.commit()
+    res.json({ message: 'Success' })
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
 module.exports = {
   create,
   update,
   getById,
   getAll,
   getProductByBarCode,
-  getTransactionsToChart
+  getTransactionsToChart,
+  addImage,
+  deleteImage,
+  getAllImagesByProductId
 }

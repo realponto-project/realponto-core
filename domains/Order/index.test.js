@@ -9,6 +9,7 @@ describe('create Order', () => {
   let statusFactory = null
   let customerFactory = null
   let userFactory = null
+  let responsibleUserFactory = null
   let products = null
 
   beforeAll(async () => {
@@ -19,6 +20,7 @@ describe('create Order', () => {
     customerFactory = await factory.create('customer')
 
     userFactory = await factory.create('user')
+    responsibleUserFactory = await factory.create('user')
 
     const productsFactory = await factory.createMany('product', 3)
 
@@ -37,6 +39,7 @@ describe('create Order', () => {
       customerId: customerFactory.id,
       userId: userFactory.id,
       companyId,
+      responsibleUserId: responsibleUserFactory.id,
       products,
       originType: 'order'
     }
@@ -52,14 +55,14 @@ describe('create Order', () => {
     expect(orderCreated).toHaveProperty('transactions')
     expect(orderCreated.transactions).toContainEqual(
       expect.objectContaining({
-        id: expect.stringMatching(/^td_/),
+        id: expect.stringMatching(/^tr_/),
         quantity: 10,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
         deletedAt: null,
         productId: expect.stringMatching(/^pr_/),
         orderId: orderCreated.id,
-        userId: userFactory.id,
+        userId: responsibleUserFactory.id,
         statusId: statusFactory.id,
         companyId
       })
@@ -74,12 +77,13 @@ describe('create Order', () => {
     })
 
     const order = {
-      statusId: status.id,
-      customerId: customerFactory.id,
       companyId,
-      userId: userFactory.id,
+      customerId: customerFactory.id,
+      originType: 'order',
       products: map((item) => ({ ...item, quantity: 100 }), products),
-      originType: 'order'
+      responsibleUserId: responsibleUserFactory.id,
+      statusId: status.id,
+      userId: userFactory.id
     }
 
     await expect(orderDomain.create(order)).rejects.toThrow(
@@ -93,6 +97,7 @@ describe('create Order', () => {
     const order = {
       statusId: statusFactory.id,
       customerId: customerFactory.id,
+      responsibleUserId: responsibleUserFactory.id,
       companyId,
       userId: userFactory.id,
       originType: 'order'
@@ -155,6 +160,7 @@ describe('create Order', () => {
     expect.assertions(8)
 
     const order = {
+      responsibleUserId: responsibleUserFactory.id,
       statusId: statusFactory.id,
       companyId,
       products,
@@ -172,7 +178,7 @@ describe('create Order', () => {
     expect(orderCreated).toHaveProperty('transactions')
     expect(orderCreated.transactions).toContainEqual(
       expect.objectContaining({
-        id: expect.stringMatching(/^td_/),
+        id: expect.stringMatching(/^tr_/),
         quantity: 10,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
@@ -242,7 +248,7 @@ describe('getById Order', () => {
 
     expect(orderfinded.transactions).toContainEqual(
       expect.objectContaining({
-        id: expect.stringMatching(/^td_/),
+        id: expect.stringMatching(/^tr_/),
         quantity: 10,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),

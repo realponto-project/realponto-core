@@ -5,6 +5,7 @@ const database = require('../../database')
 const productSchema = require('../../utils/helpers/Schemas/product')
 const { omit, pathOr } = require('ramda')
 const ProductModel = database.model('product')
+const ProductImageModel = database.model('productImage')
 const CompanyModel = database.model('company')
 const SubscriptionModel = database.model('subscription')
 const PlanModel = database.model('plan')
@@ -62,6 +63,7 @@ class ProductDomain {
       const orderCreated = await OrderModel.create(
         {
           companyId: bodyData.companyId,
+          responsibleUserId: null,
           statusId: statusFinded.id,
           userId: bodyData.userId,
           protocol: protocolNumber,
@@ -112,7 +114,10 @@ class ProductDomain {
   }
 
   async getById(id, companyId) {
-    return await ProductModel.findOne({ where: { companyId, id } })
+    return await ProductModel.findOne({
+      where: { companyId, id },
+      include: ProductImageModel
+    })
   }
 
   async getAll(query, companyId) {
@@ -122,6 +127,16 @@ class ProductDomain {
         companyId
       })
     )
+  }
+
+  async getAllWithImage(query, companyId) {
+    return await ProductModel.findAndCountAll({
+      ...buildSearchAndPagination({
+        ...query,
+        companyId
+      }),
+      include: ProductImageModel
+    })
   }
 
   async getProductByBarCode(barCode, companyId) {
@@ -145,6 +160,52 @@ class ProductDomain {
     })
 
     return transactions
+  }
+
+  async addImage(productId, file, options = {}) {
+    const { transaction = null } = options
+
+    const product = await ProductModel.findByPk(productId, { transaction })
+
+    if (!product) {
+      throw new Error('Product not found')
+    }
+
+    const { originalname: name, key, location: url } = file
+
+    const productImage = {
+      productId,
+      name,
+      key,
+      url: url || `http://localhost:3003/files/${key}`
+    }
+
+    const productImageCreated = await ProductImageModel.create(productImage, {
+      transaction
+    })
+
+    return productImageCreated
+  }
+
+  async getAllImagesByProductId(productId) {
+    const images = await ProductImageModel.findAll({
+      where: { productId },
+      raw: true
+    })
+
+    return images
+  }
+
+  async removeImage(productImageId, options = {}) {
+    const { transaction = null } = options
+
+    const image = await ProductImageModel.findByPk(productImageId, {
+      transaction
+    })
+
+    if (!image) throw new Error('Image not found')
+
+    await image.destroy({ force: true, transaction })
   }
 }
 
