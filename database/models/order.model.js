@@ -32,10 +32,6 @@ const Order = (sequelize) => {
       type: Sequelize.STRING,
       allowNull: true
     },
-    responsibleUser: {
-      type: Sequelize.STRING,
-      allowNull: true
-    },
     originType: {
       type: Sequelize.ENUM(['order', 'pdv']),
       allowNull: false,
@@ -71,6 +67,13 @@ const Order = (sequelize) => {
     })
 
     models.order.belongsTo(models.user, {
+      foreignKey: {
+        allowNull: true
+      }
+    })
+
+    models.order.belongsTo(models.user, {
+      as: 'responsibleUser',
       foreignKey: {
         allowNull: true
       }
