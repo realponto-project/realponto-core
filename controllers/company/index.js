@@ -1,6 +1,7 @@
-const { path } = require('ramda')
+const { path, pathOr } = require('ramda')
 const moment = require('moment')
 
+const UploadService = require('../../services/upload')
 const CompanyDomain = require('../../domains/company')
 const StatusDomain = require('../../domains/status')
 const UserDomain = require('../../domains/User')
@@ -151,9 +152,49 @@ const getAll = async (req, res, next) => {
   }
 }
 
+const addLogo = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const file = path(['file'], req)
+
+  try {
+    const response = await CompanyDomain.addLogo(companyId, file, {
+      transaction
+    })
+
+    await transaction.commit()
+    res.json(response)
+  } catch (error) {
+    const uploadService = new UploadService()
+
+    uploadService.destroyImage(file.key)
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
+const removeLogo = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+
+  try {
+    const response = await CompanyDomain.removeLogo(companyId, {
+      transaction
+    })
+
+    await transaction.commit()
+    res.json(response)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
 module.exports = {
+  addLogo,
   create,
   getById,
   getAll,
-  update
+  update,
+  removeLogo
 }

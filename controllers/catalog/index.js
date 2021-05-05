@@ -4,16 +4,17 @@ const database = require('../../database')
 const ProductModel = database.model('product')
 const CompanyModel = database.model('company')
 const ProductImageModel = database.model('productImage')
+const ImageModel = database.model('image')
 
 const productDomain = require('../../domains/product')
 
 const getProducts = async (req, res, next) => {
-  const companyId = path(['params', 'companyId'], req)
+  const nickName = path(['params', 'nickName'], req)
 
   try {
     const { count, rows } = await productDomain.getAllWithImage(
       { ...req.query, activated: true },
-      companyId
+      nickName
     )
 
     res.json({ count, rows })
@@ -22,11 +23,21 @@ const getProducts = async (req, res, next) => {
   }
 }
 
-const getCompanyById = async (req, res, next) => {
-  const companyId = path(['params', 'companyId'], req)
+const getCompanyByNickName = async (req, res, next) => {
+  const nickName = path(['params', 'nickName'], req)
 
   try {
-    const company = await CompanyModel.findByPk(companyId)
+    const company = await CompanyModel.findOne({
+      where: { nickName },
+      include: [
+        {
+          model: ImageModel,
+          as: 'logo'
+        }
+      ]
+    })
+
+    console.log(JSON.stringify(company, null, 2))
 
     res.json(company)
   } catch (err) {
@@ -51,5 +62,5 @@ const getProductById = async (req, res, next) => {
 module.exports = {
   getProducts,
   getProductById,
-  getCompanyById
+  getCompanyByNickName
 }

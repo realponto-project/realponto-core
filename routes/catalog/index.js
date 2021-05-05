@@ -2,11 +2,11 @@ const router = require('express').Router()
 const {
   getProducts,
   getProductById,
-  getCompanyById
+  getCompanyByNickName
 } = require('../../controllers/catalog')
 
-router.get('/get-products/:companyId', getProducts)
+router.get('/get-products/:nickName', getProducts)
 router.get('/get-product/:productId', getProductById)
-router.get('/get-company/:companyId', getCompanyById)
+router.get('/get-company/:nickName', getCompanyByNickName)
 
 module.exports = router
