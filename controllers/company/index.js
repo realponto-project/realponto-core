@@ -92,6 +92,7 @@ const create = async (req, res, next) => {
         activated: true,
         autoRenew: false,
         amount: 0,
+        installment: 1,
         companyId: response.id,
         planId: planFound.id,
         endDate: moment().add(1, 'months'),

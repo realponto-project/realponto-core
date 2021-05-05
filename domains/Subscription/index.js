@@ -23,7 +23,8 @@ class SubscriptionDomain {
         ...bodyData,
         endDate: moment().add(13, 'months')
       },
-      { transaction }
+      { transaction },
+      console.log('installment', bodyData)
     )
   }
 
