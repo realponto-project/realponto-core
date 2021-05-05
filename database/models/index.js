@@ -12,6 +12,7 @@ const Plan = require('./plan.model')
 const Subscription = require('./subscription.model')
 const Address = require('./address.model')
 const ProductImage = require('./productImage.model')
+const Image = require('./image.model')
 
 module.exports = [
   Address,
@@ -27,5 +28,6 @@ module.exports = [
   Company,
   Plan,
   Subscription,
-  ProductImage
+  ProductImage,
+  Image
 ]

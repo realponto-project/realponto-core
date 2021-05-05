@@ -4,15 +4,15 @@ const UploadService = require('../../services/upload')
 
 const uuidv4Generator = require('../../utils/helpers/hash')
 
-const ProductImage = (sequelize) => {
-  const ProductImage = sequelize.define(
-    'productImage',
+const Image = (sequelize) => {
+  const Image = sequelize.define(
+    'image',
     {
       id: {
         type: Sequelize.STRING,
         primaryKey: true,
         allowNull: false,
-        defaultValue: uuidv4Generator('pri_')
+        defaultValue: uuidv4Generator('img_')
       },
       url: {
         type: Sequelize.STRING,
@@ -38,15 +38,7 @@ const ProductImage = (sequelize) => {
     }
   )
 
-  ProductImage.associate = (models) => {
-    models.productImage.belongsTo(models.product, {
-      foreignKey: {
-        allowNull: true
-      }
-    })
-  }
-
-  return ProductImage
+  return Image
 }
 
-module.exports = ProductImage
+module.exports = Image
