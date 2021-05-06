@@ -46,6 +46,32 @@ const create = async (req, res, next) => {
   }
 }
 
+const sendInviteMember = async (req, res, next) => {
+  const userId = pathOr(null, ['params', 'userId'], req)
+
+  try {
+    const response = await UserDomain.getById(userId)
+
+    const token = tokenGenerate({ user: { id: response.id } })
+
+    const { templateId, subject, url } = templatesSendgrid.inviteMember
+
+    await sendgridService.sendMail({
+      to: {
+        email: response.email,
+        user_name: response.name,
+        weblink: `https://${dashUrl}${url}${token}`
+      },
+      templateId,
+      subject
+    })
+
+    res.status(201).json(response)
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
 const update = async (req, res, next) => {
   const transaction = await database.transaction()
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
@@ -168,5 +194,6 @@ module.exports = {
   getAll,
   updatePassword,
   resetPassword,
-  recoveryPassword
+  recoveryPassword,
+  sendInviteMember
 }
