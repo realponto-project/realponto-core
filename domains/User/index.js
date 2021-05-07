@@ -18,13 +18,19 @@ class UserDomain {
   async create(bodyData, options = {}) {
     const password = path(['password'], bodyData)
     const { transaction = null } = options
+
     const passwordHash = await hash(password, 10)
-    const userCreated = await UserModel.create(
-      { ...bodyData, password: passwordHash },
-      {
-        transaction
-      }
-    )
+    const userPlayload = bodyData
+    const userBuilded = {
+      ...userPlayload,
+      lastTokenDate: new Date(),
+      countTokenSended: 1,
+      password: passwordHash
+    }
+
+    const userCreated = await UserModel.create(userBuilded, {
+      transaction
+    })
 
     return await UserModel.findByPk(userCreated.id, {
       include: [CompanyModel],
@@ -141,9 +147,12 @@ class UserDomain {
     return user
   }
 
-  async getById(id) {
+  async getById(id, options = {}) {
+    const { transaction = null } = options
+
     return await UserModel.findByPk(id, {
-      include: [CompanyModel]
+      include: [CompanyModel],
+      transaction
     })
   }
 
