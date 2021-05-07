@@ -236,6 +236,7 @@ const searchSpecs = {
       category: pathOr(null, ['category']),
       companyId: pathOr(null, ['companyId']),
       minQuantity: minQuantityParser('minQuantity'),
+      showOnCatalog: pathOr(null, ['showOnCatalog']),
       createdAt: parserDateGteAndLte('createdAt'),
       updatedAt: parserDateGteAndLte('updatedAt')
     }),

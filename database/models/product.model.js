@@ -52,6 +52,10 @@ const Product = (sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
       defaultValue: 0
+    },
+    showOnCatalog: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false
     }
   })
 
