@@ -47,10 +47,22 @@ const create = async (req, res, next) => {
 }
 
 const sendInviteMember = async (req, res, next) => {
+  const transaction = await database.transaction()
   const userId = pathOr(null, ['params', 'userId'], req)
 
   try {
-    const response = await UserDomain.getById(userId)
+    const response = await UserDomain.getById(userId, { transaction })
+
+    await UserDomain.update(
+      response.id,
+      {
+        lastTokenDate: new Date(),
+        countTokenSended: response.countTokenSended + 1
+      },
+      { transaction }
+    )
+
+    await transaction.commit()
 
     const token = tokenGenerate({ user: { id: response.id } })
 
@@ -66,8 +78,9 @@ const sendInviteMember = async (req, res, next) => {
       subject
     })
 
-    res.status(201).json(response)
+    res.status(200).json(response)
   } catch (error) {
+    await transaction.rollback()
     res.status(400).json({ error: error.message })
   }
 }
