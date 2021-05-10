@@ -66,8 +66,6 @@ class TransactionDomain {
 
     const { inputs, outputs } = quantitiesFormated
 
-    console.log(payload, quantitiesFormated)
-
     if (inputs + payload.quantity > outputs) throw new Error('Invalid quantity')
 
     const status = await StatusModal.findByPk(payload.statusId, {

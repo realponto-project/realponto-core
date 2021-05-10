@@ -19,6 +19,10 @@ const Subscription = (sequelize) => {
       allowNull: false,
       defaultValue: true
     },
+    installment: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
     paymentMethod: {
       type: Sequelize.ENUM(['credit_card', 'boleto', 'cash', 'free']),
       allowNull: false,
