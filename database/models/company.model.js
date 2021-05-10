@@ -1,3 +1,4 @@
+const { replace } = require('ramda')
 const Sequelize = require('sequelize')
 const uuidv4Generator = require('../../utils/helpers/hash')
 
@@ -50,6 +51,17 @@ const Company = (sequelize) => {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: false
+    },
+    nickName: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      unique: true,
+      set(value) {
+        this.setDataValue(
+          'nickName',
+          `@${replace(/[\s | @]/g, '', value || '')}`
+        )
+      }
     }
   })
 
@@ -60,6 +72,19 @@ const Company = (sequelize) => {
       }
     })
     models.company.hasOne(models.subscription, {
+      foreignKey: {
+        allowNull: true
+      }
+    })
+
+    models.company.belongsTo(models.image, {
+      as: 'logo',
+      foreignKey: {
+        allowNull: true
+      }
+    })
+
+    models.company.belongsTo(models.address, {
       foreignKey: {
         allowNull: true
       }

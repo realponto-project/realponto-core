@@ -129,11 +129,15 @@ class ProductDomain {
     )
   }
 
-  async getAllWithImage(query, companyId) {
+  async getAllWithImage(query, nickName) {
+    const company = await CompanyModel.findOne({ where: { nickName } })
+
+    if (!company) throw new Error('Company not found')
+
     return await ProductModel.findAndCountAll({
       ...buildSearchAndPagination({
         ...query,
-        companyId
+        companyId: company.id
       }),
       include: ProductImageModel
     })

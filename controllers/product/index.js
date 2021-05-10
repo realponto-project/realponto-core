@@ -1,5 +1,6 @@
 const { pathOr, path } = require('ramda')
 
+const UploadService = require('../../services/upload')
 const database = require('../../database')
 const ProductDomain = require('../../domains/product')
 
@@ -101,6 +102,9 @@ const addImage = async (req, res, next) => {
     await transaction.commit()
     res.json(response)
   } catch (error) {
+    const uploadService = new UploadService()
+
+    uploadService.destroyImage(file.key)
     await transaction.rollback()
     res.status(400).json({ error: error.message })
   }
