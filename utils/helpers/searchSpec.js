@@ -242,6 +242,15 @@ const searchSpecs = {
     }),
     removeFiledsNilOrEmpty
   ),
+  alxa_product: pipe(
+    applySpec({
+      activated: pathOr(null, ['activated']),
+      name: iLikeOperation('name'),
+      createdAt: parserDateGteAndLte('createdAt'),
+      updatedAt: parserDateGteAndLte('updatedAt')
+    }),
+    removeFiledsNilOrEmpty
+  ),
   order: orderSpec,
   serialNumber: pipe(
     applySpec({
