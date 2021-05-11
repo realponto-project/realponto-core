@@ -2,13 +2,14 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('subscription', 'installment', {
+    await queryInterface.addColumn('subscription', 'installments', {
       type: Sequelize.INTEGER,
-      allowNull: false
+      allowNull: false,
+      defaultValue: 1
     })
   },
 
   down: async (queryInterface) => {
-    await queryInterface.removeColumn('subscription', 'installment')
+    await queryInterface.removeColumn('subscription', 'installments')
   }
 }

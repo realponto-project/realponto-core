@@ -40,7 +40,7 @@ const Order = (sequelize) => {
     installments: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: 1
     },
     orderDate: {
       type: Sequelize.DATE,
