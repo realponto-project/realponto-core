@@ -9,6 +9,7 @@ const {
   fakerCompany,
   fakerStatus,
   fakerProduct,
+  fakerAlxaProduct,
   fakerPlan
 } = require('./fakers')
 
@@ -16,6 +17,7 @@ const AddressModel = database.model('address')
 const CompanyModel = database.model('company')
 const CustomerModel = database.model('customer')
 const ProductModel = database.model('product')
+const AlxaProductModel = database.model('alxa_product')
 const PlanModel = database.model('plan')
 const StatusModel = database.model('status')
 const UserModel = database.model('user')
@@ -45,6 +47,10 @@ factory.define('status', StatusModel, () => ({
 factory.define('product', ProductModel, () => ({
   ...fakerProduct(),
   companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0'
+}))
+
+factory.define('alxa_product', AlxaProductModel, () => ({
+  ...fakerAlxaProduct()
 }))
 
 factory.define('plan', PlanModel, () => fakerPlan())
