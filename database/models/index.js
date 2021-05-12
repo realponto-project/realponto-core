@@ -13,8 +13,12 @@ const Subscription = require('./subscription.model')
 const Address = require('./address.model')
 const ProductImage = require('./productImage.model')
 const Image = require('./image.model')
+const AlxaOperation = require('./alxa_opration')
+const AlxaProduct = require('./alxa_products')
 
 module.exports = [
+  AlxaProduct,
+  AlxaOperation,
   Address,
   Product,
   Transaction,
