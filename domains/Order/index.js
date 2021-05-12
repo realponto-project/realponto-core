@@ -61,7 +61,7 @@ class OrderDomain {
       note: pathOr('', ['note']),
       shippingCompany: pathOr(null, ['customer', 'shippingCompany']),
       originType: pathOr('pdv', ['originType']),
-      installments: pathOr(0, ['installments']),
+      installment: pathOr(0, ['installment']),
       customerId: pathOr(null, ['customerId']),
       userId: pathOr(null, ['userId']),
       responsibleUserId: pathOr(null, ['responsibleUserId']),

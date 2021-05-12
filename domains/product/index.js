@@ -67,7 +67,7 @@ class ProductDomain {
           statusId: statusFinded.id,
           userId: bodyData.userId,
           protocol: protocolNumber,
-          installments: 0,
+          installment: 0,
           orderDate: new Date()
         },
         { transaction }
