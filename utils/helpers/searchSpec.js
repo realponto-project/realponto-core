@@ -244,6 +244,7 @@ const searchSpecs = {
   ),
   alxa_product: pipe(
     applySpec({
+      type: pathOr(null, ['type']),
       activated: pathOr(null, ['activated']),
       name: iLikeOperation('name'),
       createdAt: parserDateGteAndLte('createdAt'),
