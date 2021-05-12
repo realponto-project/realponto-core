@@ -17,7 +17,6 @@ class AlxaOperationDomain {
     const alxaProductId = pathOr(null, ['alxaProductId'], payload)
     const companyId = pathOr(null, ['companyId'], payload)
     const userId = pathOr(null, ['userId'], payload)
-    const card_hash = pathOr(null, ['card_hash'], payload)
 
     const alxaProduct = await AlxaProductModel.findByPk(alxaProductId, {
       transaction
@@ -31,54 +30,87 @@ class AlxaOperationDomain {
 
     if (!company) throw new Error('company not found')
 
-    const transactionPayloadPagarme = {
-      api_key: process.env.API_KEY,
-      card_hash,
-      amount: alxaProduct.salePrice,
-      items: [
+    if (alxaProduct.type === 'credit_buy') {
+      const card_hash = pathOr(null, ['card_hash'], payload)
+
+      const transactionPayloadPagarme = {
+        api_key: process.env.API_KEY,
+        card_hash,
+        amount: alxaProduct.salePrice,
+        items: [
+          {
+            id: alxaProductId,
+            title: alxaProduct.name,
+            unit_price: alxaProduct.salePrice,
+            quantity: 1,
+            tangible: false
+          }
+        ]
+      }
+
+      const pagarMeService = new PagarMeService()
+
+      const transactionPagarme = await pagarMeService.createTransactions(
+        transactionPayloadPagarme
+      )
+
+      const bonus = pipe(
+        pathOr('{}', ['description']),
+        (value) => JSON.parse(value),
+        pathOr(0, ['bonus'])
+      )(alxaProduct)
+
+      const credtiMovement = alxaProduct.salePrice * 10 + bonus
+
+      const alxaOperationValues = {
+        details: JSON.stringify(transactionPagarme),
+        type: alxaProduct.type,
+        amount: credtiMovement,
+        companyId,
+        userId
+      }
+
+      const alxaOperation = await AlxaOperationModel.create(
+        alxaOperationValues,
         {
-          id: alxaProductId,
-          title: alxaProduct.name,
-          unit_price: alxaProduct.salePrice,
-          quantity: 1,
-          tangible: false
+          transaction
         }
-      ]
-    }
+      )
 
-    const pagarMeService = new PagarMeService()
+      if (includes(transactionPagarme.status, ['paid', 'autorizated'])) {
+        await company.update(
+          { goldBalance: add(company.goldBalance, credtiMovement) },
+          { transaction }
+        )
+      }
+      return alxaOperation
+    } else {
+      const credtiMovement = alxaProduct.salePrice * 10
 
-    const transactionPagarme = await pagarMeService.createTransactions(
-      transactionPayloadPagarme
-    )
+      const alxaOperationValues = {
+        details: payload?.details,
+        type: alxaProduct.type,
+        amount: credtiMovement,
+        companyId,
+        userId
+      }
 
-    const bonus = pipe(
-      pathOr('{}', ['description']),
-      (value) => JSON.parse(value),
-      pathOr(0, ['bonus'])
-    )(alxaProduct)
-    const credtiMovement = alxaProduct.salePrice * 10 + bonus
+      const alxaOperation = await AlxaOperationModel.create(
+        alxaOperationValues,
+        {
+          transaction
+        }
+      )
 
-    const alxaOperationValues = {
-      details: JSON.stringify(transactionPagarme),
-      type: alxaProduct.type,
-      amount: credtiMovement,
-      companyId,
-      userId
-    }
-
-    const alxaOperation = await AlxaOperationModel.create(alxaOperationValues, {
-      transaction
-    })
-
-    if (includes(transactionPagarme.status, ['paid', 'autorizated'])) {
+      // Investigar o type para saber se é saída ou entrada de credito
       await company.update(
-        { goldBalance: add(company.goldBalance, credtiMovement) },
+        {},
+        // { goldBalance: subtract(company.goldBalance, credtiMovement) },
+        // { goldBalance: add(company.goldBalance, credtiMovement) },
         { transaction }
       )
+      return alxaOperation
     }
-
-    return alxaOperation
   }
 
   async getAll(query, companyId) {

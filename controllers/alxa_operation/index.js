@@ -12,9 +12,9 @@ const create = async (req, res, next) => {
   try {
     const response = await alxaOperationDomain.create(
       {
+        ...req.body,
         alxaProductId,
         companyId,
-        card_hash: pathOr(null, ['body', 'cardHash'], req),
         userId
       },
       { transaction }
