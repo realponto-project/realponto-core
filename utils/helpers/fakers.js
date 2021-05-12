@@ -98,6 +98,15 @@ const generatorFakerAddress = () => ({
   reference: faker.lorem.words()
 })
 
+const fakerAlxaProduct = () => {
+  return {
+    activated: faker.random.boolean(),
+    name: `${faker.commerce.product()} ${faker.random.number()}`,
+    salePrice: faker.random.number(),
+    type: faker.commerce.product()
+  }
+}
+
 module.exports = {
   generatorFakerAddress,
   generatorFakerCustomer,
@@ -106,5 +115,6 @@ module.exports = {
   fakerPlan,
   fakerProduct,
   fakerStatus,
-  fakerSubscription
+  fakerSubscription,
+  fakerAlxaProduct
 }

@@ -62,6 +62,11 @@ const Company = (sequelize) => {
           `@${replace(/[\s | @]/g, '', value || '')}`
         )
       }
+    },
+    goldBalance: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
+      allowNull: false
     }
   })
 

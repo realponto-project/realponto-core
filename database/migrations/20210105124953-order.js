@@ -13,7 +13,7 @@ module.exports = {
         allowNull: false,
         defaultValue: false
       },
-      installments: {
+      installment: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0

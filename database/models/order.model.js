@@ -37,7 +37,7 @@ const Order = (sequelize) => {
       allowNull: false,
       defaultValue: 'order'
     },
-    installments: {
+    installment: {
       type: Sequelize.INTEGER,
       allowNull: false,
       defaultValue: 1
