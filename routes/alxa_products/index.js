@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const AlxaProductController = require('../../controllers/alxa_product.js')
+const AlxaProductController = require('../../controllers/alxa_product')
 
 router.post('/alxaProducts', AlxaProductController.create)
 router.get('/alxaProducts', AlxaProductController.getAll)
