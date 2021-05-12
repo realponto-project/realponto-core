@@ -19,7 +19,7 @@ const Subscription = (sequelize) => {
       allowNull: false,
       defaultValue: true
     },
-    installments: {
+    installment: {
       type: Sequelize.INTEGER,
       allowNull: false,
       defaulValue: 1
