@@ -88,7 +88,7 @@ class AlxaOperationDomain {
       const credtiMovement = alxaProduct.salePrice * 10
 
       const alxaOperationValues = {
-        details: payload?.details,
+        details: payload.details,
         type: alxaProduct.type,
         amount: credtiMovement,
         companyId,
