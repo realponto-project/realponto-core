@@ -13,8 +13,14 @@ const Subscription = require('./subscription.model')
 const Address = require('./address.model')
 const ProductImage = require('./productImage.model')
 const Image = require('./image.model')
+const MercadoLibreAccount = require('./mercadolibreAccount.model')
+const MercadolibreAccountAd = require('./mercadolibreAccountAd.model')
+const MercadolibreAd = require('./mercadolibreAd.model')
 
 module.exports = [
+  MercadoLibreAccount,
+  MercadolibreAccountAd,
+  MercadolibreAd,
   Address,
   Product,
   Transaction,
