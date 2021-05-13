@@ -22,6 +22,7 @@ const emailRoutes = require('./routes/email')
 const metricsRoutes = require('./routes/metrics')
 const catalogRoutes = require('./routes/catalog')
 const recoveryPasswordRoutes = require('./routes/recoveryPassword')
+const MLRoutes = require('./routes/ML')
 
 const app = Express()
 const baseUrl = '/api'
@@ -32,6 +33,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/files', Express.static(path.resolve(__dirname, 'tmp', 'uploads')))
 
 app.use('/catalog', catalogRoutes)
+app.use(`${baseUrl}/ML`, MLRoutes)
 app.use(emailRoutes)
 app.use(registerRoutes)
 app.use(recoveryPasswordRoutes)
