@@ -14,7 +14,7 @@ module.exports = {
       },
       clientSecret: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: false
       },
       sellerId: {
         type: Sequelize.INTEGER,
