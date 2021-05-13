@@ -52,6 +52,11 @@ const Company = (sequelize) => {
       allowNull: false,
       defaultValue: false
     },
+    referer: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      defaultValue: 'alxa'
+    },
     nickName: {
       type: Sequelize.STRING,
       allowNull: false,
