@@ -7,7 +7,7 @@ const MercadoLibreAccountAd = (sequelize) => {
       type: Sequelize.STRING,
       primaryKey: true,
       allowNull: false,
-      defaultValue: uuidv4Generator('adacml_')
+      defaultValue: uuidv4Generator('acadml_')
     },
     itemId: {
       type: Sequelize.STRING,
@@ -22,17 +22,12 @@ const MercadoLibreAccountAd = (sequelize) => {
   })
 
   MercadoLibreAccountAd.associate = (models) => {
-    models.mercadoLibre_accountAd.belongsTo(models.company, {
+    models.mercadoLibre_accountAd.belongsTo(models.mercadoLibre_account, {
       foreignKey: {
         allowNull: false
       }
     })
-    models.mercadoLibre_accountAd.hasMany(models.mercadoLibre_account, {
-      foreignKey: {
-        allowNull: false
-      }
-    })
-    models.mercadoLibre_accountAd.hasMany(models.mercadoLibre_ad, {
+    models.mercadoLibre_accountAd.belongsTo(models.mercadoLibre_ad, {
       foreignKey: {
         allowNull: false
       }

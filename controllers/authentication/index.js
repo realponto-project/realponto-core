@@ -24,7 +24,7 @@ const authentication = async (req, res, next) => {
       attributes: { exclude: ['password'] }
     })
 
-    const token = jwt.sign({ user: userWithoutPwd }, secret, {
+    const token = jwt.sign({ user: userWithoutPwd, sellersMercadoLibre: [] }, secret, {
       expiresIn: '24h'
     })
     res.json({ ...userWithoutPwd, token })

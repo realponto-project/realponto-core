@@ -18,32 +18,13 @@ module.exports = {
         allowNull: false,
         defaultValue: false
       },
-      companyId: {
-        type: Sequelize.STRING,
-        references: {
-          model: 'company',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'restrict'
-      },
       mercadoLibre_accountId: {
         type: Sequelize.STRING,
-        references: {
-          model: 'mercadoLibre_account',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'restrict'
+        allowNull: false,
       },
-      mercadoLibre_adId: {
+      mercadoLibre_accountAdId: {
         type: Sequelize.STRING,
-        references: {
-          model: 'mercadoLibre_ad',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'restrict'
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,

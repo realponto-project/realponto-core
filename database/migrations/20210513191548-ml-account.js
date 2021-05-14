@@ -8,11 +8,7 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
-      clientId: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      clientSecret: {
+      fullname: {
         type: Sequelize.STRING,
         allowNull: false
       },

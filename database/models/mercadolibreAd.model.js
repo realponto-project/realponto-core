@@ -28,13 +28,7 @@ const MercadoLibreAd = (sequelize) => {
   })
 
   MercadoLibreAd.associate = (models) => {
-    models.mercadoLibre_ad.belongsTo(models.company, {
-      foreignKey: {
-        allowNull: false
-      }
-    })
-
-    models.mercadoLibre_ad.belongsTo(models.mercadoLibre_accountAd, {
+    models.mercadoLibre_ad.hasMany(models.mercadoLibre_accountAd, {
       foreignKey: {
         allowNull: false
       }

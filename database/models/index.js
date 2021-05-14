@@ -19,8 +19,8 @@ const MercadolibreAd = require('./mercadolibreAd.model')
 
 module.exports = [
   MercadoLibreAccount,
-  MercadolibreAccountAd,
-  MercadolibreAd,
+  // MercadolibreAccountAd,
+  // MercadolibreAd,
   Address,
   Product,
   Transaction,
