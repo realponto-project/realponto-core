@@ -7,10 +7,11 @@ const redirect_uri = process.env.REDIRECT_URI
 const urls = {
   token: {
     url: 'https://api.mercadolibre.com/oauth/token',
-    method: 'POST',
+    method: 'POST'
   },
   refreshToken: {
-    url: (clientId, clientSecret, refreshToken) => `https://api.mercadolibre.com/oauth/token?grant_type=refresh_token&client_id=${clientId}&client_secret=${clientSecret}&refresh_token=${refreshToken}`,
+    url: (clientId, clientSecret, refreshToken) =>
+      `https://api.mercadolibre.com/oauth/token?grant_type=refresh_token&client_id=${clientId}&client_secret=${clientSecret}&refresh_token=${refreshToken}`,
     method: 'POST',
     payload: {}
   },
@@ -32,7 +33,7 @@ const token = async (code) => {
     client_id,
     client_secret,
     code,
-    redirect_uri, 
+    redirect_uri
   })
   return tokenResponse
 }
@@ -45,29 +46,26 @@ const refreshToken = async (refreshToken) => {
 }
 
 const myInfo = async (token) => {
-  const refreshTokenResponse = await axios.get(
-    urls.user.url,
-    { headers: { Autorization: `Bearer ${token}`}}
-  )
+  const refreshTokenResponse = await axios.get(urls.user.url, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
   return refreshTokenResponse
 }
 
 const updateAds = async (token, itemId, payload) => {
-  const itemResponse = await axios.put(
-    `${urls.ads.url}/${itemId}`,
-    payload,
-    { headers: { Autorization: `Bearer ${token}`}}
-  )
+  const itemResponse = await axios.put(`${urls.ads.url}/${itemId}`, payload, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
   return itemResponse
 }
 
 const mercadoLibreJs = {
   authorization: {
     token,
-    refreshToken,
+    refreshToken
   },
   ads: {
-    update: updateAds,
+    update: updateAds
   },
   user: {
     myInfo

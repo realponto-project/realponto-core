@@ -10,29 +10,41 @@ const createAccount = async (req, res, next) => {
   const code = pathOr({}, ['body', 'code'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const user = pathOr(null, ['decoded', 'user'], req)
-  const sellersMercadoLibre = pathOr([], ['decoded', 'sellersMercadoLibre'], req)
+  const sellersMercadoLibre = pathOr(
+    [],
+    ['decoded', 'sellersMercadoLibre'],
+    req
+  )
 
   try {
     const autorizationMl = await mercadoLibreJs.authorization.token(code)
-    const userDataMl = await mercadoLibreJs.user.myInfo(pathOr(null, ['access_token'], autorizationMl))
+
+    const userDataMl = await mercadoLibreJs.user.myInfo(
+      pathOr(null, ['data', 'access_token'], autorizationMl)
+    )
 
     const accountMl = await MercadoLibreDomain.create({
-      fullname: `${pathOr(null, ['first_name'], userDataMl)} ${pathOr(null, ['last_name'], userDataMl)}`,
-      sellerId: pathOr(null, ['id'], userDataMl),
-      companyId,
+      fullname: `${pathOr(null, ['data', 'first_name'], userDataMl)} ${pathOr(
+        null,
+        ['data', 'last_name'],
+        userDataMl
+      )}`,
+      sellerId: pathOr(null, ['data', 'id'], userDataMl),
+      companyId
     })
 
-    const parserSellers = (
-      sellersMercadoLibre.find(seller => seller && seller.user_id === autorizationMl.user_id)
-        ? sellersMercadoLibre
-        : [...sellersMercadoLibre, autorizationMl]
+    const parserSellers = sellersMercadoLibre.find(
+      (seller) =>
+        seller &&
+        seller.user_id === pathOr(null, ['data', 'user_id'], autorizationMl)
     )
+      ? sellersMercadoLibre
+      : [...sellersMercadoLibre, pathOr([], ['data'], autorizationMl)]
 
     res.status(201).json({
       token: tokenGenerate({ user, sellersMercadoLibre: parserSellers }),
-      accountMl,
+      accountMl
     })
-
   } catch (error) {
     await transaction.rollback()
     res.status(400).json({ error: error.message })
