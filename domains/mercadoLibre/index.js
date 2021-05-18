@@ -144,7 +144,9 @@ class MercadoLibreDomain {
   }
 
   async getRefreshToken(mercadoLibre_accountId) {
-    const response = await MlAccountModel.findAll({ where: { mercadoLibre_accountId }})
+    const response = await MlAccountModel.findAll({
+      where: { mercadoLibre_accountId }
+    })
     return response && response.refresh_token
   }
 
@@ -152,7 +154,9 @@ class MercadoLibreDomain {
     const refreshToken = pathOr(null, ['refresh_token'], payload)
     const token = pathOr(null, ['access_token'], payload)
 
-    const response = await MlAccountModel.findAll({ where: { mercadoLibre_accountId }})
+    const response = await MlAccountModel.findAll({
+      where: { mercadoLibre_accountId }
+    })
     await response.update({ refreshToken, token })
     await response.reload()
     return response
