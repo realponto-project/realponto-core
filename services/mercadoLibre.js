@@ -33,6 +33,12 @@ const urls = {
     url: (sellerId) =>
       `https://api.mercadolibre.com/users/${sellerId}/applications/${client_id}`,
     method: 'DELETE'
+  },
+  adsBySeller: {
+    // url: 'https://api.mercadolibre.com/sites/MLB/search?seller_id=',
+    url: 'https://api.mercadolibre.com/sites/MLB/search?seller_id=',
+    method: 'GET',
+    headers: { authorization: 'Bearer token' }
   }
 }
 
@@ -95,8 +101,7 @@ const multiget = async (token, ids, attributes) => {
       ',',
       attributes
     )}
-    `,
-    // `https://api.mercadolibre.com/items?ids=${join(',', ids)}`,
+		`,
     {
       headers: { Authorization: `Bearer ${token}` }
     }
