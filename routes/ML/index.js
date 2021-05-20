@@ -10,5 +10,7 @@ router.post('/auth', (req, res, next) => {
 router.post('/ml-accounts', MlController.createAccount)
 router.get('/ml-accounts', MlController.getAllAccounts)
 router.get('/ml-accounts/:id', MlController.getAccount)
+router.get('/ml-ads', MlController.getAllAds)
+router.get('/ml-load-ads/:mlAccountId', MlController.loadAds)
 
 module.exports = router

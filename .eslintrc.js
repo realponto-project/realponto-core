@@ -14,7 +14,8 @@ module.exports = {
       'warn',
       { onlyFunctionsWithAsyncKeyword: true }
     ],
-    'jest/no-hooks': ['error', { allow: ['beforeAll', 'afterAll'] }]
+    'jest/no-hooks': ['error', { allow: ['beforeAll', 'afterAll'] }],
+    camelcase: 0
   },
   plugins: ['jest']
 }

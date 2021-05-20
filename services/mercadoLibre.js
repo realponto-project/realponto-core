@@ -1,4 +1,5 @@
 const axios = require('axios')
+const { join } = require('ramda')
 
 const client_id = process.env.CLIENT_ID
 const client_secret = process.env.CLIENT_SECRET
@@ -23,6 +24,12 @@ const urls = {
   ads: {
     url: 'https://api.mercadolibre.com/items',
     method: 'PUT',
+    headers: { authorization: 'Bearer token' }
+  },
+  adsBySeller: {
+    // url: 'https://api.mercadolibre.com/sites/MLB/search?seller_id=',
+    url: 'https://api.mercadolibre.com/sites/MLB/search?seller_id=',
+    method: 'GET',
     headers: { authorization: 'Bearer token' }
   }
 }
@@ -59,13 +66,47 @@ const updateAds = async (token, itemId, payload) => {
   return itemResponse
 }
 
+const getAds = async (token, seller_id, scroll_id) => {
+  // const response = await axios.get(`${urls.adsBySeller.url}${seller_id}`, {
+
+  const response = await axios.get(
+    `https://api.mercadolibre.com/users/${seller_id}/items/search?search_type=scan${
+      scroll_id ? `&scroll_id=${scroll_id}` : ''
+    }&limit=100&orders=start_time_desc`,
+    {
+      headers: { Authorization: `Bearer ${token}` }
+    }
+  )
+  return response
+}
+
+const multiget = async (token, ids, attributes) => {
+  // const response = `https://api.mercadolibre.com/items?ids=${join(',', ids)}`
+
+  const response = await axios.get(
+    `https://api.mercadolibre.com/items?ids=${join(',', ids)}&attributes=${join(
+      ',',
+      attributes
+    )}
+		`,
+    {
+      headers: { Authorization: `Bearer ${token}` }
+    }
+  )
+  return response
+}
+
 const mercadoLibreJs = {
   authorization: {
     token,
     refreshToken
   },
   ads: {
-    update: updateAds
+    update: updateAds,
+    get: getAds
+  },
+  item: {
+    multiget
   },
   user: {
     myInfo

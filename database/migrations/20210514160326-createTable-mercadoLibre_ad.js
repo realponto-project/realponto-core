@@ -1,42 +1,29 @@
 'use strict'
 
 module.exports = {
-  up: (queryInterface, Sequelize) =>
-    queryInterface.createTable('mercadoLibreAccountAd', {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('mercadoLibreAd', {
       id: {
         type: Sequelize.STRING,
         primaryKey: true,
         allowNull: false
       },
-      itemId: {
-        type: Sequelize.STRING,
-        primaryKey: true,
-        allowNull: false
-      },
-      typeSync: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      },
-      status: {
+      sku: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      mercadoLibreAccountId: {
+      title: {
         type: Sequelize.STRING,
-        allowNull: false,
-        references: {
-          model: 'mercadoLibreAccount',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'restrict'
+        allowNull: false
       },
-      mercadoLibreAdId: {
+      price: {
+        type: Sequelize.FLOAT,
+        allowNull: false
+      },
+      companyId: {
         type: Sequelize.STRING,
-        allowNull: false,
         references: {
-          model: 'mercadoLibreAd',
+          model: 'company',
           key: 'id'
         },
         onUpdate: 'cascade',
@@ -57,6 +44,10 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: null
       }
-    }),
-  down: (queryInterface) => queryInterface.dropTable('mercadoLibreAccountAd')
+    })
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('mercadoLibreAd')
+  }
 }

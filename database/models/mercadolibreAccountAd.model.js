@@ -2,7 +2,7 @@ const Sequelize = require('sequelize')
 const uuidv4Generator = require('../../utils/helpers/hash')
 
 const MercadoLibreAccountAd = (sequelize) => {
-  const MercadoLibreAccountAd = sequelize.define('mercadoLibre_accountAd', {
+  const MercadoLibreAccountAd = sequelize.define('mercadoLibreAccountAd', {
     id: {
       type: Sequelize.STRING,
       primaryKey: true,
@@ -18,16 +18,20 @@ const MercadoLibreAccountAd = (sequelize) => {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: false
+    },
+    status: {
+      type: Sequelize.STRING,
+      allowNull: false
     }
   })
 
   MercadoLibreAccountAd.associate = (models) => {
-    models.mercadoLibre_accountAd.belongsTo(models.mercadoLibre_account, {
+    models.mercadoLibreAccountAd.belongsTo(models.mercadoLibreAccount, {
       foreignKey: {
         allowNull: false
       }
     })
-    models.mercadoLibre_accountAd.belongsTo(models.mercadoLibre_ad, {
+    models.mercadoLibreAccountAd.belongsTo(models.mercadoLibreAd, {
       foreignKey: {
         allowNull: false
       }

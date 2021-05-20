@@ -186,6 +186,13 @@ const orderSpec = applySpec({
 })
 
 const searchSpecs = {
+  mlAccountAd: pipe(applySpec({}), removeFiledsNilOrEmpty),
+  mlAccount: pipe(
+    applySpec({
+      companyId: pathOr(null, ['companyId'])
+    }),
+    removeFiledsNilOrEmpty
+  ),
   status: pipe(
     applySpec({
       id: pathOr(null, ['id']),

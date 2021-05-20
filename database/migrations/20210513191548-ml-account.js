@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) =>
-    queryInterface.createTable('mercadoLibre_account', {
+    queryInterface.createTable('mercadoLibreAccount', {
       id: {
         type: Sequelize.STRING,
         primaryKey: true,
@@ -15,6 +15,14 @@ module.exports = {
       sellerId: {
         type: Sequelize.INTEGER,
         allowNull: true
+      },
+      access_token: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      refresh_token: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       companyId: {
         type: Sequelize.STRING,
@@ -41,5 +49,5 @@ module.exports = {
         defaultValue: null
       }
     }),
-  down: (queryInterface) => queryInterface.dropTable('mercadoLibre_account')
+  down: (queryInterface) => queryInterface.dropTable('mercadoLibreAccount')
 }
