@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('mercadoLibreAd', {
+    await queryInterface.createTable('mercado_libre_ad', {
       id: {
         type: Sequelize.STRING,
         primaryKey: true,
@@ -20,7 +20,7 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false
       },
-      companyId: {
+      company_id: {
         type: Sequelize.STRING,
         references: {
           model: 'company',
@@ -29,17 +29,17 @@ module.exports = {
         onUpdate: 'cascade',
         onDelete: 'restrict'
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: new Date()
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: new Date()
       },
-      deletedAt: {
+      deleted_at: {
         allowNull: true,
         type: Sequelize.DATE,
         defaultValue: null
@@ -48,6 +48,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('mercadoLibreAd')
+    await queryInterface.dropTable('mercado_libre_ad')
   }
 }
