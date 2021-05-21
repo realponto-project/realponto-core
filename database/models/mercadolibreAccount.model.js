@@ -2,39 +2,45 @@ const Sequelize = require('sequelize')
 const uuidv4Generator = require('../../utils/helpers/hash')
 
 const MercadoLibreAccount = (sequelize) => {
-  const MercadoLibreAccount = sequelize.define('mercadoLibreAccount', {
-    id: {
-      type: Sequelize.STRING,
-      primaryKey: true,
-      allowNull: false,
-      defaultValue: uuidv4Generator('acml_')
+  const MercadoLibreAccount = sequelize.define(
+    'mercado_libre_account',
+    {
+      id: {
+        type: Sequelize.STRING,
+        primaryKey: true,
+        allowNull: false,
+        defaultValue: uuidv4Generator('acml_')
+      },
+      fullname: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      sellerId: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      access_token: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      refresh_token: {
+        type: Sequelize.STRING,
+        allowNull: false
+      }
     },
-    fullname: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    sellerId: {
-      type: Sequelize.INTEGER,
-      allowNull: false
-    },
-    access_token: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    refresh_token: {
-      type: Sequelize.STRING,
-      allowNull: false
+    {
+      underscored: true
     }
-  })
+  )
 
   MercadoLibreAccount.associate = (models) => {
-    models.mercadoLibreAccount.belongsTo(models.company, {
+    models.mercado_libre_account.belongsTo(models.company, {
       foreignKey: {
         allowNull: false
       }
     })
-    models.mercadoLibreAccount.belongsToMany(models.mercadoLibreAd, {
-      through: 'mercadoLibreAccountAd'
+    models.mercado_libre_account.belongsToMany(models.mercado_libre_ad, {
+      through: 'mercado_libre_account_ad'
     })
   }
 

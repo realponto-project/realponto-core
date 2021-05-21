@@ -4,7 +4,7 @@ const { pathOr } = require('ramda')
 const database = require('../../database')
 
 const UserModel = database.model('user')
-const MlAccountModel = database.model('mercadoLibreAccount')
+const MlAccountModel = database.model('mercado_libre_account')
 
 const secret = process.env.SECRET_KEY_JWT || 'mySecretKey'
 
