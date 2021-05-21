@@ -2,7 +2,8 @@ const sequelize = require('sequelize')
 const {
   pathOr,
   findIndex,
-  propEq
+  propEq,
+  omit
   // isEmpty, isNil
 } = require('ramda')
 
@@ -10,9 +11,9 @@ const database = require('../../database')
 // const { NotFoundError } = require('../../utils/helpers/errors')
 const buildPagination = require('../../utils/helpers/searchSpec')
 
-const MlAccountModel = database.model('mercadoLibreAccount')
-const MlAccountAdModel = database.model('mercadoLibreAccountAd')
-const MlAdModel = database.model('mercadoLibreAd')
+const MlAccountModel = database.model('mercado_libre_account')
+const MlAccountAdModel = database.model('mercado_libre_account_ad')
+const MlAdModel = database.model('mercado_libre_ad')
 
 class MercadoLibreDomain {
   async createOrUpdate(bodyData, options = {}) {
@@ -48,85 +49,71 @@ class MercadoLibreDomain {
   }
 
   async getAllAds(query) {
-    const count = await MlAccountAdModel.count({
-      where: buildPagination('mlAccountAd')(query).where,
+    const response = await MlAdModel.findAndCountAll({
+      ...buildPagination('mlAd')(query),
       include: {
-        model: MlAdModel,
-        where: buildPagination('mlAccount')(query).where
-      }
-    })
-
-    const rows = await MlAdModel.findAll({
-      // ...buildPagination('mlAccount')(query),
-      // include: {
-      //   model: MlAccountAdModel,
-      //   where: buildPagination('mlAccountAd')(query).where
-      // },
+        model: MlAccountAdModel,
+        where: buildPagination('mlAccountAd')(query).where
+      },
       attributes: {
         include: [
           [
             sequelize.literal(`(
-							SELECT COUNT(*)
-							FROM mercadoLibreAccountAd AS mercadoLibreAccountAd
-					)`),
-            'laughReactionsCount'
+            	SELECT COUNT(*)
+            	FROM mercado_libre_account_ad AS mercado_libre_account_ad
+            		WHERE
+            			mercado_libre_account_ad.mercado_libre_ad_id = mercado_libre_ad.id
+            		)`),
+            'totalAccountAd'
+          ],
+          [
+            sequelize.literal(`(
+            	SELECT COUNT(*)
+            	FROM mercado_libre_account_ad AS mercado_libre_account_ad
+            		WHERE
+            			mercado_libre_account_ad.mercado_libre_ad_id = mercado_libre_ad.id
+            			AND
+            			mercado_libre_account_ad.type_sync = true
+            		)`),
+            'typeSyncTrue'
           ]
-          //     [
-          //       sequelize.fn(
-          //         'count',
-          //         "IF('mercadoLibreAccountAd'.'typeSync' = 1, 5, NULL)"
-          //         // sequelize.fn(
-          //         //   'where',
-          //         // sequelize.col('mercadoLibreAccountAds.typeSync')
-          //         // )
-          //       ),
-          //       'count'
-          //     ]
         ]
-      }
-      // group: [
-      //   'mercadoLibreAccountAds.id',
-      //   'mercadoLibreAccountAds.itemId',
-      //   'mercadoLibreAd.id'
-      // ]
-      // raw: true
+      },
+      raw: true
     })
 
-    console.log({ count })
-    console.log(JSON.stringify(rows, null, 2))
-    return { count }
+    return response
   }
 
   async createOrUpdateAd(payload) {
-    // console.log(payload)
     const sku = pathOr(null, ['sku', 'value_name'], payload)
-    const companyId = pathOr('', ['companyId'], payload)
+    const company_id = pathOr('', ['companyId'], payload)
 
     let ad = await MlAdModel.findOne({
-      where: { companyId, sku },
+      where: { company_id, sku },
       include: MlAccountModel
     })
 
     if (ad) {
       const index = findIndex(
         propEq('id', payload.mlAccountId),
-        ad.mercadoLibreAccounts
+        ad.mercado_libre_accounts
       )
       if (index === -1) {
         await MlAccountAdModel.create({
-          itemId: payload.id,
+          item_id: payload.id,
           status: payload.status,
-          mercadoLibreAccountId: payload.mlAccountId,
-          mercadoLibreAdId: ad.id
+          mercado_libre_account_id: payload.mlAccountId,
+          mercado_libre_ad_id: ad.id
         })
       }
     } else {
-      ad = await MlAdModel.create({ ...payload, sku })
+      ad = await MlAdModel.create({ ...omit(['id'], payload), sku })
       await MlAccountAdModel.create({
-        itemId: payload.id,
+        item_id: payload.id,
         status: payload.status,
-        mercadoLibreAccountId: payload.mlAccountId,
-        mercadoLibreAdId: ad.id
+        mercado_libre_account_id: payload.mlAccountId,
+        mercado_libre_ad_id: ad.id
       })
     }
 

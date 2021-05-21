@@ -1,7 +1,6 @@
 const {
   pathOr,
   find,
-  pathEq,
   propEq,
   append,
   path,
@@ -15,6 +14,8 @@ const database = require('../../database')
 const MercadoLibreDomain = require('../../domains/mercadoLibre')
 const mercadoLibreJs = require('../../services/mercadoLibre')
 const tokenGenerate = require('../../utils/helpers/tokenGenerate')
+
+const MlAccountModel = database.model('mercado_libre_account')
 
 const createAccount = async (req, res, next) => {
   const transaction = await database.transaction()
@@ -113,7 +114,7 @@ const getAllAds = async (req, res, next) => {
 const loadAds = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const mlAccountId = pathOr(null, ['params', 'mlAccountId'], req)
-  console.log(req.decoded)
+  // console.log(req.decoded)
 
   const mlAccount = find(
     propEq('id', mlAccountId),
@@ -121,18 +122,22 @@ const loadAds = async (req, res, next) => {
   )
 
   console.log(pathOr([], ['decoded', 'sellersMercadoLibre'], req))
-  console.log(mlAccountId)
+  // console.log(mlAccountId)
 
   const accessToken = pathOr('', ['access_token'], mlAccount)
-  console.log(accessToken)
+  // console.log(accessToken)
 
   try {
+    const mlAccount = await MlAccountModel.findByPk(mlAccountId)
+
+    if (!mlAccount) throw new Error('Account not found')
+
     const userDataMl = await mercadoLibreJs.user.myInfo(accessToken)
     const seller_id = path(['data', 'id'], userDataMl)
     // // lorival seller=id= 188010504
     const firstGet = await mercadoLibreJs.ads.get(accessToken, seller_id)
 
-    console.log(firstGet)
+    // console.log(firstGet)
 
     let data = firstGet.data
     let results = pathOr([], ['data', 'results'], firstGet)
@@ -162,14 +167,13 @@ const loadAds = async (req, res, next) => {
             // console.log(sku)
             if (sku) {
               countWithSKU = inc(countWithSKU)
-              const respDomain = await MercadoLibreDomain.createOrUpdateAd({
+
+              await MercadoLibreDomain.createOrUpdateAd({
                 ...omit(['attributes'], body),
                 companyId,
                 mlAccountId,
                 sku
               })
-
-              // console.log(respDomain)
             } else {
               countWithoutSKU = inc(countWithoutSKU)
             }
@@ -183,15 +187,15 @@ const loadAds = async (req, res, next) => {
         data.scroll_id
       )
 
-      // data.results = []
       results = concat(results, resp.data.results)
       data = resp.data
       count = inc(count)
       console.log(count)
+      // data.results = []
     }
 
     // console.log(results)
-    // console.log(results.length)
+    console.log(results.length)
     // console.log(data.paging)
     // console.log(data.results)
     // console.log(data.results.length)
