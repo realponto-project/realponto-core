@@ -21,8 +21,6 @@ class MercadoLibreDomain {
     const companyId = pathOr(null, ['companyId'], bodyData)
     const sellerId = pathOr(null, ['sellerId'], bodyData)
 
-    console.log('>', bodyData)
-
     const account = await MlAccountModel.findOne({
       where: { companyId, sellerId },
       transaction

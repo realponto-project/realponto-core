@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const axios = require('axios')
 const { join } = require('ramda')
 
@@ -26,11 +27,10 @@ const urls = {
     method: 'PUT',
     headers: { authorization: 'Bearer token' }
   },
-  adsBySeller: {
-    // url: 'https://api.mercadolibre.com/sites/MLB/search?seller_id=',
-    url: 'https://api.mercadolibre.com/sites/MLB/search?seller_id=',
-    method: 'GET',
-    headers: { authorization: 'Bearer token' }
+  deletePermission: {
+    url: (sellerId) =>
+      `https://api.mercadolibre.com/users/${sellerId}/applications/${client_id}`,
+    method: 'DELETE'
   }
 }
 
@@ -56,6 +56,7 @@ const myInfo = async (token) => {
   const refreshTokenResponse = await axios.get(urls.user.url, {
     headers: { Authorization: `Bearer ${token}` }
   })
+
   return refreshTokenResponse
 }
 
@@ -96,6 +97,13 @@ const multiget = async (token, ids, attributes) => {
   return response
 }
 
+const revokePermission = async (token) => {
+  const permissionResponse = await axios.delete(urls.deletePermission.url, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  return permissionResponse
+}
+
 const mercadoLibreJs = {
   authorization: {
     token,
@@ -109,7 +117,8 @@ const mercadoLibreJs = {
     multiget
   },
   user: {
-    myInfo
+    myInfo,
+    revokePermission
   }
 }
 
