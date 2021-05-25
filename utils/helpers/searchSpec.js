@@ -188,6 +188,13 @@ const orderSpec = applySpec({
   )
 })
 
+const type_syncSpec = (values) => ({
+  [or]: map((value) => {
+    if (value === 'false') return false
+    if (value === 'true') return true
+  }, pathOr([], ['type_sync'], values))
+})
+
 const searchSpecs = {
   mlAd: pipe(
     applySpec({
@@ -205,6 +212,7 @@ const searchSpecs = {
   ),
   mlAccountAd: pipe(
     applySpec({
+      type_sync: type_syncSpec,
       status: pathOr(null, ['status']),
       mercado_libre_account_id: pathOr(null, ['account'])
     }),
