@@ -38,6 +38,7 @@
     "sequelize": "6.3.5",
     "sequelize-cli": "6.2.0",
     "sequelize-replace-enum-postgres": "1.6.0",
+    "worker-threads": "^1.0.0",
     "yup": "0.32.9"
   },
   "devDependencies": {
