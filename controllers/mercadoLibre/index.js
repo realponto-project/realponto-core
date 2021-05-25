@@ -4,10 +4,13 @@ const {
   propEq,
   append,
   path,
-  slice,
-  concat,
-  inc,
-  omit
+  map,
+  addIndex,
+  pipe,
+  multiply,
+  add,
+  ifElse,
+  gte
 } = require('ramda')
 
 const jwt = require('jsonwebtoken')
@@ -15,8 +18,11 @@ const database = require('../../database')
 const MercadoLibreDomain = require('../../domains/mercadoLibre')
 const mercadoLibreJs = require('../../services/mercadoLibre')
 const tokenGenerate = require('../../utils/helpers/tokenGenerate')
+const workerServices = require('../../services/worker')
 
 const MlAccountModel = database.model('mercado_libre_account')
+const MlAdModel = database.model('mercado_libre_ad')
+const MlAccountAdModel = database.model('mercado_libre_account_ad')
 
 const secret = process.env.SECRET_KEY_JWT || 'mySecretKey'
 
@@ -168,100 +174,92 @@ const getAllAds = async (req, res, next) => {
 const loadAds = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const mlAccountId = pathOr(null, ['params', 'mlAccountId'], req)
-  // console.log(req.decoded)
 
   const mlAccount = find(
     propEq('id', mlAccountId),
     pathOr([], ['decoded', 'sellersMercadoLibre'], req)
   )
 
-  console.log(pathOr([], ['decoded', 'sellersMercadoLibre'], req))
-  // console.log(mlAccountId)
-
   const accessToken = pathOr('', ['access_token'], mlAccount)
-  // console.log(accessToken)
 
   try {
     const mlAccount = await MlAccountModel.findByPk(mlAccountId)
 
+    // console.log(
+    //   await mercadoLibreJs.authorization.refreshToken(mlAccount.refresh_token)
+    // )
+
     if (!mlAccount) throw new Error('Account not found')
 
     const userDataMl = await mercadoLibreJs.user.myInfo(accessToken)
+
     const seller_id = path(['data', 'id'], userDataMl)
-    // // lorival seller=id= 188010504
-    const firstGet = await mercadoLibreJs.ads.get(accessToken, seller_id)
 
-    // console.log(firstGet)
-
-    let data = firstGet.data
-    let results = pathOr([], ['data', 'results'], firstGet)
-    let count = 0
-    let countWithSKU = 0
-    let countWithoutSKU = 0
-
-    while (data.results.length > 0) {
-      for (let index = 0; index < data.results.length / 20; index++) {
-        const response = await mercadoLibreJs.item.multiget(
-          accessToken,
-          slice(20 * index, 20 * (index + 1), data.results),
-          [
-            'id',
-            'title',
-            'price',
-            'status',
-            'seller_custom_field',
-            'attributes'
-          ]
-        )
-
-        response.data.forEach(async ({ code, body }) => {
-          if (code === 200) {
-            const attributes = pathOr([], ['attributes'], body)
-            const sku = find(propEq('id', 'SELLER_SKU'), attributes)
-            // console.log(sku)
-            if (sku) {
-              countWithSKU = inc(countWithSKU)
-
-              await MercadoLibreDomain.createOrUpdateAd({
-                ...omit(['attributes'], body),
-                companyId,
-                mlAccountId,
-                sku
-              })
-            } else {
-              countWithoutSKU = inc(countWithoutSKU)
-            }
-          }
-        })
-      }
-
-      const resp = await mercadoLibreJs.ads.get(
-        accessToken,
-        seller_id,
-        data.scroll_id
-      )
-
-      results = concat(results, resp.data.results)
-      data = resp.data
-      count = inc(count)
-      console.log(count)
-      // data.results = []
-    }
-
-    // console.log(results)
-    console.log(results.length)
-    // console.log(data.paging)
-    // console.log(data.results)
-    // console.log(data.results.length)
-
-    console.log(countWithSKU)
-    console.log(countWithoutSKU)
+    workerServices.getAllItemsIdBySellerId({
+      accessToken,
+      seller_id,
+      companyId,
+      mlAccountId
+    })
 
     // const response = await MercadoLibreDomain.getAllAds({ companyId })
-    // res.json(response)
+    res.json({ message: 'Worker started' })
   } catch (error) {
     console.log(error.message)
+
     res.status(400).json({ error: error.message })
+  }
+}
+
+const updateAds = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const { skuList, priceList } = req.body
+
+  const ajdustPrice = pipe(multiply(1.5), ifElse(gte(72), add(6), add(20)))
+
+  try {
+    // const list = await MlAccountAdModel.findAll()
+
+    // await Promise.all(
+    //   map(
+    //     async (item) => await item.update({ type_sync: true }, { transaction }),
+    //     list
+    //   )
+    // )
+
+    await Promise.all(
+      addIndex(map)(async (sku, index) => {
+        const ad = await MlAdModel.findOne({
+          where: { sku: String(sku) },
+          include: MlAccountAdModel
+        })
+        const newPrice = ajdustPrice(priceList[index])
+
+        if (
+          newPrice > multiply(ad.price, 1.5) ||
+          newPrice < multiply(ad.price, 0.7)
+        ) {
+          console.log('Há uma certa discrepância entre o novo preço e o antigo')
+        } else {
+          // console.log(JSON.stringify(ad, null, 2))
+          await Promise.all(
+            map(async (mercado_libre_account_ad) => {
+              await mercado_libre_account_ad.update(
+                { type_sync: false, update_status: 'unupdated' },
+                { transaction }
+              )
+            }, ad.mercado_libre_account_ads)
+          )
+
+          await ad.update({ price: newPrice }, { transaction })
+        }
+      }, skuList)
+    )
+
+    await transaction.commit()
+  } catch (error) {
+    console.error(error)
+    await transaction.rollback()
   }
 }
 
@@ -271,5 +269,6 @@ module.exports = {
   getAccount,
   getAllAds,
   loadAds,
-  refreshToken
+  refreshToken,
+  updateAds
 }
