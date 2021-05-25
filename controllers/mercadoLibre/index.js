@@ -10,12 +10,15 @@ const {
   omit
 } = require('ramda')
 
+const jwt = require('jsonwebtoken')
 const database = require('../../database')
 const MercadoLibreDomain = require('../../domains/mercadoLibre')
 const mercadoLibreJs = require('../../services/mercadoLibre')
 const tokenGenerate = require('../../utils/helpers/tokenGenerate')
 
 const MlAccountModel = database.model('mercado_libre_account')
+
+const secret = process.env.SECRET_KEY_JWT || 'mySecretKey'
 
 const createAccount = async (req, res, next) => {
   const transaction = await database.transaction()
@@ -70,6 +73,57 @@ const createAccount = async (req, res, next) => {
   } catch (error) {
     await transaction.rollback()
     console.error(error)
+    res.status(400).json({ error: error.message })
+  }
+}
+
+const refreshToken = async (req, res, next) => {
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const user = pathOr(null, ['decoded', 'user'], req)
+  const id = pathOr(null, ['params', 'id'], req)
+  const transaction = await database.transaction()
+
+  try {
+    const account = await MercadoLibreDomain.getById({
+      companyId,
+      id
+    })
+
+    const {
+      data: { refresh_token, access_token }
+    } = await mercadoLibreJs.authorization.refreshToken(account.refresh_token)
+
+    await MercadoLibreDomain.createOrUpdate(
+      {
+        ...JSON.parse(JSON.stringify(account)),
+        refresh_token,
+        access_token
+      },
+      { transaction }
+    )
+
+    const sellersMercadoLibre = await MlAccountModel.findAll({
+      where: {
+        companyId
+      },
+      attributes: [
+        'id',
+        'fullname',
+        'sellerId',
+        'access_token',
+        'refresh_token'
+      ],
+      raw: true
+    })
+
+    const token = jwt.sign({ user, sellersMercadoLibre }, secret, {
+      expiresIn: '24h'
+    })
+
+    res.json(token)
+    await transaction.commit()
+  } catch (error) {
+    await transaction.rollback()
     res.status(400).json({ error: error.message })
   }
 }
@@ -216,5 +270,6 @@ module.exports = {
   getAllAccounts,
   getAccount,
   getAllAds,
-  loadAds
+  loadAds,
+  refreshToken
 }
