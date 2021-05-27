@@ -4,18 +4,30 @@ const { parentPort } = require('worker_threads')
 const MercadoLibreDomain = require('../../domains/mercadoLibre')
 const mercadoLibreJs = require('../mercadoLibre')
 
-parentPort.once('message', async (list) => {
+parentPort.once('message', async ({ list, date }) => {
   const { accessToken, companyId, mlAccountId } = process.env
   const listSplited = splitEvery(20, list)
+  let shouldFinish = false
 
   for (const listSlice of listSplited) {
+    if (shouldFinish) return
     const { data } = await mercadoLibreJs.item.multiget(
       accessToken,
       listSlice,
-      ['id', 'title', 'price', 'status', 'seller_custom_field', 'attributes']
+      [
+        'id',
+        'title',
+        'price',
+        'status',
+        'seller_custom_field',
+        'attributes',
+        'start_time',
+        'date_created'
+      ]
     )
 
     data.forEach(async ({ code, body }) => {
+      if (new Date(body.start_time) - new Date(date) < 0) shouldFinish = true
       if (code === 200) {
         const attributes = pathOr([], ['attributes'], body)
         const sku = find(propEq('id', 'SELLER_SKU'), attributes)
