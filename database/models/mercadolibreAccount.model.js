@@ -26,6 +26,10 @@ const MercadoLibreAccount = (sequelize) => {
       refresh_token: {
         type: Sequelize.STRING,
         allowNull: false
+      },
+      last_sync_ads: {
+        type: Sequelize.DATE,
+        allowNull: true
       }
     },
     {
