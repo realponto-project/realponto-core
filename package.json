@@ -25,6 +25,7 @@
     "cors": "2.8.5",
     "dotenv": "8.2.0",
     "express": "4.17.1",
+    "firebase-admin": "^9.8.0",
     "jsonwebtoken": "8.5.1",
     "moment": "2.29.1",
     "mongoose": "5.10.14",
@@ -38,6 +39,7 @@
     "sequelize": "6.3.5",
     "sequelize-cli": "6.2.0",
     "sequelize-replace-enum-postgres": "1.6.0",
+    "worker-threads": "^1.0.0",
     "yup": "0.32.9"
   },
   "devDependencies": {

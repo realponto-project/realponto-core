@@ -37,8 +37,6 @@ const getCompanyByNickName = async (req, res, next) => {
       ]
     })
 
-    console.log(JSON.stringify(company, null, 2))
-
     res.json(company)
   } catch (err) {
     next(err)

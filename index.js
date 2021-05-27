@@ -21,6 +21,7 @@ const registerRoutes = require('./routes/register')
 const emailRoutes = require('./routes/email')
 const metricsRoutes = require('./routes/metrics')
 const catalogRoutes = require('./routes/catalog')
+const calcPriceRoutes = require('./routes/calcPrice')
 const recoveryPasswordRoutes = require('./routes/recoveryPassword')
 const MLRoutes = require('./routes/ML')
 
@@ -50,6 +51,7 @@ app.use(baseUrl, planRoutes)
 app.use(baseUrl, userRoutes)
 app.use(baseUrl, subscriptionRoutes)
 app.use(baseUrl, customerRoutes)
+app.use(baseUrl, calcPriceRoutes)
 
 app.use((err, req, res, next) => {
   const formattedError = errorFormatter(err)

@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize')
+
 const uuidv4Generator = require('../../utils/helpers/hash')
 
 const MercadoLibreAd = (sequelize) => {
