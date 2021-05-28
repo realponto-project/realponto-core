@@ -1,11 +1,12 @@
 // const mercadoLibreJs = require('../mercadoLibre')
 const { Worker } = require('worker_threads')
 const { splitEvery, inc, length, equals } = require('ramda')
+const path = require('path')
 
 const notificationService = require('../notification')
 
 class WorkerServices {
-  async getAllItemsIdBySellerId({
+  getAllItemsIdBySellerId({
     date,
     tokenFcm,
     accessToken,
@@ -14,7 +15,9 @@ class WorkerServices {
     mlAccountId
   }) {
     let coutWorkersFinished = 0
-    const worker = new Worker('./services/worker/getAllItemsIdBySellerId.js')
+    const worker = new Worker(
+      path.join(__dirname, 'getAllItemsIdBySellerId.js')
+    )
 
     worker.once('message', (list) => {
       console.log('itemsId list: ', list)
@@ -22,7 +25,7 @@ class WorkerServices {
 
       for (const listSlice of listSplited) {
         const workerListSlice = new Worker(
-          './services/worker/getItemsByItemsId.js',
+          path.join(__dirname, 'getItemsByItemsId.js'),
           { env: { accessToken, companyId, mlAccountId } }
         )
 
@@ -59,6 +62,40 @@ class WorkerServices {
     worker.postMessage({ accessToken, seller_id })
 
     worker.on('exit', () => console.log('exit'))
+  }
+
+  updateAds({ rows, ajdustPriceString }) {
+    const listSplited = splitEvery(1000, rows)
+
+    for (const listSlice of listSplited) {
+      const workerUpdateAds = new Worker(path.join(__dirname, 'updateAds.js'))
+      workerUpdateAds.once('message', (message) => {
+        console.log(`${workerUpdateAds.threadId} `, message)
+      })
+      workerUpdateAds.on('error', console.error)
+      workerUpdateAds.on('exit', () => {
+        console.log('exit')
+      })
+      console.log(`Iniciando worker de ID ${workerUpdateAds.threadId}`)
+      workerUpdateAds.postMessage({ list: listSlice, ajdustPriceString })
+    }
+  }
+
+  updateAdsByAccount({ account, list }) {
+    const listSplited = splitEvery(1000, list)
+
+    for (const listSlice of listSplited) {
+      const workerUpdateAdsByAccount = new Worker(
+        path.join(__dirname, 'updateAdsByAccount.js')
+      )
+      workerUpdateAdsByAccount.once('message', (message) => {
+        console.log(`${workerUpdateAdsByAccount.threadId} `, message)
+      })
+      workerUpdateAdsByAccount.on('error', console.error)
+      workerUpdateAdsByAccount.on('exit', () => console.log('exit'))
+      console.log(`Iniciando worker de ID ${workerUpdateAdsByAccount.threadId}`)
+      workerUpdateAdsByAccount.postMessage({ list: listSlice, account })
+    }
   }
 }
 

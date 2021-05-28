@@ -1,13 +1,5 @@
-const {
-  pathOr,
-  find,
-  propEq,
-  append,
-  path,
-  map,
-  addIndex,
-  multiply
-} = require('ramda')
+const Sequelize = require('sequelize')
+const { pathOr, find, propEq, append, path } = require('ramda')
 
 const jwt = require('jsonwebtoken')
 const database = require('../../database')
@@ -15,7 +7,6 @@ const MercadoLibreDomain = require('../../domains/mercadoLibre')
 const mercadoLibreJs = require('../../services/mercadoLibre')
 const tokenGenerate = require('../../utils/helpers/tokenGenerate')
 const workerServices = require('../../services/worker')
-const evalString = require('../../utils/helpers/eval')
 
 const MlAccountModel = database.model('mercado_libre_account')
 const MlAdModel = database.model('mercado_libre_ad')
@@ -170,6 +161,38 @@ const getAllAds = async (req, res, next) => {
   }
 }
 
+const updateAdsByAccount = async (req, res, next) => {
+  const mlAccountId = pathOr(null, ['params', 'mlAccountId'], req)
+
+  try {
+    const mlAccount = await MlAccountModel.findByPk(mlAccountId, { raw: true })
+
+    if (!mlAccount) throw new Error('Account not found')
+
+    const list = await MlAccountAdModel.findAll({
+      where: { mercado_libre_account_id: mlAccountId, type_sync: 'false' },
+      include: { model: MlAdModel, attributes: [] },
+      attributes: [
+        'id',
+        'item_id',
+        [Sequelize.col('mercado_libre_ad.price'), 'price']
+      ],
+      raw: true
+    })
+
+    workerServices.updateAdsByAccount({
+      account: mlAccount,
+      list
+    })
+
+    res.json({ message: 'Worker started' })
+  } catch (error) {
+    console.log(error.message)
+
+    res.status(400).json({ error: error.message })
+  }
+}
+
 const loadAds = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const mlAccountId = pathOr(null, ['params', 'mlAccountId'], req)
@@ -216,49 +239,19 @@ const loadAds = async (req, res, next) => {
 }
 
 const updateAds = async (req, res, next) => {
-  const transaction = await database.transaction()
-  const { skuList, priceList, calcPriceId } = req.body
+  // const { skuList, priceList, calcPriceId } = req.body
+  const { rows, calcPriceId } = req.body
 
   try {
-    const calcPrice = await CalcPriceModel.findByPk(calcPriceId, {
-      transaction
-    })
+    const calcPrice = await CalcPriceModel.findByPk(calcPriceId)
 
-    const code = pathOr('value => value', ['code'], calcPrice)
+    const ajdustPriceString = pathOr('value => value', ['code'], calcPrice)
 
-    const ajdustPrice = evalString(code)
+    workerServices.updateAds({ rows, ajdustPriceString })
 
-    await Promise.all(
-      addIndex(map)(async (sku, index) => {
-        const ad = await MlAdModel.findOne({
-          where: { sku: String(sku) },
-          include: MlAccountAdModel
-        })
-        const newPrice = ajdustPrice(priceList[index])
-        if (
-          newPrice > multiply(ad.price, 1.5) ||
-          newPrice < multiply(ad.price, 0.7)
-        ) {
-          console.log('Há uma certa discrepância entre o novo preço e o antigo')
-        } else {
-          // console.log(JSON.stringify(ad, null, 2))
-          await Promise.all(
-            map(async (mercado_libre_account_ad) => {
-              await mercado_libre_account_ad.update(
-                { type_sync: false, update_status: 'unupdated' },
-                { transaction }
-              )
-            }, ad.mercado_libre_account_ads)
-          )
-          await ad.update({ price: newPrice }, { transaction })
-        }
-      }, skuList)
-    )
-    await transaction.commit()
-    res.json({ message: 'Preços atualizados' })
+    res.json({ message: 'Worker started' })
   } catch (error) {
     console.error(error)
-    await transaction.rollback()
     res.status(400).json({ error: error.message })
   }
 }
@@ -268,6 +261,7 @@ module.exports = {
   getAllAccounts,
   getAccount,
   getAllAds,
+  updateAdsByAccount,
   loadAds,
   refreshToken,
   updateAds

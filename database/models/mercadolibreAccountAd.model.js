@@ -28,12 +28,12 @@ const MercadoLibreAccountAd = (sequelize) => {
       update_status: {
         type: Sequelize.ENUM([
           'updated',
-          'not_updated',
+          'unupdated',
           'waiting_update',
           'error'
         ]),
         allowNull: false,
-        defaultValue: 'not_updated'
+        defaultValue: 'unupdated'
       }
     },
     {

@@ -89,7 +89,8 @@ const multiget = async (token, ids, attributes) => {
       ',',
       attributes
     )}
-		`,
+    `,
+    // `https://api.mercadolibre.com/items?ids=${join(',', ids)}`,
     {
       headers: { Authorization: `Bearer ${token}` }
     }
