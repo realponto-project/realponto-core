@@ -12,6 +12,7 @@ router.get('/ml-accounts', MlController.getAllAccounts)
 router.get('/ml-accounts/:id', MlController.getAccount)
 router.get('/ml-ads', MlController.getAllAds)
 router.put('/ml-ads', MlController.updateAds)
+router.put('/ml-ads-by-account/:mlAccountId', MlController.updateAdsByAccount)
 router.get('/ml-load-ads/:mlAccountId', MlController.loadAds)
 router.put('/ml-refreshToken/:id', MlController.refreshToken)
 

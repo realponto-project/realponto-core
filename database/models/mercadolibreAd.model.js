@@ -22,7 +22,10 @@ const MercadoLibreAd = (sequelize) => {
       },
       price: {
         type: Sequelize.FLOAT,
-        allowNull: false
+        allowNull: false,
+        set(value) {
+          this.setDataValue('price', value.toFixed(2))
+        }
       }
     },
     {
