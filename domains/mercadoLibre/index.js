@@ -120,6 +120,28 @@ class MercadoLibreDomain {
       raw: true
     })
   }
+
+  async updateAd({ sku, price }, options = {}) {
+    const { transaction } = options
+    const adUpdated = await MlAccountModel.findOne({ where: { sku } })
+    await adUpdated.update({ price }, { transaction })
+    const response = await MlAccountAdModel.findOne({
+      where: { mercadoLibre_account_id: adUpdated.id }
+    })
+    await response.update({ typeSync: false }, { transaction })
+    return {
+      id: response.itemId,
+      price,
+      accountId: response.mercadoLibre_account_id
+    }
+  }
+
+  async getToken(mercadoLibre_accountId) {
+    const response = await MlAccountModel.findAll({
+      where: { mercadoLibre_accountId }
+    })
+    return response && response.token
+  }
 }
 
 module.exports = new MercadoLibreDomain()

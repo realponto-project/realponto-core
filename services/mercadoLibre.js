@@ -2,6 +2,8 @@
 const axios = require('axios')
 const { join } = require('ramda')
 
+const MlDomain = require('../domains/mercadoLibre')
+
 const client_id = process.env.CLIENT_ID
 const client_secret = process.env.CLIENT_SECRET
 const redirect_uri = process.env.REDIRECT_URI
@@ -60,10 +62,11 @@ const myInfo = async (token) => {
 }
 
 const updateAds = async (payload) => {
+  const token = await MlDomain.getToken(payload.accountId)
   const itemResponse = await axios.put(
     `${urls.ads.url}/${payload.id}`,
     { price: payload.price },
-    { headers: { authorization: `Bearer ${payload.token}` } }
+    { headers: { authorization: `Bearer ${token}` } }
   )
   return itemResponse
 }

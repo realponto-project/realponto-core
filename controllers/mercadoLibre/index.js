@@ -14,6 +14,7 @@ const MlAccountAdModel = database.model('mercado_libre_account_ad')
 const CalcPriceModel = database.model('calcPrice')
 
 const secret = process.env.SECRET_KEY_JWT || 'mySecretKey'
+const enqueue = require('../../services/queue/queue')
 
 const createAccount = async (req, res, next) => {
   const transaction = await database.transaction()
@@ -157,6 +158,26 @@ const getAllAds = async (req, res, next) => {
     res.json({ total, source })
   } catch (error) {
     console.error(error)
+
+    res.status(400).json({ error: error.message })
+  }
+}
+
+const updateAd = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const price = pathOr(0, ['body', 'price'], req)
+  const sku = pathOr(null, ['body', 'sku'], req)
+
+  try {
+    const response = await MercadoLibreDomain.updateAd(
+      { price, sku },
+      { transaction }
+    )
+    await transaction.commit()
+    enqueue(response)
+    res.json(response)
+  } catch (error) {
+    await transaction.rollback()
     res.status(400).json({ error: error.message })
   }
 }
@@ -256,6 +277,36 @@ const updateAds = async (req, res, next) => {
   }
 }
 
+const updateManyAd = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const skus = pathOr([], ['body', 'skus'], req)
+  const prices = pathOr([], ['body', 'prices'], req)
+  try {
+    let i = 0
+    while (i < skus.length) {
+      const dataUpdated = await MercadoLibreDomain.updateAd(
+        {
+          price: prices[i],
+          sku: skus[i]
+        },
+        {
+          transaction
+        }
+      )
+      enqueue(dataUpdated)
+      i++
+    }
+
+    if (i === skus.length) {
+      await transaction.commit()
+      res.json('response')
+    }
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
 module.exports = {
   createAccount,
   getAllAccounts,
@@ -264,5 +315,7 @@ module.exports = {
   updateAdsByAccount,
   loadAds,
   refreshToken,
-  updateAds
+  updateAds,
+  updateAd,
+  updateManyAd
 }

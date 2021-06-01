@@ -4,7 +4,6 @@ const { pathOr } = require('ramda')
 const database = require('../../database')
 
 const UserModel = database.model('user')
-const MlAccountModel = database.model('mercado_libre_account')
 
 const secret = process.env.SECRET_KEY_JWT || 'mySecretKey'
 
@@ -27,29 +26,10 @@ const authentication = async (req, res, next) => {
       attributes: { exclude: ['password'] }
     })
 
-    const companyId = userWithoutPwd.companyId
-
-    const sellersMercadoLibre = await MlAccountModel.findAll({
-      where: {
-        companyId
-      },
-      attributes: [
-        'id',
-        'fullname',
-        'sellerId',
-        'access_token',
-        'refresh_token'
-      ],
-      raw: true
+    const token = jwt.sign({ user: userWithoutPwd }, secret, {
+      expiresIn: '24h'
     })
 
-    const token = jwt.sign(
-      { user: userWithoutPwd, sellersMercadoLibre },
-      secret,
-      {
-        expiresIn: '24h'
-      }
-    )
     res.json({ ...userWithoutPwd, token })
   } catch (error) {
     res

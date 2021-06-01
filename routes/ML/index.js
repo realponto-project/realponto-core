@@ -1,11 +1,8 @@
 const router = require('express').Router()
 const MlController = require('../../controllers/mercadoLibre')
 
-router.post('/auth', (req, res, next) => {
-  console.log(req)
-
-  return res.send('Estará disponível em breve')
-})
+router.post('/ml-ads', MlController.updateManyAd)
+router.put('/ml-ads/:id', MlController.updateAd)
 
 router.post('/ml-accounts', MlController.createAccount)
 router.get('/ml-accounts', MlController.getAllAccounts)
