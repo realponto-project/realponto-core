@@ -54,16 +54,17 @@ const refreshToken = async (refreshToken) => {
 
 const myInfo = async (token) => {
   const refreshTokenResponse = await axios.get(urls.user.url, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers: { authorization: `Bearer ${token}` }
   })
-
   return refreshTokenResponse
 }
 
-const updateAds = async (token, itemId, payload) => {
-  const itemResponse = await axios.put(`${urls.ads.url}/${itemId}`, payload, {
-    headers: { Authorization: `Bearer ${token}` }
-  })
+const updateAds = async (payload) => {
+  const itemResponse = await axios.put(
+    `${urls.ads.url}/${payload.id}`,
+    { price: payload.price },
+    { headers: { authorization: `Bearer ${payload.token}` } }
+  )
   return itemResponse
 }
 
