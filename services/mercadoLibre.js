@@ -2,7 +2,7 @@
 const axios = require('axios')
 const { join } = require('ramda')
 
-const MlDomain = require('../domains/mercadoLibre')
+// const MlDomain = require('../domains/mercadoLibre')
 
 const client_id = process.env.CLIENT_ID
 const client_secret = process.env.CLIENT_SECRET
@@ -62,7 +62,9 @@ const myInfo = async (token) => {
 }
 
 const updateAds = async (payload) => {
-  const token = await MlDomain.getToken(payload.accountId)
+  const token =
+    'APP_USR-8630288114425012-060212-9fa77d4ab7a7e8b64e7c3ee0b2432df5-185370744'
+  // await MlDomain.getToken(payload.accountId)
   const itemResponse = await axios.put(
     `${urls.ads.url}/${payload.id}`,
     { price: payload.price },

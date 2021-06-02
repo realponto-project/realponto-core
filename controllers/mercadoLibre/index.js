@@ -173,8 +173,8 @@ const updateAd = async (req, res, next) => {
       { price, sku },
       { transaction }
     )
+    await mercadoLibreJs.ads.update(response)
     await transaction.commit()
-    enqueue(response)
     res.json(response)
   } catch (error) {
     await transaction.rollback()
@@ -281,6 +281,7 @@ const updateManyAd = async (req, res, next) => {
   const transaction = await database.transaction()
   const skus = pathOr([], ['body', 'skus'], req)
   const prices = pathOr([], ['body', 'prices'], req)
+
   try {
     let i = 0
     while (i < skus.length) {

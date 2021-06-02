@@ -142,6 +142,21 @@ class MercadoLibreDomain {
     })
     return response && response.token
   }
+
+  async getRefreshToken(mercadoLibre_accountId) {
+    const response = await MlAccountModel.findAll({ where: { mercadoLibre_accountId }})
+    return response && response.refresh_token
+  }
+
+  async setNewToken(mercadoLibre_accountId, payload) {
+    const refreshToken = pathOr(null, ['refresh_token'], payload)
+    const token = pathOr(null, ['access_token'], payload)
+
+    const response = await MlAccountModel.findAll({ where: { mercadoLibre_accountId }})
+    await response.update({ refreshToken, token })
+    await response.reload()
+    return response
+  }
 }
 
 module.exports = new MercadoLibreDomain()
