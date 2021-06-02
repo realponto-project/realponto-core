@@ -121,7 +121,7 @@ const refreshToken = async (req, res, next) => {
     await transaction.commit()
   } catch (error) {
     await transaction.rollback()
-    console.error(error)
+    console.error(error.data)
     res.status(400).json({ error: error.message })
   }
 }

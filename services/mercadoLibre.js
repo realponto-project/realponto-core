@@ -43,6 +43,13 @@ const urls = {
 }
 
 const token = async (code) => {
+  console.log(urls.token.url, {
+    grant_type: 'authorization_code',
+    client_id,
+    client_secret,
+    code,
+    redirect_uri
+  })
   const tokenResponse = await axios.post(urls.token.url, {
     grant_type: 'authorization_code',
     client_id,
