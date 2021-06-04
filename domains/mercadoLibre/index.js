@@ -1,11 +1,5 @@
 const sequelize = require('sequelize')
-const {
-  pathOr,
-  findIndex,
-  propEq,
-  omit
-  // isEmpty, isNil
-} = require('ramda')
+const { pathOr, findIndex, propEq, omit } = require('ramda')
 
 const database = require('../../database')
 // const { NotFoundError } = require('../../utils/helpers/errors')
@@ -136,29 +130,28 @@ class MercadoLibreDomain {
     }
   }
 
-  async getToken(mercadoLibre_accountId) {
-    const response = await MlAccountModel.findAll({
-      where: { mercadoLibre_accountId }
-    })
-    return response && response.token
+  async getToken(mercadoLibre_account_id) {
+    const response = await MlAccountModel.findByPk(mercadoLibre_account_id)
+    return response && response.access_token
   }
 
-  async getRefreshToken(mercadoLibre_accountId) {
-    const response = await MlAccountModel.findAll({
-      where: { mercadoLibre_accountId }
-    })
+  async getRefreshToken(mercadoLibre_account_id) {
+    const response = await MlAccountModel.findByPk(mercadoLibre_account_id)
     return response && response.refresh_token
   }
 
-  async setNewToken(mercadoLibre_accountId, payload) {
-    const refreshToken = pathOr(null, ['refresh_token'], payload)
-    const token = pathOr(null, ['access_token'], payload)
+  async setNewToken(mercadoLibre_account_id, payload) {
+    const refresh_token = pathOr(null, ['refresh_token'], payload)
+    const access_token = pathOr(null, ['access_token'], payload)
 
-    const response = await MlAccountModel.findAll({
-      where: { mercadoLibre_accountId }
+    const mercadoLibreAccount = await MlAccountModel.findByPk(
+      mercadoLibre_account_id
+    )
+
+    const response = await mercadoLibreAccount.update({
+      refresh_token,
+      access_token
     })
-    await response.update({ refreshToken, token })
-    await response.reload()
     return response
   }
 }
