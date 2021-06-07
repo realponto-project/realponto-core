@@ -2,6 +2,8 @@
 const axios = require('axios')
 const { join } = require('ramda')
 
+const MlDomain = require('../domains/mercadoLibre')
+
 const client_id = process.env.CLIENT_ID
 const client_secret = process.env.CLIENT_SECRET
 const redirect_uri = process.env.REDIRECT_URI
@@ -31,6 +33,11 @@ const urls = {
     url: (sellerId) =>
       `https://api.mercadolibre.com/users/${sellerId}/applications/${client_id}`,
     method: 'DELETE'
+  },
+  adsBySeller: {
+    url: 'https://api.mercadolibre.com/sites/MLB/search?seller_id=',
+    method: 'GET',
+    headers: { authorization: 'Bearer token' }
   }
 }
 
@@ -54,22 +61,22 @@ const refreshToken = async (refreshToken) => {
 
 const myInfo = async (token) => {
   const refreshTokenResponse = await axios.get(urls.user.url, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers: { authorization: `Bearer ${token}` }
   })
-
   return refreshTokenResponse
 }
 
-const updateAds = async (token, itemId, payload) => {
-  const itemResponse = await axios.put(`${urls.ads.url}/${itemId}`, payload, {
-    headers: { Authorization: `Bearer ${token}` }
-  })
+const updateAds = async (payload) => {
+  const token = await MlDomain.getToken(payload.accountId)
+  const itemResponse = await axios.put(
+    `${urls.ads.url}/${payload.id}`,
+    { price: payload.price },
+    { headers: { authorization: `Bearer ${token}` } }
+  )
   return itemResponse
 }
 
 const getAds = async (token, seller_id, scroll_id) => {
-  // const response = await axios.get(`${urls.adsBySeller.url}${seller_id}`, {
-
   const response = await axios.get(
     `https://api.mercadolibre.com/users/${seller_id}/items/search?search_type=scan${
       scroll_id ? `&scroll_id=${scroll_id}` : ''
@@ -82,15 +89,12 @@ const getAds = async (token, seller_id, scroll_id) => {
 }
 
 const multiget = async (token, ids, attributes) => {
-  // const response = `https://api.mercadolibre.com/items?ids=${join(',', ids)}`
-
   const response = await axios.get(
     `https://api.mercadolibre.com/items?ids=${join(',', ids)}&attributes=${join(
       ',',
       attributes
     )}
-    `,
-    // `https://api.mercadolibre.com/items?ids=${join(',', ids)}`,
+		`,
     {
       headers: { Authorization: `Bearer ${token}` }
     }
