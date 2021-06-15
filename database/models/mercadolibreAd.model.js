@@ -14,6 +14,11 @@ const MercadoLibreAd = (sequelize) => {
       },
       sku: {
         type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
+      },
+      parse_sku: {
+        type: Sequelize.STRING,
         allowNull: false
       },
       title: {

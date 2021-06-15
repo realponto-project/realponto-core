@@ -10,6 +10,7 @@ module.exports = {
       },
       sku: {
         type: Sequelize.STRING,
+        unique: true,
         allowNull: false
       },
       title: {
