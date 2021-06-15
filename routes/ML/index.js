@@ -9,4 +9,6 @@ router.get('/ml-accounts/:id', MlController.getAccount)
 router.get('/ml-ads', MlController.getAllAds)
 router.get('/ml-load-ads/:mlAccountId', MlController.loadAds)
 
+router.post('/ml-update-ads/:mlAccountId', MlController.updateAdsByAccount)
+
 module.exports = router

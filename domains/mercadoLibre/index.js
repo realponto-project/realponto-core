@@ -1,5 +1,14 @@
 const sequelize = require('sequelize')
-const { pathOr, findIndex, propEq, omit } = require('ramda')
+const {
+  pathOr,
+  findIndex,
+  omit,
+  pathEq,
+  pipe,
+  split,
+  slice,
+  join
+} = require('ramda')
 
 const database = require('../../database')
 // const { NotFoundError } = require('../../utils/helpers/errors')
@@ -77,41 +86,67 @@ class MercadoLibreDomain {
     return response
   }
 
-  async createOrUpdateAd(payload) {
+  async createOrUpdateAd(payload, options = {}) {
+    const { transaction = null } = options
     const sku = pathOr(null, ['sku', 'value_name'], payload)
     const company_id = pathOr('', ['companyId'], payload)
 
     let ad = await MlAdModel.findOne({
       where: { company_id, sku },
-      include: MlAccountModel
+      include: MlAccountModel,
+      transaction
     })
 
     if (ad) {
       const index = findIndex(
-        propEq('id', payload.mlAccountId),
+        // pathEq(['mercado_libre_account_ad', 'item_id'], payload.id),
+        pathEq(['id'], payload.mlAccountId),
         ad.mercado_libre_accounts
       )
       if (index === -1) {
-        await MlAccountAdModel.create({
+        await MlAccountAdModel.create(
+          {
+            item_id: payload.id,
+            status: payload.status,
+            mercado_libre_account_id: payload.mlAccountId,
+            mercado_libre_ad_id: ad.id
+          },
+          { transaction }
+        )
+      }
+    } else {
+      ad = await MlAdModel.create(
+        {
+          ...omit(['id'], payload),
+          sku,
+          parse_sku: pipe(split('-'), slice(0, 2), join('-'))(sku)
+        },
+        { transaction }
+      )
+      await MlAccountAdModel.create(
+        {
           item_id: payload.id,
           status: payload.status,
           mercado_libre_account_id: payload.mlAccountId,
           mercado_libre_ad_id: ad.id
-        })
-      }
-    } else {
-      ad = await MlAdModel.create({ ...omit(['id'], payload), sku })
-      await MlAccountAdModel.create({
-        item_id: payload.id,
-        status: payload.status,
-        mercado_libre_account_id: payload.mlAccountId,
-        mercado_libre_ad_id: ad.id
-      })
+        },
+        { transaction }
+      )
+    }
+
+    const count = await MlAdModel.count({
+      where: { company_id, sku },
+      transaction
+    })
+
+    if (count > 1) {
+      throw new Error('More than one ad with same sku!')
     }
 
     return await MlAdModel.findByPk(ad.id, {
       include: MlAccountModel,
-      raw: true
+      raw: true,
+      transaction
     })
   }
 
