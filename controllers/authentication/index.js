@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken')
 const { pathOr } = require('ramda')
+
 const database = require('../../database')
+
 const UserModel = database.model('user')
 
 const secret = process.env.SECRET_KEY_JWT || 'mySecretKey'
@@ -27,6 +29,7 @@ const authentication = async (req, res, next) => {
     const token = jwt.sign({ user: userWithoutPwd }, secret, {
       expiresIn: '24h'
     })
+
     res.json({ ...userWithoutPwd, token })
   } catch (error) {
     res

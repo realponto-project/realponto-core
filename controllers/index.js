@@ -7,6 +7,7 @@ const authenticationController = require('./authentication')
 const transactionController = require('./transaction')
 const statusController = require('./status')
 const companyController = require('./company')
+const calcPriceController = require('./calcPrice')
 
 module.exports = {
   companyController,
@@ -17,5 +18,6 @@ module.exports = {
   serialNumberController,
   authenticationController,
   transactionController,
-  statusController
+  statusController,
+  calcPriceController
 }
