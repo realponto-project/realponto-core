@@ -7,7 +7,8 @@ const {
   map,
   concat,
   splitEvery,
-  forEach
+  forEach,
+  applySpec
 } = require('ramda')
 
 const database = require('../../database')
@@ -41,22 +42,24 @@ const createAccount = async (req, res, next) => {
   try {
     const autorizationMl = await mercadoLibreJs.authorization.token(code)
 
-    const access_token = pathOr(null, ['data', 'access_token'], autorizationMl)
-    const refresh_token = pathOr(
-      null,
-      ['data', 'refresh_token'],
-      autorizationMl
-    )
+    const { access_token, refresh_token, user_id } = applySpec({
+      access_token: pathOr(null, ['data', 'access_token']),
+      refresh_token: pathOr(null, ['data', 'refresh_token']),
+      user_id: pathOr(null, ['data', 'user_id'])
+    })(autorizationMl)
+
     const userDataMl = await mercadoLibreJs.user.myInfo(access_token)
+
+    const { first_name, last_name, sellerId } = applySpec({
+      first_name: pathOr(null, ['data', 'first_name']),
+      last_name: pathOr(null, ['data', 'last_name']),
+      sellerId: pathOr(null, ['data', 'id'])
+    })(userDataMl)
 
     const accountMl = await MercadoLibreDomain.createOrUpdate(
       {
-        fullname: `${pathOr(null, ['data', 'first_name'], userDataMl)} ${pathOr(
-          null,
-          ['data', 'last_name'],
-          userDataMl
-        )}`,
-        sellerId: pathOr(null, ['data', 'id'], userDataMl),
+        fullname: `${first_name} ${last_name}`,
+        sellerId,
         access_token,
         refresh_token,
         companyId
@@ -64,9 +67,7 @@ const createAccount = async (req, res, next) => {
       { transaction }
     )
 
-    const findUserId = find(
-      propEq('user_id', pathOr(null, ['data', 'user_id'], autorizationMl))
-    )
+    const findUserId = find(propEq('user_id', user_id))
 
     const parserSellers = findUserId(sellersMercadoLibre)
       ? sellersMercadoLibre
@@ -75,7 +76,6 @@ const createAccount = async (req, res, next) => {
     refreshTokenQueue.add(
       { id: accountMl.id },
       { repeat: { cron: '0 */4 * * *' }, jobId: accountMl.id }
-      // { repeat: { cron: '0 0/5 * * *' } }
     )
 
     transaction.commit()
@@ -94,20 +94,7 @@ const getAllAccounts = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   try {
     const response = await MercadoLibreDomain.getAll({ companyId })
-    // await refreshTokenQueue.empty()
-    // await refreshTokenQueue.removeRepeatable({
-    //   cron: '*/120 * * * *',
-    //   jobId: 'acml_112e3a2a-2de4-455c-a156-ab1979ffc650'
-    // })
-    // response.forEach((element) => {
-    //   refreshTokenQueue.add(
-    //     { id: element.id }
-    //     // { repeat: { cron: '0 */4 * * *' }, jobId: element.id }
-    //   )
 
-    //   console.log(element.id)
-    // })
-    // console.log(await refreshTokenQueue.getRepeatableJobs())
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -135,17 +122,6 @@ const getAllAds = async (req, res, next) => {
       ...query,
       companyId
     })
-
-    // // console.log(query)
-    // forEach(({ sku, price }) => {
-    //   updateAdsOnDBQueue.add({
-    //     sku,
-    //     price,
-    //     // price: price - 0.01,
-    //     ajdustPriceString: 'value => value',
-    //     tokenFcm: ''
-    //   })
-    // }, source)
 
     res.json({ total, source })
   } catch (error) {
@@ -254,14 +230,11 @@ const updateAdsByAccount = async (req, res, next) => {
   const mlAccountId = pathOr(null, ['params', 'mlAccountId'], req)
 
   try {
-    console.log(mlAccountId)
-
     const accountAds = await MlAccountAdModel.findAll({
       where: {
         mercado_libre_account_id: mlAccountId
       },
       include: MlAdModel
-      // limit: 2
     })
 
     await Promise.all(
