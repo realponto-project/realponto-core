@@ -247,7 +247,6 @@ const updateAdsByAccount = async (req, res, next) => {
     )
 
     forEach((accountAd) => {
-      console.log(JSON.stringify(accountAd, null, 2))
       enQueue({
         sku: accountAd.mercado_libre_ad.sku,
         id: accountAd.item_id,
