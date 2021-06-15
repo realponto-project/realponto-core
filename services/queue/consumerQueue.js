@@ -79,6 +79,7 @@ instanceQueue.process(async (job) => {
 
 adsQueue.process(async (job) => {
   try {
+    console.log(job.data)
     const { list, access_token, companyId, mlAccountId, tokenFcm } = job.data
 
     const { data } = await mercadoLibreJs.item.multiget(access_token, list, [
