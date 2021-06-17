@@ -192,24 +192,32 @@ const type_syncSpec = (values) => ({
   }, pathOr([], ['type_sync'], values))
 })
 
+const applyOrOperation = (fields) => (values) => {
+  const searchGlobal = pathOr(null, ['searchGlobal'])(values)
+
+  if (isNil(searchGlobal)) return values
+
+  const objOr = {
+    [or]: map((field) => ({ [field]: searchGlobal }), fields)
+  }
+  return merge(omit(['searchGlobal'], values), objOr)
+}
+
 const searchSpecs = {
   mlAd: pipe(
     applySpec({
       companyId: pathOr(null, ['companyId']),
-      sku: iLikeOperation('searchGlobal'),
-      title: iLikeOperation('searchGlobal')
+      mercadoLibreAccountId: pathOr(null, ['account']),
+      update_status: pathOr(null, ['update_status']),
+      status: pathOr(null, ['status']),
+      searchGlobal: iLikeOperation('searchGlobal')
     }),
     removeFiledsNilOrEmpty,
-    applySpec({
-      or: orOperation,
-      companyId: prop('companyId')
-    }),
-    (item) => merge(path(['or'], item), { companyId: prop('companyId', item) })
+    applyOrOperation(['sku', 'title'])
   ),
   mlAccountAd: pipe(
     applySpec({
-      type_sync: type_syncSpec,
-      status: pathOr(null, ['status'])
+      type_sync: type_syncSpec
       // mercado_libre_account_id: pathOr(null, ['account'])
     }),
     removeFiledsNilOrEmpty
