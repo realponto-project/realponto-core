@@ -32,6 +32,7 @@ module.exports = {
           model: 'order',
           key: 'id'
         },
+        allowNull: true,
         onUpdate: 'cascade',
         onDelete: 'restrict'
       },

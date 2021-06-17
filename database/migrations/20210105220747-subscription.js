@@ -18,6 +18,11 @@ module.exports = {
         allowNull: false,
         defaultValue: true
       },
+      installments: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 1
+      },
       paymentMethod: {
         type: Sequelize.ENUM(['credit_card', 'boleto', 'cash', 'free']),
         allowNull: false,

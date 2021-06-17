@@ -5,7 +5,6 @@ const Customer = require('./customer.model')
 const FakeTransaction = require('./fakeTransaction.model')
 const Image = require('./image.model')
 const MercadoLibreAccount = require('./mercadolibreAccount.model')
-const MercadolibreAccountAd = require('./mercadolibreAccountAd.model')
 const MercadolibreAd = require('./mercadolibreAd.model')
 const Order = require('./order.model')
 const OrderProduct = require('./orderProduct.model')
@@ -26,7 +25,6 @@ module.exports = [
   FakeTransaction,
   Image,
   MercadoLibreAccount,
-  MercadolibreAccountAd,
   MercadolibreAd,
   Order,
   OrderProduct,
