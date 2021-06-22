@@ -1,7 +1,7 @@
 const moment = require('moment')
 
 module.exports = {
-  up: (queryInterface, Sequelize) =>
+  up: (queryInterface) =>
     queryInterface.bulkInsert(
       'subscription',
       [
@@ -12,6 +12,7 @@ module.exports = {
           paymentMethod: 'credit_card',
           status: 'paid',
           amount: 11988,
+          installment: 1,
           tid: null,
           authorization_code: true,
           startDate: new Date(),

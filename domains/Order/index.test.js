@@ -9,6 +9,7 @@ describe('create Order', () => {
   let statusFactory = null
   let customerFactory = null
   let userFactory = null
+  let responsibleUserFactory = null
   let products = null
 
   beforeAll(async () => {
@@ -19,12 +20,14 @@ describe('create Order', () => {
     customerFactory = await factory.create('customer')
 
     userFactory = await factory.create('user')
+    responsibleUserFactory = await factory.create('user')
 
     const productsFactory = await factory.createMany('product', 3)
 
     products = productsFactory.map(({ id: productId }) => ({
       productId,
-      quantity: 10
+      quantity: 10,
+      price: 100
     }))
   })
 
@@ -36,7 +39,9 @@ describe('create Order', () => {
       customerId: customerFactory.id,
       userId: userFactory.id,
       companyId,
-      products
+      responsibleUserId: responsibleUserFactory.id,
+      products,
+      originType: 'order'
     }
 
     const orderCreated = await orderDomain.create(order)
@@ -50,14 +55,14 @@ describe('create Order', () => {
     expect(orderCreated).toHaveProperty('transactions')
     expect(orderCreated.transactions).toContainEqual(
       expect.objectContaining({
-        id: expect.stringMatching(/^td_/),
+        id: expect.stringMatching(/^tr_/),
         quantity: 10,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
         deletedAt: null,
         productId: expect.stringMatching(/^pr_/),
         orderId: orderCreated.id,
-        userId: userFactory.id,
+        userId: responsibleUserFactory.id,
         statusId: statusFactory.id,
         companyId
       })
@@ -72,11 +77,13 @@ describe('create Order', () => {
     })
 
     const order = {
-      statusId: status.id,
-      customerId: customerFactory.id,
       companyId,
-      userId: userFactory.id,
-      products: map((item) => ({ ...item, quantity: 100 }), products)
+      customerId: customerFactory.id,
+      originType: 'order',
+      products: map((item) => ({ ...item, quantity: 100 }), products),
+      responsibleUserId: responsibleUserFactory.id,
+      statusId: status.id,
+      userId: userFactory.id
     }
 
     await expect(orderDomain.create(order)).rejects.toThrow(
@@ -90,12 +97,14 @@ describe('create Order', () => {
     const order = {
       statusId: statusFactory.id,
       customerId: customerFactory.id,
+      responsibleUserId: responsibleUserFactory.id,
       companyId,
-      userId: userFactory.id
+      userId: userFactory.id,
+      originType: 'order'
     }
 
     await expect(orderDomain.create(order)).rejects.toThrow(
-      new Error('products is a required field')
+      new Error('products cannoot is empty')
     )
   })
 
@@ -106,11 +115,12 @@ describe('create Order', () => {
       statusId: statusFactory.id,
       customerId: customerFactory.id,
       userId: userFactory.id,
-      products
+      products,
+      originType: 'order'
     }
 
     await expect(orderDomain.create(order)).rejects.toThrow(
-      new Error('company not found')
+      new Error('status not found or not belongs to company')
     )
   })
   it('try create order other companyId', async () => {
@@ -121,7 +131,8 @@ describe('create Order', () => {
       customerId: customerFactory.id,
       userId: userFactory.id,
       companyId: 'co_5eb458ca-3466-4c89-99d2-e9ae57c0c362',
-      products
+      products,
+      originType: 'order'
     }
 
     await expect(orderDomain.create(order)).rejects.toThrow(
@@ -136,11 +147,12 @@ describe('create Order', () => {
       customerId: customerFactory.id,
       userId: userFactory.id,
       companyId: 'co_5eb458ca-3466-4c89-99d2-e9ae57c0c362',
-      products
+      products,
+      originType: 'order'
     }
 
     await expect(orderDomain.create(order)).rejects.toThrow(
-      new Error('statusId is a required field')
+      new Error('status not found or not belongs to company')
     )
   })
 
@@ -148,9 +160,11 @@ describe('create Order', () => {
     expect.assertions(8)
 
     const order = {
+      responsibleUserId: responsibleUserFactory.id,
       statusId: statusFactory.id,
       companyId,
-      products
+      products,
+      originType: 'order'
     }
 
     const orderCreated = await orderDomain.create(order)
@@ -164,7 +178,7 @@ describe('create Order', () => {
     expect(orderCreated).toHaveProperty('transactions')
     expect(orderCreated.transactions).toContainEqual(
       expect.objectContaining({
-        id: expect.stringMatching(/^td_/),
+        id: expect.stringMatching(/^tr_/),
         quantity: 10,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
@@ -234,7 +248,7 @@ describe('getById Order', () => {
 
     expect(orderfinded.transactions).toContainEqual(
       expect.objectContaining({
-        id: expect.stringMatching(/^td_/),
+        id: expect.stringMatching(/^tr_/),
         quantity: 10,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),

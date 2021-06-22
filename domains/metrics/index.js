@@ -13,6 +13,7 @@ class Metrics {
   async getMetrics(payload, options = {}) {
     const companyId = pathOr(null, ['companyId'], payload)
     const customers = await CustomerModel.count({ where: { companyId } })
+
     const ordersLast15Days = await OrderModel.findAll({
       where: {
         companyId,
@@ -45,16 +46,17 @@ class Metrics {
 
     const orders = await OrderModel.count({
       where: { companyId },
-      include: [{ model: StatusModel, where: { label: 'sale' } }]
+      include: [{ model: StatusModel, where: { value: 'sale' } }]
     })
-
     const buildResponse = ordersLast15Days
-      .filter((item) => item['status.label'] === 'sale')
+      .filter((item) => item['status.value'] === 'sale')
       .map((order) => {
         return {
           name: order.name,
-          total: order.total,
-          resumeDate: moment(order.name).toISOString().substr(8, 2)
+          total: Number(order.total),
+          resumeDate: `${moment(order.name)
+            .toISOString()
+            .substr(8, 2)}/${moment(order.name).toISOString().substr(5, 2)}`
         }
       })
 
@@ -66,7 +68,7 @@ class Metrics {
       customers: { value: customers },
       orders: { value: orders },
       ordersTotal: buildResponse,
-      ordersToday: ordersToday || []
+      ordersToday: ordersToday ? [ordersToday] : []
     }
   }
 }

@@ -19,8 +19,7 @@ module.exports = {
       },
       discount: {
         type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
+        allowNull: false
       },
       quantityProduct: {
         type: Sequelize.INTEGER,

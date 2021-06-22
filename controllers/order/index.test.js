@@ -25,14 +25,16 @@ describe('controller Order', () => {
 
       const products = productsFactory.map(({ id: productId }) => ({
         productId,
-        quantity: 10
+        quantity: 10,
+        price: 0
       }))
 
       const order = {
         statusId: statusFactory.id,
         customerId: customerFactory.id,
         userId: userFactory.id,
-        products
+        products,
+        originType: 'order'
       }
 
       const response = await request(app)
@@ -52,11 +54,11 @@ describe('controller Order', () => {
           deletedAt: null,
           customerId: customerFactory.id,
           companyId: 'co_4095e6c0-056d-4b6d-b857-a35584634ad0',
-          userId: userFactory.id,
+          responsibleUserId: userFactory.id,
           statusId: statusFactory.id,
           transactions: expect.arrayContaining([
             expect.objectContaining({
-              id: expect.stringMatching(/^td_/),
+              id: expect.stringMatching(/^tr_/),
               quantity: 10,
               createdAt: expect.any(String),
               updatedAt: expect.any(String),
@@ -136,7 +138,7 @@ describe('controller Order', () => {
           statusId: orderFactory.statusId,
           transactions: expect.arrayContaining([
             expect.objectContaining({
-              id: expect.stringMatching(/^td_/),
+              id: expect.stringMatching(/^tr_/),
               quantity: 10,
               createdAt: expect.any(String),
               updatedAt: expect.any(String),

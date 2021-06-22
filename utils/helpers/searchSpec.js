@@ -16,7 +16,9 @@ const {
   propOr,
   omit,
   path,
-  merge
+  merge,
+  append,
+  map
 } = require('ramda')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
@@ -176,14 +178,56 @@ const orderSpec = applySpec({
     applySpec({
       companyId: pathOr(null, ['companyId']),
       pendingReview: pathOr(null, ['pendingReview']),
-      createdAt: parserDateGteAndLteForCreatedAt,
+      orderDate: parserDateGteAndLteForCreatedAt,
       updatedAt: parserDateGteAndLte('updatedAt')
     }),
     removeFiledsNilOrEmpty
   )
 })
 
+const type_syncSpec = (values) => ({
+  [or]: map((value) => {
+    if (value === 'false') return false
+    if (value === 'true') return true
+  }, pathOr([], ['type_sync'], values))
+})
+
+const applyOrOperation = (fields) => (values) => {
+  const searchGlobal = pathOr(null, ['searchGlobal'])(values)
+
+  if (isNil(searchGlobal)) return values
+
+  const objOr = {
+    [or]: map((field) => ({ [field]: searchGlobal }), fields)
+  }
+  return merge(omit(['searchGlobal'], values), objOr)
+}
+
 const searchSpecs = {
+  mlAd: pipe(
+    applySpec({
+      companyId: pathOr(null, ['companyId']),
+      mercadoLibreAccountId: pathOr(null, ['account']),
+      update_status: pathOr(null, ['update_status']),
+      status: pathOr(null, ['status']),
+      searchGlobal: iLikeOperation('searchGlobal')
+    }),
+    removeFiledsNilOrEmpty,
+    applyOrOperation(['sku', 'title'])
+  ),
+  mlAccountAd: pipe(
+    applySpec({
+      type_sync: type_syncSpec
+      // mercado_libre_account_id: pathOr(null, ['account'])
+    }),
+    removeFiledsNilOrEmpty
+  ),
+  mlAccount: pipe(
+    applySpec({
+      companyId: pathOr(null, ['companyId'])
+    }),
+    removeFiledsNilOrEmpty
+  ),
   status: pipe(
     applySpec({
       id: pathOr(null, ['id']),
@@ -231,8 +275,10 @@ const searchSpecs = {
     applySpec({
       activated: pathOr(null, ['activated']),
       name: iLikeOperation('name'),
+      category: pathOr(null, ['category']),
       companyId: pathOr(null, ['companyId']),
       minQuantity: minQuantityParser('minQuantity'),
+      showOnCatalog: pathOr(null, ['showOnCatalog']),
       createdAt: parserDateGteAndLte('createdAt'),
       updatedAt: parserDateGteAndLte('updatedAt')
     }),
@@ -283,6 +329,10 @@ const buildPagination = (whereSpec) =>
       compose(equals(0), Number, pathOr(25, ['limit'])),
       always(25),
       pipe(pathOr(25, ['limit']), Number)
+    ),
+    order: pipe(
+      pipe(pathOr([], ['order']), map(JSON.parse)),
+      append(['updatedAt', 'DESC'])
     ),
     where: searchSpecs[whereSpec]
   })

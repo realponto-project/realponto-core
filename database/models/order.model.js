@@ -9,15 +9,28 @@ const Order = (sequelize) => {
       allowNull: false,
       defaultValue: uuidv4Generator('or_')
     },
+    protocol: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
     pendingReview: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: false
     },
+    shippingCompany: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      defaultValue: null
+    },
     payment: {
       type: Sequelize.STRING,
       allowNull: true,
       defaultValue: null
+    },
+    note: {
+      type: Sequelize.STRING,
+      allowNull: true
     },
     originType: {
       type: Sequelize.ENUM(['order', 'pdv']),
@@ -27,18 +40,17 @@ const Order = (sequelize) => {
     installments: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: null
+      defaultValue: 1
     },
     orderDate: {
       type: Sequelize.DATE,
-      allowNull: false,
-      defaultValue: new Date()
+      allowNull: false
     },
     discount: {
       type: Sequelize.INTEGER,
       allowNull: false,
       defaultValue: 0
-    },
+    }
   })
 
   Order.associate = (models) => {
@@ -60,6 +72,13 @@ const Order = (sequelize) => {
       }
     })
 
+    models.order.belongsTo(models.user, {
+      as: 'responsibleUser',
+      foreignKey: {
+        allowNull: true
+      }
+    })
+
     models.order.belongsTo(models.status, {
       foreignKey: {
         allowNull: false
@@ -74,7 +93,7 @@ const Order = (sequelize) => {
 
     models.order.hasMany(models.serialNumber, {
       foreignKey: {
-        allowNull: false
+        allowNull: true
       }
     })
 

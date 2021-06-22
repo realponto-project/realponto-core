@@ -6,7 +6,7 @@ const {
   subtract,
   applySpec,
   omit,
-  path
+  replace
 } = require('ramda')
 
 const database = require('../../database')
@@ -19,20 +19,23 @@ const UserModel = database.model('user')
 const TransactionModel = database.model('transaction')
 const ProductModel = database.model('product')
 const AddressModel = database.model('address')
-
 const buildSearchAndPagination = buildPagination('order')
+
 class OrderDomain {
   async create(payload, options = {}) {
     const { transaction = null } = options
     const originType = pathOr('pdv', ['originType'], payload)
     const companyId = pathOr(null, ['companyId'], payload)
     const userId = pathOr(null, ['userId'], payload)
+    const responsibleUserId = pathOr(null, ['responsibleUserId'], payload)
     const customer = pathOr({}, ['customer'], payload)
     let customerCreated = {}
 
     if (!isEmpty(customer)) {
       const findCustomer = await CustomerModel.findOne({
-        where: { document: customer.document }
+        where: {
+          document: replace(/\D/g, '', pathOr('', ['document'], customer))
+        }
       })
       if (findCustomer) {
         customerCreated = findCustomer
@@ -54,11 +57,14 @@ class OrderDomain {
 
     const buildOrder = applySpec({
       payment: pathOr('cash', ['paymentMethod']),
-      orderDate: path(['orderDate']),
+      orderDate: pathOr(new Date(), ['orderDate']),
+      note: pathOr('', ['note']),
+      shippingCompany: pathOr(null, ['customer', 'shippingCompany']),
       originType: pathOr('pdv', ['originType']),
       installments: pathOr(0, ['installments']),
       customerId: pathOr(null, ['customerId']),
       userId: pathOr(null, ['userId']),
+      responsibleUserId: pathOr(null, ['responsibleUserId']),
       companyId: pathOr(0, ['companyId'])
     })(payload)
 
@@ -78,20 +84,30 @@ class OrderDomain {
       where: { id: defaultStatus.id, companyId }
     })
 
+    if (!statusFinded) {
+      throw new Error('status not found or not belongs to company')
+    }
+
+    const protocolNumber = await OrderModel.count({ where: { companyId } })
+
     const orderCreated = await OrderModel.create(
       {
         ...buildOrder,
+        protocol: protocolNumber,
         statusId: defaultStatus.id
       },
       { transaction }
     )
 
     const products = pathOr([], ['products'], payload)
+
+    if (isEmpty(products)) throw new Error('products cannoot is empty')
+
     const formatProducts = (product) => ({
       productId: product.productId,
       quantity: product.quantity,
       orderId: orderCreated.id,
-      userId,
+      userId: responsibleUserId,
       statusId: defaultStatus.id,
       companyId,
       price: product.price
@@ -133,19 +149,22 @@ class OrderDomain {
   }
 
   async getById(id, companyId, options = {}) {
-    return await OrderModel.findOne({
+    const order = await OrderModel.findOne({
       where: { id, companyId },
       include: [
         { model: StatusModel },
         { model: CustomerModel, include: [AddressModel] },
         { model: UserModel },
+        { model: UserModel, as: 'responsibleUser' },
         { model: TransactionModel, include: [ProductModel] }
       ]
     })
+
+    return order
   }
 
   async getAll(query, companyId) {
-    const { where, offset, limit } = buildSearchAndPagination({
+    const { where, offset, order, limit } = buildSearchAndPagination({
       ...query,
       companyId
     })
@@ -160,6 +179,7 @@ class OrderDomain {
       ...orderWhere,
       limit,
       offset,
+      order,
       include: [
         { model: StatusModel },
         { model: CustomerModel, include: [AddressModel] },
@@ -167,7 +187,7 @@ class OrderDomain {
           model: UserModel,
           where: where.user || undefined
         },
-        { model: TransactionModel, include: [ProductModel] }
+        { model: TransactionModel, include: [ProductModel, StatusModel] }
       ]
     })
 

@@ -3,7 +3,7 @@ const { compareSync, hash } = require('bcrypt')
 
 const app = require('../../index')
 const factory = require('../../utils/helpers/factories')
-const { generatorFakerUser } = require('../../utils/helpers/Faker/user')
+const { generatorFakerUser } = require('../../utils/helpers/fakers')
 
 describe('controller User', () => {
   let token = null

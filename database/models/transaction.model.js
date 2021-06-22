@@ -7,7 +7,7 @@ const Transaction = (sequelize) => {
       type: Sequelize.STRING,
       primaryKey: true,
       allowNull: false,
-      defaultValue: uuidv4Generator('td_')
+      defaultValue: uuidv4Generator('tr_')
     },
     quantity: {
       type: Sequelize.INTEGER,
@@ -17,7 +17,7 @@ const Transaction = (sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
       default: 0
-    },
+    }
   })
 
   Transaction.associate = (models) => {

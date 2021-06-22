@@ -12,6 +12,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      nickName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        unique: true
+      },
       fullname: {
         type: Sequelize.STRING,
         allowNull: true
@@ -49,6 +54,20 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false
+      },
+      referer: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'alxa'
+      },
+      logoId: {
+        type: Sequelize.STRING,
+        references: {
+          model: 'image',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
       },
       addressId: {
         type: Sequelize.STRING,

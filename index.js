@@ -1,13 +1,10 @@
 require('dotenv').config({})
-
+const path = require('path')
 const Express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+
 const errorFormatter = require('./utils/helpers/errors/formatter')
-
-const app = Express()
-const baseUrl = '/api'
-
 const { authenticationController } = require('./controllers/')
 const authenticationRoutes = require('./routes/authentication')
 const customerRoutes = require('./routes/customer')
@@ -21,15 +18,28 @@ const transactionRoutes = require('./routes/transaction')
 const companyRoutes = require('./routes/company')
 const subscriptionRoutes = require('./routes/subscription')
 const registerRoutes = require('./routes/register')
+const emailRoutes = require('./routes/email')
 const metricsRoutes = require('./routes/metrics')
+const catalogRoutes = require('./routes/catalog')
+const calcPriceRoutes = require('./routes/calcPrice')
+const recoveryPasswordRoutes = require('./routes/recoveryPassword')
+const MLRoutes = require('./routes/ML')
+
+const app = Express()
+const baseUrl = '/api'
 
 app.use(cors('*'))
-app.use(bodyParser.json())
+app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use('/files', Express.static(path.resolve(__dirname, 'tmp', 'uploads')))
 
+app.use('/catalog', catalogRoutes)
+app.use(emailRoutes)
 app.use(registerRoutes)
+app.use(recoveryPasswordRoutes)
 app.use('/auth', authenticationRoutes)
 app.use(baseUrl, authenticationController.checkToken)
+app.use(baseUrl, MLRoutes)
 app.use(baseUrl, companyRoutes)
 app.use(baseUrl, metricsRoutes)
 app.use(baseUrl, statusRoutes)
@@ -41,6 +51,7 @@ app.use(baseUrl, planRoutes)
 app.use(baseUrl, userRoutes)
 app.use(baseUrl, subscriptionRoutes)
 app.use(baseUrl, customerRoutes)
+app.use(baseUrl, calcPriceRoutes)
 
 app.use((err, req, res, next) => {
   const formattedError = errorFormatter(err)

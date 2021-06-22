@@ -21,7 +21,8 @@ module.exports = {
       min: 0,
       acquire: 30000,
       idle: 10000
-    }
+    },
+    timezone: 'America/Sao_Paulo'
   },
   test: {
     // dialect: 'sqlite',
@@ -43,7 +44,8 @@ module.exports = {
       min: 0,
       acquire: 30000,
       idle: 10000
-    }
+    },
+    timezone: 'America/Sao_Paulo'
   },
   production: {
     use_env_variable: 'DATABASE_URL',
@@ -66,6 +68,7 @@ module.exports = {
       min: 0,
       acquire: 30000,
       idle: 10000
-    }
+    },
+    timezone: process.env.TZ || 'America/Sao_Paulo'
   }
 }

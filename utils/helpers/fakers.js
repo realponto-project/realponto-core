@@ -1,5 +1,9 @@
 const faker = require('faker')
 const moment = require('moment')
+const cpf = require('@fnando/cpf/commonjs')
+const cnpj = require('@fnando/cnpj/commonjs')
+
+faker.locale = 'pt_BR'
 
 const fakerStatus = () => {
   const response = {
@@ -64,7 +68,40 @@ const fakerSubscription = () => {
   }
 }
 
+const generatorFakerUser = () => ({
+  activated: faker.random.boolean(),
+  name: faker.name.findName(),
+  email: faker.internet.email(),
+  phone: faker.phone.phoneNumber(),
+  badget: String(faker.random.number()),
+  birthday: faker.date.past(),
+  document: cpf.generate(),
+  password: faker.internet.password(),
+  firstAccess: faker.random.boolean()
+})
+
+const generatorFakerCustomer = () => ({
+  name: faker.name.firstName(),
+  socialName: faker.company.companyName(),
+  document: cnpj.generate(),
+  phone: faker.phone.phoneNumber()
+})
+
+const generatorFakerAddress = () => ({
+  neighborhood: faker.address.county(),
+  street: faker.address.streetName(),
+  streetNumber: String(faker.random.number({ max: 1000 })),
+  city: faker.address.city(),
+  states: faker.address.state(),
+  zipcode: faker.address.zipCode(),
+  complementary: faker.lorem.words(),
+  reference: faker.lorem.words()
+})
+
 module.exports = {
+  generatorFakerAddress,
+  generatorFakerCustomer,
+  generatorFakerUser,
   fakerCompany,
   fakerPlan,
   fakerProduct,

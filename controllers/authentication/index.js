@@ -1,10 +1,9 @@
 const jwt = require('jsonwebtoken')
 const { pathOr } = require('ramda')
+
 const database = require('../../database')
+
 const UserModel = database.model('user')
-const SubscriptionModel = database.model('subscription')
-const PlanModel = database.model('plan')
-const CompanyModel = database.model('company')
 
 const secret = process.env.SECRET_KEY_JWT || 'mySecretKey'
 
@@ -30,6 +29,7 @@ const authentication = async (req, res, next) => {
     const token = jwt.sign({ user: userWithoutPwd }, secret, {
       expiresIn: '24h'
     })
+
     res.json({ ...userWithoutPwd, token })
   } catch (error) {
     res
@@ -40,6 +40,7 @@ const authentication = async (req, res, next) => {
 
 const checkToken = (req, res, next) => {
   const token = req.headers['x-access-token'] || req.headers.authorization
+
   if (token) {
     jwt.verify(token.slice(7, token.length), secret, (err, decoded) => {
       if (err) {

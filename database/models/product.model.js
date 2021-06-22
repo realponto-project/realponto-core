@@ -22,6 +22,10 @@ const Product = (sequelize) => {
         min: 0
       }
     },
+    description: {
+      type: Sequelize.TEXT,
+      allowNull: true
+    },
     name: {
       type: Sequelize.STRING,
       allowNull: false
@@ -35,6 +39,10 @@ const Product = (sequelize) => {
       allowNull: false,
       defaultValue: 1
     },
+    category: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     buyPrice: {
       type: Sequelize.INTEGER,
       allowNull: false,
@@ -44,6 +52,10 @@ const Product = (sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
       defaultValue: 0
+    },
+    showOnCatalog: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false
     }
   })
 
@@ -53,6 +65,8 @@ const Product = (sequelize) => {
         allowNull: true
       }
     })
+
+    models.product.hasMany(models.productImage)
 
     models.product.hasMany(models.transaction, {
       foreignKey: {

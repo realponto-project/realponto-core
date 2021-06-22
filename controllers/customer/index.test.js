@@ -2,8 +2,10 @@ const request = require('supertest')
 
 const app = require('../../index')
 const factory = require('../../utils/helpers/factories')
-const { generatorFakerAddress } = require('../../utils/helpers/Faker/address')
-const { generatorFakerCustomer } = require('../../utils/helpers/Faker/customer')
+const {
+  generatorFakerCustomer,
+  generatorFakerAddress
+} = require('../../utils/helpers/fakers')
 
 describe('controller Customer', () => {
   let token = null

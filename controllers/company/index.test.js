@@ -1,24 +1,19 @@
 const request = require('supertest')
+const { omit } = require('ramda')
 
 const app = require('../../index')
 const factory = require('../../utils/helpers/factories')
-const { fakerCompany } = require('../../utils/helpers/fakers')
+const {
+  fakerCompany,
+  generatorFakerUser
+} = require('../../utils/helpers/fakers')
 
 const companyMock = {
-  company: {
-    name: 'Company fullname ltda 123',
-    fullname: 'Fullname company social name ltda',
-    document: '78797899',
-    siteUrl: 'www.mycompany.com.br',
-    allowOrder: true,
-    allowPdv: false
-  },
-  user: {
-    name: 'Alexandre Soares',
-    email: `alexandre_soares@hotmail.com`,
-    password: '123456',
-    birthday: 'Mon Mar 15 2021 16:01:24 GMT-0300 (Horário Padrão de Brasília)'
-  }
+  company: fakerCompany(),
+  user: omit(
+    ['activated', 'phone', 'badget', 'document', 'firstAccess'],
+    generatorFakerUser()
+  )
 }
 
 describe('company controller', () => {

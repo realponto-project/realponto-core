@@ -16,12 +16,25 @@ module.exports = {
       installments: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue: null,
+        defaultValue: 0
+      },
+      note: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
       payment: {
         type: Sequelize.STRING,
         allowNull: true,
         defaultValue: null
+      },
+      shippingCompany: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
+      protocol: {
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
       discount: {
         type: Sequelize.INTEGER,
@@ -51,6 +64,15 @@ module.exports = {
         type: Sequelize.STRING,
         references: {
           model: 'customer',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
+      },
+      responsibleUserId: {
+        type: Sequelize.STRING,
+        references: {
+          model: 'user',
           key: 'id'
         },
         onUpdate: 'cascade',

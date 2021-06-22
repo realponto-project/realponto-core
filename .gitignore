@@ -3,6 +3,8 @@ node_modules
 .env
 .env.test
 
+/tmp/uploads/
+
 /coverage
 
 /database/database-test.sqlite

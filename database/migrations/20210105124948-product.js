@@ -21,6 +21,14 @@ module.exports = {
           min: 0
         }
       },
+      category: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: false
@@ -43,6 +51,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         defaultValue: 0
+      },
+      showOnCatalog: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       },
       companyId: {
         type: Sequelize.STRING,

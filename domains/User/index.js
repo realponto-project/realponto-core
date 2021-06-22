@@ -3,7 +3,10 @@ const { hash } = require('bcrypt')
 
 const database = require('../../database')
 const { NotFoundError } = require('../../utils/helpers/errors')
-const { UserUpdatePwdSchema } = require('../../utils/helpers/Schemas/User')
+const {
+  UserUpdatePwdSchema,
+  UserResetPwdSchema
+} = require('../../utils/helpers/Schemas/User')
 const buildPagination = require('../../utils/helpers/searchSpec')
 
 const UserModel = database.model('user')
@@ -15,13 +18,19 @@ class UserDomain {
   async create(bodyData, options = {}) {
     const password = path(['password'], bodyData)
     const { transaction = null } = options
+
     const passwordHash = await hash(password, 10)
-    const userCreated = await UserModel.create(
-      { ...bodyData, password: passwordHash },
-      {
-        transaction
-      }
-    )
+    const userPlayload = bodyData
+    const userBuilded = {
+      ...userPlayload,
+      lastTokenDate: new Date(),
+      countTokenSended: 1,
+      password: passwordHash
+    }
+
+    const userCreated = await UserModel.create(userBuilded, {
+      transaction
+    })
 
     return await UserModel.findByPk(userCreated.id, {
       include: [CompanyModel],
@@ -38,9 +47,7 @@ class UserDomain {
       replace(/\W/g, '')
     )(bodyData)
 
-    const user = await UserModel.findByPk(id, {
-      where: { companyId }
-    })
+    const user = await UserModel.findByPk(id, { transaction })
 
     if (!user) {
       throw new NotFoundError('user not found')
@@ -48,7 +55,7 @@ class UserDomain {
 
     if (document) {
       const verifyDocument = await UserModel.findOne({
-        where: { document, companyId }
+        where: { document, companyId: user.companyId }
       })
 
       if (verifyDocument && verifyDocument.id !== id) {
@@ -56,15 +63,32 @@ class UserDomain {
       }
     }
 
-    await user.update(omit(['password'], bodyData), { transaction })
+    if (bodyData.activated === false && user.activated === true) {
+      const countUsersActived = await UserModel.count({
+        where: {
+          companyId,
+          activated: true
+        },
+        raw: true,
+        transaction
+      })
 
-    await user.reload()
+      if (countUsersActived === 1) {
+        throw new Error('Cannot inactivate all users')
+      }
+    }
 
-    return await UserModel.findByPk(id, {
+    await user.update(omit(['password', 'companyId'], bodyData), {
+      transaction
+    })
+
+    const userUpdated = await UserModel.findByPk(id, {
       where: { companyId },
       include: [CompanyModel],
       transaction
     })
+
+    return userUpdated
   }
 
   async updatePassword(id, bodyData, options = {}) {
@@ -92,10 +116,43 @@ class UserDomain {
     return await user.update({ password }, { transaction })
   }
 
-  async getById(id, companyId) {
-    return await UserModel.findOne({
-      where: { id, companyId },
-      include: [CompanyModel]
+  async resetPassword(id, bodyData, options = {}) {
+    const { transaction = null } = options
+
+    const user = await UserModel.findOne({
+      where: { id, activated: true }
+    })
+
+    if (!user) {
+      throw new NotFoundError('user not found')
+    }
+
+    await UserResetPwdSchema.validate(bodyData)
+
+    const password = await hash(bodyData.newPassword, 10)
+
+    return await user.update({ password }, { transaction })
+  }
+
+  async recoveryPassword(bodyData) {
+    const email = pathOr('', ['email'], bodyData)
+    const user = await UserModel.findOne({
+      where: { email }
+    })
+
+    if (!user) {
+      throw new NotFoundError('user not found')
+    }
+
+    return user
+  }
+
+  async getById(id, options = {}) {
+    const { transaction = null } = options
+
+    return await UserModel.findByPk(id, {
+      include: [CompanyModel],
+      transaction
     })
   }
 

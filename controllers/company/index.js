@@ -1,10 +1,14 @@
-const { path } = require('ramda')
+const { path, pathOr } = require('ramda')
 const moment = require('moment')
 
+const UploadService = require('../../services/upload')
 const CompanyDomain = require('../../domains/company')
 const StatusDomain = require('../../domains/status')
 const UserDomain = require('../../domains/User')
 const database = require('../../database')
+
+const sendgridService = require('../../services/sendgrid')
+const templatesSendgrid = require('../../utils/templates/sendgrid')
 
 const PlanModel = database.model('plan')
 const SubscriptionModel = database.model('subscription')
@@ -27,7 +31,7 @@ const saleStatus = {
   typeLabel: 'Saída'
 }
 
-const plan =  {
+const plan = {
   activated: true,
   description: 'Free',
   discount: 'free',
@@ -41,18 +45,18 @@ const create = async (req, res, next) => {
   const transaction = await database.transaction()
   const company = path(['body', 'company'], req)
   const user = path(['body', 'user'], req)
-  
+
   let planFound = await PlanModel.findOne({
     where: { description: 'Free' },
     raw: true
   })
 
-  if(!planFound) {
-    await PlanModel.create(plan);
-     planFound = await PlanModel.findOne({
-    where: { description: 'Free' },
-    raw: true
-  })
+  if (!planFound) {
+    await PlanModel.create(plan)
+    planFound = await PlanModel.findOne({
+      where: { description: 'Free' },
+      raw: true
+    })
   }
 
   try {
@@ -89,6 +93,7 @@ const create = async (req, res, next) => {
         activated: true,
         autoRenew: false,
         amount: 0,
+        installments: 1,
         companyId: response.id,
         planId: planFound.id,
         endDate: moment().add(1, 'months'),
@@ -97,9 +102,17 @@ const create = async (req, res, next) => {
       },
       { transaction }
     )
+    await transaction.commit()
+
+    await sendgridService.sendMail({
+      to: {
+        email: user.email,
+        user_name: user.name
+      },
+      ...templatesSendgrid.welcome
+    })
 
     res.status(201).json(response)
-    await transaction.commit()
   } catch (error) {
     console.log(error)
     await transaction.rollback()
@@ -140,9 +153,49 @@ const getAll = async (req, res, next) => {
   }
 }
 
+const addLogo = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const file = path(['file'], req)
+
+  try {
+    const response = await CompanyDomain.addLogo(companyId, file, {
+      transaction
+    })
+
+    await transaction.commit()
+    res.json(response)
+  } catch (error) {
+    const uploadService = new UploadService()
+
+    uploadService.destroyImage(file.key)
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
+const removeLogo = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+
+  try {
+    const response = await CompanyDomain.removeLogo(companyId, {
+      transaction
+    })
+
+    await transaction.commit()
+    res.json(response)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
 module.exports = {
+  addLogo,
   create,
   getById,
   getAll,
-  update
+  update,
+  removeLogo
 }
