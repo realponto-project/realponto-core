@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 const axios = require('axios')
-const { join } = require('ramda')
+const { join, split } = require('ramda')
 
 const MlDomain = require('../domains/mercadoLibre')
 
@@ -68,11 +68,24 @@ const myInfo = async (token) => {
 
 const updateAds = async (payload) => {
   const token = await MlDomain.getToken(payload.accountId)
-  const itemResponse = await axios.put(
-    `${urls.ads.url}/${payload.id}`,
-    { price: payload.price },
-    { headers: { authorization: `Bearer ${token}` } }
-  )
+  const [item_id, variation_id] = split('-', payload.id)
+
+  const body = variation_id
+    ? {
+        variations: [
+          {
+            id: variation_id,
+            price: payload.price
+          }
+        ]
+      }
+    : {
+        price: payload.price
+      }
+
+  const itemResponse = await axios.put(`${urls.ads.url}/${item_id}`, body, {
+    headers: { authorization: `Bearer ${token}` }
+  })
   return itemResponse
 }
 
@@ -90,10 +103,10 @@ const getAds = async (token, seller_id, scroll_id) => {
 
 const multiget = async (token, ids, attributes) => {
   const response = await axios.get(
-    `https://api.mercadolibre.com/items?ids=${join(',', ids)}&attributes=${join(
+    `https://api.mercadolibre.com/items?ids=${join(
       ',',
-      attributes
-    )}
+      ids
+    )}&include_attributes=all&attributes=${join(',', attributes)}
 		`,
     {
       headers: { Authorization: `Bearer ${token}` }

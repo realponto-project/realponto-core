@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "start:consumer": "nodemon services/queue/consumerQueue.js",
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "migrate": "sequelize db:migrate",

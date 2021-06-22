@@ -1,58 +1,29 @@
 'use strict'
 
 module.exports = {
-  up: (queryInterface, Sequelize) =>
-    queryInterface.createTable('serialNumber', {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('mercadoLibreAd', {
       id: {
         type: Sequelize.STRING,
-        allowNull: false,
-        primaryKey: true
+        primaryKey: true,
+        allowNull: false
       },
-      serialNumber: {
+      sku: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
+      },
+      parse_sku: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      activated: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: true
-      },
-      transactionInId: {
+      title: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      transactionOutId: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        defaultValue: null
-      },
-      orderId: {
-        type: Sequelize.STRING,
-        references: {
-          model: 'order',
-          key: 'id'
-        },
-        allowNull: true,
-        onUpdate: 'cascade',
-        onDelete: 'restrict'
-      },
-      userId: {
-        type: Sequelize.STRING,
-        references: {
-          model: 'user',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'restrict'
-      },
-      productId: {
-        type: Sequelize.STRING,
-        references: {
-          model: 'product',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'restrict'
+      price: {
+        type: Sequelize.FLOAT,
+        allowNull: false
       },
       companyId: {
         type: Sequelize.STRING,
@@ -63,6 +34,36 @@ module.exports = {
         onUpdate: 'cascade',
         onDelete: 'restrict'
       },
+      item_id: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
+      },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      update_status: {
+        type: Sequelize.ENUM([
+          'updated',
+          'unupdated',
+          'waiting_update',
+          'error'
+        ]),
+        allowNull: false,
+        defaultValue: 'unupdated'
+      },
+      mercadoLibreAccountId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        references: {
+          model: 'mercadoLibreAccount',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
+      },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -78,6 +79,10 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: null
       }
-    }),
-  down: (queryInterface) => queryInterface.dropTable('serialNumber')
+    })
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('mercadoLibreAd')
+  }
 }

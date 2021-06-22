@@ -5,9 +5,10 @@ const {
   append,
   path,
   map,
-  multiply,
   concat,
-  splitEvery
+  splitEvery,
+  forEach,
+  applySpec
 } = require('ramda')
 
 const database = require('../../database')
@@ -15,14 +16,16 @@ const MercadoLibreDomain = require('../../domains/mercadoLibre')
 const mercadoLibreJs = require('../../services/mercadoLibre')
 const tokenGenerate = require('../../utils/helpers/tokenGenerate')
 
-const MlAccountModel = database.model('mercado_libre_account')
-const MlAdModel = database.model('mercado_libre_ad')
-const MlAccountAdModel = database.model('mercado_libre_account_ad')
+const MlAccountModel = database.model('mercadoLibreAccount')
+const MlAdModel = database.model('mercadoLibreAd')
 const CalcPriceModel = database.model('calcPrice')
 
-const enqueue = require('../../services/queue/queue')
-const evalString = require('../../utils/helpers/eval')
-const { adsQueue, refreshTokenQueue } = require('../../services/queue/queues')
+const {
+  adsQueue,
+  refreshTokenQueue,
+  updateAdsOnDBQueue
+} = require('../../services/queue/queues')
+const enQueue = require('../../services/queue/queue')
 
 const createAccount = async (req, res, next) => {
   const transaction = await database.transaction()
@@ -38,22 +41,24 @@ const createAccount = async (req, res, next) => {
   try {
     const autorizationMl = await mercadoLibreJs.authorization.token(code)
 
-    const access_token = pathOr(null, ['data', 'access_token'], autorizationMl)
-    const refresh_token = pathOr(
-      null,
-      ['data', 'refresh_token'],
-      autorizationMl
-    )
+    const { access_token, refresh_token, user_id } = applySpec({
+      access_token: pathOr(null, ['data', 'access_token']),
+      refresh_token: pathOr(null, ['data', 'refresh_token']),
+      user_id: pathOr(null, ['data', 'user_id'])
+    })(autorizationMl)
+
     const userDataMl = await mercadoLibreJs.user.myInfo(access_token)
+
+    const { first_name, last_name, seller_id } = applySpec({
+      first_name: pathOr(null, ['data', 'first_name']),
+      last_name: pathOr(null, ['data', 'last_name']),
+      seller_id: pathOr(null, ['data', 'id'])
+    })(userDataMl)
 
     const accountMl = await MercadoLibreDomain.createOrUpdate(
       {
-        fullname: `${pathOr(null, ['data', 'first_name'], userDataMl)} ${pathOr(
-          null,
-          ['data', 'last_name'],
-          userDataMl
-        )}`,
-        sellerId: pathOr(null, ['data', 'id'], userDataMl),
+        fullname: `${first_name} ${last_name}`,
+        seller_id,
         access_token,
         refresh_token,
         companyId
@@ -61,9 +66,7 @@ const createAccount = async (req, res, next) => {
       { transaction }
     )
 
-    const findUserId = find(
-      propEq('user_id', pathOr(null, ['data', 'user_id'], autorizationMl))
-    )
+    const findUserId = find(propEq('user_id', user_id))
 
     const parserSellers = findUserId(sellersMercadoLibre)
       ? sellersMercadoLibre
@@ -71,7 +74,7 @@ const createAccount = async (req, res, next) => {
 
     refreshTokenQueue.add(
       { id: accountMl.id },
-      { repeat: { cron: '0 0/5 * * *' } }
+      { repeat: { cron: '0 */4 * * *' }, jobId: accountMl.id }
     )
 
     transaction.commit()
@@ -90,6 +93,7 @@ const getAllAccounts = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   try {
     const response = await MercadoLibreDomain.getAll({ companyId })
+
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -101,6 +105,7 @@ const getAccount = async (req, res, next) => {
   const id = pathOr(null, ['params', 'id'], req)
   try {
     const response = await MercadoLibreDomain.getById({ companyId, id })
+
     res.status(201).json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -116,6 +121,7 @@ const getAllAds = async (req, res, next) => {
       ...query,
       companyId
     })
+
     res.json({ total, source })
   } catch (error) {
     console.error(error)
@@ -170,11 +176,13 @@ const loadAds = async (req, res, next) => {
 
       data = response.data
       itmesIdList = concat(itmesIdList, data.results)
+      // data.results = []
     } while (data.results.length > 0)
 
     const listSplited = splitEvery(20, itmesIdList)
 
     listSplited.forEach((list) => {
+      console.log(list)
       adsQueue.add({ list, access_token, companyId, mlAccountId, tokenFcm })
     })
 
@@ -190,65 +198,25 @@ const loadAds = async (req, res, next) => {
 
 const updateManyAd = async (req, res, next) => {
   const transaction = await database.transaction()
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const tokenFcm = pathOr([], ['body', 'tokenFcm'], req)
   const rows = pathOr([], ['body', 'rows'], req)
   const calcPriceId = pathOr([], ['body', 'calcPriceId'], req)
-  const myList = []
 
   try {
     const calcPrice = await CalcPriceModel.findByPk(calcPriceId)
 
     const ajdustPriceString = pathOr('value => value', ['code'], calcPrice)
-    const ajdustPrice = evalString(ajdustPriceString)
 
-    await Promise.all(
-      map(async ({ sku, price }) => {
-        const ad = await MlAdModel.findOne({
-          where: { sku: String(sku) },
-          include: MlAccountAdModel
-        })
-
-        if (ad) {
-          const newPrice = ajdustPrice(price)
-
-          if (newPrice !== ad.price) {
-            if (
-              newPrice > multiply(ad.price, 20) ||
-              newPrice < multiply(ad.price, 0.05)
-            ) {
-              console.log(
-                'Há uma certa discrepância entre o novo preço e o antigo'
-              )
-              console.log(newPrice, ad.price, ad.sku, ad.title)
-            } else {
-              await Promise.all(
-                map(async (mercado_libre_account_ad) => {
-                  await mercado_libre_account_ad.update({
-                    type_sync: false,
-                    update_status: 'unupdated'
-                  })
-
-                  myList.push({
-                    id: mercado_libre_account_ad.item_id,
-                    price: newPrice,
-                    accountId:
-                      mercado_libre_account_ad.mercado_libre_account_id,
-                    tokenFcm
-                  })
-                }, ad.mercado_libre_account_ads)
-              )
-              await ad.update({ price: newPrice })
-            }
-          } else {
-            console.log('O preço se mantem igual')
-          }
-        }
-      }, rows)
-    )
-
-    myList.forEach((payload) => {
-      enqueue(payload)
-    })
+    forEach(({ sku, price }) => {
+      updateAdsOnDBQueue.add({
+        sku,
+        price,
+        ajdustPriceString,
+        tokenFcm,
+        companyId
+      })
+    }, rows)
 
     await transaction.commit()
     res.json({ message: 'Worker started' })
@@ -258,6 +226,42 @@ const updateManyAd = async (req, res, next) => {
   }
 }
 
+const updateAdsByAccount = async (req, res, next) => {
+  const mlAccountId = pathOr(null, ['params', 'mlAccountId'], req)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+
+  try {
+    const ads = await MlAdModel.findAll({
+      where: {
+        companyId,
+        mercadoLibreAccountId: mlAccountId,
+        update_status: 'unupdated'
+      }
+    })
+
+    await Promise.all(
+      map(async (ad) => {
+        await ad.update({
+          update_status: 'waiting_update'
+        })
+      }, ads)
+    )
+
+    forEach((ad) => {
+      enQueue({
+        sku: ad.sku,
+        id: ad.item_id,
+        price: ad.price,
+        accountId: ad.mercadoLibreAccountId,
+        tokenFcm: ''
+      })
+    }, ads)
+
+    res.json({ message: 'Worker started' })
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
 module.exports = {
   createAccount,
   getAllAccounts,
@@ -265,5 +269,6 @@ module.exports = {
   getAllAds,
   loadAds,
   updateAd,
-  updateManyAd
+  updateManyAd,
+  updateAdsByAccount
 }

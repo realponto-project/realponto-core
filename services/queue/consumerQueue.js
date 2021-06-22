@@ -1,47 +1,45 @@
 const Queue = require('bull')
-const { pathOr, propEq, omit, find } = require('ramda')
+const {
+  pathOr,
+  propEq,
+  omit,
+  find,
+  multiply,
+  pipe,
+  forEach,
+  remove,
+  length,
+  join,
+  split,
+  add
+} = require('ramda')
 
 const database = require('../../database')
 const mercadoLibreJs = require('../mercadoLibre')
 const redisConfig = require('./configRedis')
 const MercadoLibreDomain = require('../../domains/mercadoLibre')
-const { adsQueue, refreshTokenQueue } = require('./queues')
-const notificationService = require('../../services/notification')
+const { adsQueue, refreshTokenQueue, updateAdsOnDBQueue } = require('./queues')
+const evalString = require('../../utils/helpers/eval')
 
-const MlAccountAdModel = database.model('mercado_libre_account_ad')
-const MlAccountModel = database.model('mercado_libre_account')
+const MlAdModel = database.model('mercadoLibreAd')
+const MlAccountModel = database.model('mercadoLibreAccount')
 
 const instanceQueue = new Queue('update ads mercado libre', redisConfig)
 const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
 
 instanceQueue.process(async (job) => {
-  const { tokenFcm } = job.data
   try {
     await mercadoLibreJs.ads.update(job.data)
 
-    const mercadoLibreAccountAd = await MlAccountAdModel.findOne({
+    const mercadoLibreAd = await MlAdModel.findOne({
       where: { item_id: job.data.id }
     })
 
-    await mercadoLibreAccountAd.update({
-      type_sync: true,
+    await mercadoLibreAd.update({
       update_status: 'updated'
     })
-
-    const count = await instanceQueue.count()
-
-    if (count === 0 && tokenFcm) {
-      await notificationService.SendNotification({
-        notification: {
-          title: 'Completo',
-          body:
-            'O serviço que atualiza os anúncios do mercado liver foi cloncluído'
-        },
-        token: tokenFcm
-      })
-    }
   } catch (error) {
-    console.log('>>', error.message)
+    console.error('instanceQueue >>', error.message)
     if (error.response.status === 403) {
       const refreshTokenAccount = await MercadoLibreDomain.getRefreshToken(
         job.data.accountId
@@ -61,7 +59,7 @@ instanceQueue.process(async (job) => {
 
 adsQueue.process(async (job) => {
   try {
-    const { list, access_token, companyId, mlAccountId, tokenFcm } = job.data
+    const { list, access_token, companyId, mlAccountId } = job.data
 
     const { data } = await mercadoLibreJs.item.multiget(access_token, list, [
       'id',
@@ -70,39 +68,108 @@ adsQueue.process(async (job) => {
       'status',
       'seller_custom_field',
       'attributes',
+      'variations',
       'start_time',
       'date_created'
     ])
 
     data.forEach(async ({ code, body }) => {
       if (code === 200) {
+        const variations = pathOr([], ['variations'], body)
         const attributes = pathOr([], ['attributes'], body)
+
+        forEach(async (variation) => {
+          const sku = find(propEq('id', 'SELLER_SKU'), variation.attributes)
+          if (sku) {
+            const transaction = await database.transaction()
+            try {
+              await MercadoLibreDomain.createOrUpdateAd(
+                {
+                  ...omit(['attributes'], body),
+                  id: join('-', [body.id, String(variation.id)]),
+                  companyId,
+                  mlAccountId,
+                  sku
+                },
+                { transaction }
+              )
+              await transaction.commit()
+            } catch (err) {
+              console.error('adsQueue >>', err)
+              await transaction.rollback()
+            }
+          }
+        }, variations)
+
         const sku = find(propEq('id', 'SELLER_SKU'), attributes)
+
         if (sku) {
-          await MercadoLibreDomain.createOrUpdateAd({
-            ...omit(['attributes'], body),
-            companyId,
-            mlAccountId,
-            sku
-          })
+          const transaction = await database.transaction()
+
+          try {
+            await MercadoLibreDomain.createOrUpdateAd(
+              {
+                ...omit(['attributes'], body),
+                companyId,
+                mlAccountId,
+                sku
+              },
+              { transaction }
+            )
+
+            await transaction.commit()
+          } catch (err) {
+            console.error('error >>> >>', err)
+            await transaction.rollback()
+          }
         }
       }
     })
-
-    const count = await adsQueue.count()
-
-    if (count === 0 && tokenFcm) {
-      await notificationService.SendNotification({
-        notification: {
-          title: 'Completo',
-          body:
-            'O serviço que carrega os anúncios do mercado livre foi cloncluído'
-        },
-        token: tokenFcm
-      })
-    }
   } catch (error) {
-    console.log('>>', error.message)
+    console.error('>>', error.message)
+  }
+})
+
+updateAdsOnDBQueue.process(async (job) => {
+  try {
+    const { sku, price, ajdustPriceString, companyId } = job.data
+    const ajdustPrice = evalString(ajdustPriceString)
+
+    const ads = await MlAdModel.findAll({
+      where: { parse_sku: String(sku), companyId }
+    })
+
+    forEach(async (ad) => {
+      const multiplicador = pipe(
+        remove(0, length(ad.parse_sku)),
+        join(''),
+        split('-'),
+        join('')
+      )(ad.sku)
+      const newPrice = pipe(
+        multiply(multiplicador || 1),
+        ajdustPrice,
+        (value) => value.toFixed(2),
+        Number,
+        Math.floor,
+        add(0.87)
+      )(price)
+      console.log(JSON.stringify(ad, null, 2), newPrice)
+      if (newPrice !== ad.price) {
+        if (
+          // newPrice > multiply(ad.price, 3) ||
+          newPrice < multiply(ad.price, 0.7)
+        ) {
+          await ad.update({ update_status: 'error' })
+        } else {
+          await ad.update({ update_status: 'unupdated', price: newPrice })
+        }
+      } else {
+        console.log('O preço se mantem igual')
+      }
+    }, ads)
+  } catch (error) {
+    console.error('updateAdsOnDBQueue >>', error.message)
   }
 })
 
@@ -120,6 +187,6 @@ refreshTokenQueue.process(async (job) => {
       access_token
     })
   } catch (error) {
-    console.log('>>', error.message)
+    console.error('refreshTokenQueue >>', error.message)
   }
 })
