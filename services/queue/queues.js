@@ -9,8 +9,6 @@ const adsQueue = new Queue('loader ads', redisConfig)
 const refreshTokenQueue = new Queue('refresh token', redisConfig)
 const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
 
-adsQueue.getJobCounts().then((resp) => console.log(resp))
-
 module.exports = {
   adsQueue,
   refreshTokenQueue,
