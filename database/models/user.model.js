@@ -60,15 +60,6 @@ const User = (sequelize) => {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: true
-    },
-
-    lastTokenDate: {
-      type: Sequelize.DATE,
-      allowNull: true
-    },
-    countTokenSended: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
     }
   })
 

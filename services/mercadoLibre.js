@@ -68,19 +68,19 @@ const myInfo = async (token) => {
 
 const updateAds = async (payload) => {
   const token = await MlDomain.getToken(payload.accountId)
-
   const [item_id, variation_id] = split('-', payload.id)
+
   const body = variation_id
     ? {
-        price: payload.price
-      }
-    : {
         variations: [
           {
             id: variation_id,
             price: payload.price
           }
         ]
+      }
+    : {
+        price: payload.price
       }
 
   const itemResponse = await axios.put(`${urls.ads.url}/${item_id}`, body, {

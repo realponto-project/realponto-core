@@ -5,7 +5,6 @@ const {
   omit,
   find,
   multiply,
-  map,
   pipe,
   forEach,
   remove,
@@ -20,46 +19,27 @@ const mercadoLibreJs = require('../mercadoLibre')
 const redisConfig = require('./configRedis')
 const MercadoLibreDomain = require('../../domains/mercadoLibre')
 const { adsQueue, refreshTokenQueue, updateAdsOnDBQueue } = require('./queues')
-const notificationService = require('../../services/notification')
 const evalString = require('../../utils/helpers/eval')
 
-const MlAccountAdModel = database.model('mercado_libre_account_ad')
-const MlAdModel = database.model('mercado_libre_ad')
-const MlAccountModel = database.model('mercado_libre_account')
+const MlAdModel = database.model('mercadoLibreAd')
+const MlAccountModel = database.model('mercadoLibreAccount')
 
 const instanceQueue = new Queue('update ads mercado libre', redisConfig)
 const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
 
 instanceQueue.process(async (job) => {
-  // const { tokenFcm } = job.data
   try {
     await mercadoLibreJs.ads.update(job.data)
 
-    const mercadoLibreAccountAd = await MlAccountAdModel.findOne({
+    const mercadoLibreAd = await MlAdModel.findOne({
       where: { item_id: job.data.id }
     })
 
-    const teste = await mercadoLibreAccountAd.update({
-      type_sync: true,
+    await mercadoLibreAd.update({
       update_status: 'updated'
     })
-
-    await teste.save()
-
-    // const count = await instanceQueue.count()
-
-    // if (count === 0 && tokenFcm) {
-    //   await notificationService.SendNotification({
-    //     notification: {
-    //       title: 'Completo',
-    //       body:
-    //         'O serviço que atualiza os anúncios do mercado liver foi cloncluído'
-    //     },
-    //     token: tokenFcm
-    //   })
-    // }
   } catch (error) {
-    console.log('>>', error.message)
+    console.error('instanceQueue >>', error.message)
     if (error.response.status === 403) {
       const refreshTokenAccount = await MercadoLibreDomain.getRefreshToken(
         job.data.accountId
@@ -79,7 +59,7 @@ instanceQueue.process(async (job) => {
 
 adsQueue.process(async (job) => {
   try {
-    const { list, access_token, companyId, mlAccountId, tokenFcm } = job.data
+    const { list, access_token, companyId, mlAccountId } = job.data
 
     const { data } = await mercadoLibreJs.item.multiget(access_token, list, [
       'id',
@@ -102,7 +82,6 @@ adsQueue.process(async (job) => {
           const sku = find(propEq('id', 'SELLER_SKU'), variation.attributes)
           if (sku) {
             const transaction = await database.transaction()
-
             try {
               await MercadoLibreDomain.createOrUpdateAd(
                 {
@@ -116,7 +95,7 @@ adsQueue.process(async (job) => {
               )
               await transaction.commit()
             } catch (err) {
-              console.error('error >>> >>', err)
+              console.error('adsQueue >>', err)
               await transaction.rollback()
             }
           }
@@ -146,21 +125,8 @@ adsQueue.process(async (job) => {
         }
       }
     })
-
-    const count = await adsQueue.count()
-
-    if (count === 0 && tokenFcm) {
-      await notificationService.SendNotification({
-        notification: {
-          title: 'Completo',
-          body:
-            'O serviço que carrega os anúncios do mercado livre foi cloncluído'
-        },
-        token: tokenFcm
-      })
-    }
   } catch (error) {
-    console.log('>>', error.message)
+    console.error('>>', error.message)
   }
 })
 
@@ -170,8 +136,7 @@ updateAdsOnDBQueue.process(async (job) => {
     const ajdustPrice = evalString(ajdustPriceString)
 
     const ads = await MlAdModel.findAll({
-      where: { parse_sku: String(sku), company_id: companyId },
-      include: MlAccountAdModel
+      where: { parse_sku: String(sku), companyId }
     })
 
     forEach(async (ad) => {
@@ -189,47 +154,22 @@ updateAdsOnDBQueue.process(async (job) => {
         Math.floor,
         add(0.87)
       )(price)
+      console.log(JSON.stringify(ad, null, 2), newPrice)
       if (newPrice !== ad.price) {
         if (
           // newPrice > multiply(ad.price, 3) ||
           newPrice < multiply(ad.price, 0.7)
         ) {
-          await Promise.all(
-            map(async (mercado_libre_account_ad) => {
-              await mercado_libre_account_ad.update({
-                type_sync: false,
-                update_status: 'error'
-              })
-            }, ad.mercado_libre_account_ads)
-          )
-          console.log('Há uma certa discrepância entre o novo preço e o antigo')
-          console.log(newPrice, ad.price, ad.sku, ad.title)
+          await ad.update({ update_status: 'error' })
         } else {
-          await Promise.all(
-            map(async (mercado_libre_account_ad) => {
-              await mercado_libre_account_ad.update({
-                type_sync: false,
-                update_status: 'unupdated'
-              })
-            }, ad.mercado_libre_account_ads)
-          )
-          await ad.update({ price: newPrice })
-          // forEach((mercado_libre_account_ad) => {
-          //   enQueue({
-          //     sku: ad.sku,
-          //     id: mercado_libre_account_ad.item_id,
-          //     price: newPrice,
-          //     accountId: mercado_libre_account_ad.mercado_libre_account_id,
-          //     tokenFcm
-          //   })
-          // }, ad.mercado_libre_account_ads)
+          await ad.update({ update_status: 'unupdated', price: newPrice })
         }
       } else {
         console.log('O preço se mantem igual')
       }
     }, ads)
   } catch (error) {
-    console.log('>>>', error.message)
+    console.error('updateAdsOnDBQueue >>', error.message)
   }
 })
 
@@ -247,6 +187,6 @@ refreshTokenQueue.process(async (job) => {
       access_token
     })
   } catch (error) {
-    console.log('>>', error.message)
+    console.error('refreshTokenQueue >>', error.message)
   }
 })

@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) =>
-    queryInterface.createTable('mercado_libre_account', {
+    queryInterface.createTable('mercadoLibreAccount', {
       id: {
         type: Sequelize.STRING,
         primaryKey: true,
@@ -24,7 +24,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      company_id: {
+      last_sync_ads: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
+      companyId: {
         type: Sequelize.STRING,
         references: {
           model: 'company',
@@ -33,21 +37,21 @@ module.exports = {
         onUpdate: 'cascade',
         onDelete: 'restrict'
       },
-      created_at: {
+      createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: new Date()
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: new Date()
       },
-      deleted_at: {
+      deletedAt: {
         allowNull: true,
         type: Sequelize.DATE,
         defaultValue: null
       }
     }),
-  down: (queryInterface) => queryInterface.dropTable('mercado_libre_account')
+  down: (queryInterface) => queryInterface.dropTable('mercadoLibreAccount')
 }
