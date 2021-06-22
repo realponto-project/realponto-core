@@ -29,7 +29,6 @@ const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
 
 instanceQueue.process(async (job) => {
   try {
-    console.log(job.data)
     await mercadoLibreJs.ads.update(job.data)
 
     const mercadoLibreAd = await MlAdModel.findOne({
@@ -40,7 +39,7 @@ instanceQueue.process(async (job) => {
       update_status: 'updated'
     })
   } catch (error) {
-    console.log('>>', error.message)
+    console.error('instanceQueue >>', error.message)
     if (error.response.status === 403) {
       const refreshTokenAccount = await MercadoLibreDomain.getRefreshToken(
         job.data.accountId
@@ -59,7 +58,6 @@ instanceQueue.process(async (job) => {
 })
 
 adsQueue.process(async (job) => {
-  console.log('object')
   try {
     const { list, access_token, companyId, mlAccountId } = job.data
 
@@ -76,7 +74,6 @@ adsQueue.process(async (job) => {
     ])
 
     data.forEach(async ({ code, body }) => {
-      console.log(code)
       if (code === 200) {
         const variations = pathOr([], ['variations'], body)
         const attributes = pathOr([], ['attributes'], body)
@@ -98,7 +95,7 @@ adsQueue.process(async (job) => {
               )
               await transaction.commit()
             } catch (err) {
-              console.error('error >>> >>', err)
+              console.error('adsQueue >>', err)
               await transaction.rollback()
             }
           }
@@ -129,7 +126,7 @@ adsQueue.process(async (job) => {
       }
     })
   } catch (error) {
-    console.log('>>', error.message)
+    console.error('>>', error.message)
   }
 })
 
@@ -172,7 +169,7 @@ updateAdsOnDBQueue.process(async (job) => {
       }
     }, ads)
   } catch (error) {
-    console.log('>>>', error.message)
+    console.error('updateAdsOnDBQueue >>', error.message)
   }
 })
 
@@ -190,6 +187,6 @@ refreshTokenQueue.process(async (job) => {
       access_token
     })
   } catch (error) {
-    console.log('>>', error.message)
+    console.error('refreshTokenQueue >>', error.message)
   }
 })
