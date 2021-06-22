@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('mercado_libre_ad', {
+    await queryInterface.createTable('mercadoLibreAd', {
       id: {
         type: Sequelize.STRING,
         primaryKey: true,
@@ -13,6 +13,10 @@ module.exports = {
         unique: true,
         allowNull: false
       },
+      parse_sku: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       title: {
         type: Sequelize.STRING,
         allowNull: false
@@ -21,7 +25,7 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false
       },
-      company_id: {
+      companyId: {
         type: Sequelize.STRING,
         references: {
           model: 'company',
@@ -30,17 +34,47 @@ module.exports = {
         onUpdate: 'cascade',
         onDelete: 'restrict'
       },
-      created_at: {
+      item_id: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
+      },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      update_status: {
+        type: Sequelize.ENUM([
+          'updated',
+          'unupdated',
+          'waiting_update',
+          'error'
+        ]),
+        allowNull: false,
+        defaultValue: 'unupdated'
+      },
+      mercadoLibreAccountId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        references: {
+          model: 'mercadoLibreAccount',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
+      },
+
+      createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: new Date()
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: new Date()
       },
-      deleted_at: {
+      deletedAt: {
         allowNull: true,
         type: Sequelize.DATE,
         defaultValue: null
@@ -49,6 +83,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('mercado_libre_ad')
+    await queryInterface.dropTable('mercadoLibreAd')
   }
 }

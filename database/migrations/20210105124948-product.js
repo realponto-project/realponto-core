@@ -52,6 +52,10 @@ module.exports = {
         allowNull: true,
         defaultValue: 0
       },
+      showOnCatalog: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       companyId: {
         type: Sequelize.STRING,
         references: {
