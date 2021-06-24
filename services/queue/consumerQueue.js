@@ -154,7 +154,6 @@ adsQueue.process(async (job) => {
     })
 
     if (index === total) {
-      console.log('send NOtification')
       await notificationService.SendNotification({
         notification: {
           title: 'Alxa-ml',
@@ -216,7 +215,6 @@ updateAdsOnDBQueue.process(async (job) => {
     }, ads)
 
     if (index === total) {
-      console.log('send NOtification')
       await notificationService.SendNotification({
         notification: {
           title: 'Alxa-ml',
