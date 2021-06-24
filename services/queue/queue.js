@@ -7,5 +7,4 @@ const enQueue = (job) => {
   instanceQueue.add(job)
 }
 
-console.log('queue run...')
 module.exports = enQueue
