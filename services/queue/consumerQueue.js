@@ -199,7 +199,6 @@ updateAdsOnDBQueue.process(async (job) => {
         Math.floor,
         add(0.87)
       )(price)
-      console.log(JSON.stringify(ad, null, 2), newPrice)
       if (newPrice !== ad.price) {
         if (
           // newPrice > multiply(ad.price, 3) ||
