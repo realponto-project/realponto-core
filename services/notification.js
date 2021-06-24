@@ -12,6 +12,7 @@ class NotificationService {
   }
 
   async SendNotification(message) {
+    console.log(message)
     const messageSchema = yup.object().shape({
       notification: yup
         .object({
