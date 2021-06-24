@@ -258,7 +258,6 @@ const updateAdsByAccount = async (req, res, next) => {
         })
       }, ads)
     )
-    console.log(ads.length)
     addIndex(forEach)((ad, index) => {
       enQueue({
         sku: ad.sku,
