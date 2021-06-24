@@ -18,6 +18,7 @@ const database = require('../../database')
 const mercadoLibreJs = require('../mercadoLibre')
 const redisConfig = require('./configRedis')
 const MercadoLibreDomain = require('../../domains/mercadoLibre')
+const notificationService = require('../notification')
 const { adsQueue, refreshTokenQueue, updateAdsOnDBQueue } = require('./queues')
 const evalString = require('../../utils/helpers/eval')
 
@@ -28,6 +29,16 @@ const instanceQueue = new Queue('update ads mercado libre', redisConfig)
 const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
 
 instanceQueue.process(async (job) => {
+  const { tokenFcm, index, total } = job.data
+  const shouldSendNotification = index === total
+  const message = {
+    notification: {
+      title: 'Alxa-ml',
+      body: 'Todos os preços foram atualizados no Alxa-ml'
+    },
+    token: tokenFcm
+  }
+
   try {
     await mercadoLibreJs.ads.update(job.data)
 
@@ -38,9 +49,17 @@ instanceQueue.process(async (job) => {
     await mercadoLibreAd.update({
       update_status: 'updated'
     })
+
+    if (shouldSendNotification) {
+      await notificationService.SendNotification(message)
+    }
   } catch (error) {
+    if (shouldSendNotification) {
+      await notificationService.SendNotification(message)
+    }
+
     console.error('instanceQueue >>', error.message)
-    if (error.response.status === 403) {
+    if (error.response.status === 401) {
       const refreshTokenAccount = await MercadoLibreDomain.getRefreshToken(
         job.data.accountId
       )
@@ -59,7 +78,15 @@ instanceQueue.process(async (job) => {
 
 adsQueue.process(async (job) => {
   try {
-    const { list, access_token, companyId, mlAccountId } = job.data
+    const {
+      list,
+      access_token,
+      companyId,
+      mlAccountId,
+      tokenFcm,
+      index,
+      total
+    } = job.data
 
     const { data } = await mercadoLibreJs.item.multiget(access_token, list, [
       'id',
@@ -125,6 +152,16 @@ adsQueue.process(async (job) => {
         }
       }
     })
+
+    if (index === total) {
+      await notificationService.SendNotification({
+        notification: {
+          title: 'Alxa-ml',
+          body: 'Seus anúncios terminaram de ser carregados'
+        },
+        token: tokenFcm
+      })
+    }
   } catch (error) {
     console.error('>>', error.message)
   }
@@ -132,7 +169,15 @@ adsQueue.process(async (job) => {
 
 updateAdsOnDBQueue.process(async (job) => {
   try {
-    const { sku, price, ajdustPriceString, companyId } = job.data
+    const {
+      sku,
+      price,
+      ajdustPriceString,
+      companyId,
+      tokenFcm,
+      index,
+      total
+    } = job.data
     const ajdustPrice = evalString(ajdustPriceString)
 
     const ads = await MlAdModel.findAll({
@@ -154,7 +199,6 @@ updateAdsOnDBQueue.process(async (job) => {
         Math.floor,
         add(0.87)
       )(price)
-      console.log(JSON.stringify(ad, null, 2), newPrice)
       if (newPrice !== ad.price) {
         if (
           // newPrice > multiply(ad.price, 3) ||
@@ -168,6 +212,16 @@ updateAdsOnDBQueue.process(async (job) => {
         console.log('O preço se mantem igual')
       }
     }, ads)
+
+    if (index === total) {
+      await notificationService.SendNotification({
+        notification: {
+          title: 'Alxa-ml',
+          body: 'Todos os preços foram atualizados no Alxa-ml'
+        },
+        token: tokenFcm
+      })
+    }
   } catch (error) {
     console.error('updateAdsOnDBQueue >>', error.message)
   }
