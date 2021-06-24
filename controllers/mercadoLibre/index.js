@@ -8,7 +8,9 @@ const {
   concat,
   splitEvery,
   forEach,
-  applySpec
+  applySpec,
+  length,
+  addIndex
 } = require('ramda')
 
 const database = require('../../database')
@@ -181,9 +183,16 @@ const loadAds = async (req, res, next) => {
 
     const listSplited = splitEvery(20, itmesIdList)
 
-    listSplited.forEach((list) => {
-      console.log(list)
-      adsQueue.add({ list, access_token, companyId, mlAccountId, tokenFcm })
+    listSplited.forEach((list, index) => {
+      adsQueue.add({
+        list,
+        access_token,
+        companyId,
+        mlAccountId,
+        tokenFcm,
+        index,
+        total: length(listSplited) - 1
+      })
     })
 
     await mlAccount.update({ last_sync_ads: new Date() })
@@ -208,13 +217,15 @@ const updateManyAd = async (req, res, next) => {
 
     const ajdustPriceString = pathOr('value => value', ['code'], calcPrice)
 
-    forEach(({ sku, price }) => {
+    addIndex(forEach)(({ sku, price }, index) => {
       updateAdsOnDBQueue.add({
         sku,
         price,
         ajdustPriceString,
         tokenFcm,
-        companyId
+        companyId,
+        index,
+        total: length(rows) - 1
       })
     }, rows)
 
@@ -229,13 +240,14 @@ const updateManyAd = async (req, res, next) => {
 const updateAdsByAccount = async (req, res, next) => {
   const mlAccountId = pathOr(null, ['params', 'mlAccountId'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const tokenFcm = pathOr('', ['body', 'tokenFcm'], req)
 
   try {
     const ads = await MlAdModel.findAll({
       where: {
         companyId,
-        mercadoLibreAccountId: mlAccountId,
-        update_status: 'unupdated'
+        mercadoLibreAccountId: mlAccountId
+        // update_status: 'unupdated'
       }
     })
 
@@ -246,14 +258,16 @@ const updateAdsByAccount = async (req, res, next) => {
         })
       }, ads)
     )
-
-    forEach((ad) => {
+    console.log(ads.length)
+    addIndex(forEach)((ad, index) => {
       enQueue({
         sku: ad.sku,
         id: ad.item_id,
         price: ad.price,
         accountId: ad.mercadoLibreAccountId,
-        tokenFcm: ''
+        tokenFcm,
+        index,
+        total: length(ads) - 1
       })
     }, ads)
 
