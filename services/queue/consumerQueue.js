@@ -60,6 +60,14 @@ instanceQueue.process(async (job) => {
       await notificationService.SendNotification(message)
     }
 
+    const mercadoLibreAd = await MlAdModel.findOne({
+      where: { item_id: job.data.id }
+    })
+
+    await mercadoLibreAd.update({
+      update_status: 'error'
+    })
+
     console.error('instanceQueue >>', error.message)
     if (error.response.status === 401) {
       const refreshTokenAccount = await MercadoLibreDomain.getRefreshToken(
