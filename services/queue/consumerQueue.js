@@ -51,12 +51,22 @@ instanceQueue.process(async (job) => {
     })
 
     if (shouldSendNotification) {
+      console.log('send notification')
       await notificationService.SendNotification(message)
     }
   } catch (error) {
     if (shouldSendNotification) {
+      console.log('send notification')
       await notificationService.SendNotification(message)
     }
+
+    const mercadoLibreAd = await MlAdModel.findOne({
+      where: { item_id: job.data.id }
+    })
+
+    await mercadoLibreAd.update({
+      update_status: 'error'
+    })
 
     console.error('instanceQueue >>', error.message)
     if (error.response.status === 401) {
@@ -154,6 +164,7 @@ adsQueue.process(async (job) => {
     })
 
     if (index === total) {
+      console.log('send notification')
       await notificationService.SendNotification({
         notification: {
           title: 'Alxa-ml',
@@ -214,6 +225,7 @@ updateAdsOnDBQueue.process(async (job) => {
     }, ads)
 
     if (index === total) {
+      console.log('send notification')
       await notificationService.SendNotification({
         notification: {
           title: 'Alxa-ml',

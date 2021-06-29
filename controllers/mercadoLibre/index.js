@@ -1,3 +1,4 @@
+const sequelize = require('sequelize')
 const {
   pathOr,
   find,
@@ -10,7 +11,18 @@ const {
   forEach,
   applySpec,
   length,
-  addIndex
+  addIndex,
+  pipe,
+  prop,
+  keys,
+  filter,
+  isEmpty,
+  __,
+  not,
+  assoc,
+  mergeAll,
+  isNil,
+  equals
 } = require('ramda')
 
 const database = require('../../database')
@@ -28,6 +40,8 @@ const {
   updateAdsOnDBQueue
 } = require('../../services/queue/queues')
 const enQueue = require('../../services/queue/queue')
+
+const { Op } = sequelize
 
 const createAccount = async (req, res, next) => {
   const transaction = await database.transaction()
@@ -241,13 +255,29 @@ const updateAdsByAccount = async (req, res, next) => {
   const mlAccountId = pathOr(null, ['params', 'mlAccountId'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const tokenFcm = pathOr('', ['body', 'tokenFcm'], req)
+  const query = pipe(
+    applySpec({
+      update_status: pathOr('', ['update_status']),
+      status: pathOr('', ['status']),
+      sku: (values) => ({
+        [Op.startsWith]: pathOr('', ['searchGlobal'], values)
+      })
+    }),
+    (values) =>
+      pipe(
+        keys,
+        filter(pipe(prop(__, values), equals(''), not)),
+        map((key) => assoc(key, prop(key, values), {})),
+        mergeAll
+      )(values)
+  )(pathOr({}, ['body', 'query'], req))
 
   try {
     const ads = await MlAdModel.findAll({
       where: {
+        ...query,
         companyId,
         mercadoLibreAccountId: mlAccountId
-        // update_status: 'unupdated'
       }
     })
 
@@ -269,7 +299,6 @@ const updateAdsByAccount = async (req, res, next) => {
         total: length(ads) - 1
       })
     }, ads)
-
     res.json({ message: 'Worker started' })
   } catch (error) {
     res.status(400).json({ error: error.message })
