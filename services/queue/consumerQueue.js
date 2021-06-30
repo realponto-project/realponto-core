@@ -11,7 +11,9 @@ const {
   length,
   join,
   split,
-  add
+  add,
+  map,
+  merge
 } = require('ramda')
 
 const database = require('../../database')
@@ -23,10 +25,11 @@ const { adsQueue, refreshTokenQueue, updateAdsOnDBQueue } = require('./queues')
 const evalString = require('../../utils/helpers/eval')
 
 const MlAdModel = database.model('mercadoLibreAd')
+const LogErrorsModel = database.model('logErrors')
 const MlAccountModel = database.model('mercadoLibreAccount')
 
 const instanceQueue = new Queue('update ads mercado libre', redisConfig)
-const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
+// const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
 
 instanceQueue.process(async (job) => {
   const { tokenFcm, index, total } = job.data
@@ -55,6 +58,8 @@ instanceQueue.process(async (job) => {
       await notificationService.SendNotification(message)
     }
   } catch (error) {
+    console.error('instanceQueue >>', error.message)
+
     if (shouldSendNotification) {
       console.log('send notification')
       await notificationService.SendNotification(message)
@@ -68,7 +73,13 @@ instanceQueue.process(async (job) => {
       update_status: 'error'
     })
 
-    console.error('instanceQueue >>', error.message)
+    const cause = pipe(
+      pathOr([], ['response', 'data', 'cause']),
+      map(merge({ mercadoLibreAdId: job.data.mercadoLibreAdId }))
+    )(error)
+
+    await LogErrorsModel.bulkCreate(cause)
+
     if (error.response.status === 401) {
       const refreshTokenAccount = await MercadoLibreDomain.getRefreshToken(
         job.data.accountId
@@ -81,7 +92,7 @@ instanceQueue.process(async (job) => {
       await MercadoLibreDomain.setNewToken(job.data.accountId, newToken.data)
       instanceQueue.add(job.data)
     } else {
-      reprocessQueue.add(job.data)
+      // reprocessQueue.add(job.data)
     }
   }
 })
