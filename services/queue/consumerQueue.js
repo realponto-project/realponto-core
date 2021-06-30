@@ -12,8 +12,7 @@ const {
   join,
   split,
   add,
-  map,
-  merge
+  map
 } = require('ramda')
 
 const database = require('../../database')
@@ -25,7 +24,8 @@ const { adsQueue, refreshTokenQueue, updateAdsOnDBQueue } = require('./queues')
 const evalString = require('../../utils/helpers/eval')
 
 const MlAdModel = database.model('mercadoLibreAd')
-const LogErrorsModel = database.model('logErrors')
+const LogErrorsModel = database.model('logError')
+const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
 const MlAccountModel = database.model('mercadoLibreAccount')
 
 const instanceQueue = new Queue('update ads mercado libre', redisConfig)
@@ -77,12 +77,20 @@ instanceQueue.process(async (job) => {
       update_status: 'error'
     })
 
-    const cause = pipe(
-      pathOr([], ['response', 'data', 'cause']),
-      map(merge({ mercadoLibreAdId: job.data.mercadoLibreAdId }))
-    )(error)
+    const causes = pathOr([], ['response', 'data', 'cause'], error)
 
-    await LogErrorsModel.bulkCreate(cause)
+    await Promise.all(
+      map(async (cause) => {
+        const logError = await LogErrorsModel.findOrCreate({ where: cause })
+
+        await MercadolibreAdLogErrorsModel.findOrCreate({
+          where: {
+            mercadoLibreAdId: job.data.mercadoLibreAdId,
+            logErrorId: logError[0].id
+          }
+        })
+      }, causes)
+    )
 
     if (error.response.status === 401) {
       const refreshTokenAccount = await MercadoLibreDomain.getRefreshToken(

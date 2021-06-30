@@ -2,25 +2,31 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('logError', {
+    await queryInterface.createTable('mercadolibreAdLogErrors', {
       id: {
         type: Sequelize.STRING,
         primaryKey: true
       },
 
-      department: Sequelize.STRING,
+      logErrorId: {
+        type: Sequelize.STRING,
+        reference: {
+          model: 'logError',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
+      },
 
-      cause_id: Sequelize.INTEGER,
-
-      type: Sequelize.STRING,
-
-      code: Sequelize.STRING,
-
-      references: Sequelize.ARRAY(Sequelize.STRING),
-
-      message: Sequelize.STRING,
-
-      messagePt: Sequelize.STRING,
+      mercadoLibreAdId: {
+        type: Sequelize.STRING,
+        reference: {
+          model: 'mercadolibreAd',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'restrict'
+      },
 
       createdAt: {
         allowNull: false,
@@ -41,6 +47,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('logError')
+    await queryInterface.dropTable('mercadolibreAdLogErrors')
   }
 }
