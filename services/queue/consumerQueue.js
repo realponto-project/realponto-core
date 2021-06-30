@@ -60,6 +60,10 @@ instanceQueue.process(async (job) => {
   } catch (error) {
     console.error('instanceQueue >>', error.message)
 
+    if (error.response.data.status === 429) {
+      return instanceQueue.add(job.data)
+    }
+
     if (shouldSendNotification) {
       console.log('send notification')
       await notificationService.SendNotification(message)
