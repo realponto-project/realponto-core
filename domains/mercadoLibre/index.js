@@ -39,13 +39,17 @@ class MercadoLibreDomain {
   }
 
   async getAllAds(query) {
-    const response = await MlAdModel.findAndCountAll({
+    const count = await MlAdModel.count({
+      ...buildPagination('mlAd')(query)
+    })
+
+    const rows = await MlAdModel.findAll({
       ...buildPagination('mlAd')(query),
       include: LogErrorsModel
       // raw: true
     })
 
-    return response
+    return { count, rows }
   }
 
   async createOrUpdateAd(payload, options = {}) {
