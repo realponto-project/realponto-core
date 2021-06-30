@@ -3,7 +3,8 @@ const { pathOr, pipe, split, slice, join, applySpec } = require('ramda')
 const database = require('../../database')
 const buildPagination = require('../../utils/helpers/searchSpec')
 
-const LogErrorsModel = database.model('logErrors')
+const LogErrorsModel = database.model('logError')
+const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
 const MlAccountModel = database.model('mercadoLibreAccount')
 const MlAdModel = database.model('mercadoLibreAd')
 

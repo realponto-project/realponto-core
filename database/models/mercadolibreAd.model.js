@@ -55,7 +55,9 @@ const MercadoLibreAd = (sequelize) => {
     })
     models.mercadoLibreAd.belongsTo(models.mercadoLibreAccount)
 
-    models.mercadoLibreAd.hasMany(models.logErrors)
+    models.mercadoLibreAd.belongsToMany(models.logError, {
+      through: 'mercadolibreAdLogErrors'
+    })
   }
 
   return MercadoLibreAd
