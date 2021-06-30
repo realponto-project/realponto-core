@@ -3,6 +3,7 @@ const { pathOr, pipe, split, slice, join, applySpec } = require('ramda')
 const database = require('../../database')
 const buildPagination = require('../../utils/helpers/searchSpec')
 
+const LogErrorsModel = database.model('logErrors')
 const MlAccountModel = database.model('mercadoLibreAccount')
 const MlAdModel = database.model('mercadoLibreAd')
 
@@ -40,7 +41,8 @@ class MercadoLibreDomain {
   async getAllAds(query) {
     const response = await MlAdModel.findAndCountAll({
       ...buildPagination('mlAd')(query),
-      raw: true
+      include: LogErrorsModel
+      // raw: true
     })
 
     return response

@@ -54,6 +54,8 @@ const MercadoLibreAd = (sequelize) => {
       }
     })
     models.mercadoLibreAd.belongsTo(models.mercadoLibreAccount)
+
+    models.mercadoLibreAd.hasMany(models.logErrors)
   }
 
   return MercadoLibreAd
