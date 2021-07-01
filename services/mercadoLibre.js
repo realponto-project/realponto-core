@@ -80,8 +80,6 @@ const updateAds = async (payload) => {
         ]
       }
     : {
-        title:
-          'Água Bonafont 1.5lÁgua Bonafont 1.5lÁgua Bonafont 1.5lÁgua Bonafont 1.5lÁgua Bonafont 1.5lÁgua Bonafont 1.5l',
         price: payload.price
       }
 
