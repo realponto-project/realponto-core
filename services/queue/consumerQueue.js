@@ -107,6 +107,7 @@ instanceQueue.process(async (job) => {
       // reprocessQueue.add(job.data)
     }
   }
+  instanceQueue.removeJobs(job.id)
 })
 
 adsQueue.process(async (job) => {
@@ -197,8 +198,12 @@ adsQueue.process(async (job) => {
       })
     }
   } catch (error) {
+    if (error.response.data.status === 429) {
+      return adsQueue.add(job.data)
+    }
     console.error('>>', error.message)
   }
+  adsQueue.removeJobs(job.id)
 })
 
 updateAdsOnDBQueue.process(async (job) => {
@@ -260,6 +265,7 @@ updateAdsOnDBQueue.process(async (job) => {
   } catch (error) {
     console.error('updateAdsOnDBQueue >>', error.message)
   }
+  updateAdsOnDBQueue.removeJobs(job.id)
 })
 
 refreshTokenQueue.process(async (job) => {
