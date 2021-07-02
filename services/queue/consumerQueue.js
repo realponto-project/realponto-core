@@ -203,7 +203,7 @@ adsQueue.process(async (job) => {
     }
     console.error('>>', error.message)
   }
-  // adsQueue.removeJobs(job.id)
+  adsQueue.removeJobs(job.id)
 })
 
 updateAdsOnDBQueue.process(async (job) => {
