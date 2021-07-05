@@ -1,4 +1,5 @@
 const Queue = require('bull')
+const axios = require('axios').default
 const {
   pathOr,
   propEq,
@@ -20,7 +21,12 @@ const mercadoLibreJs = require('../mercadoLibre')
 const redisConfig = require('./configRedis')
 const MercadoLibreDomain = require('../../domains/mercadoLibre')
 const notificationService = require('../notification')
-const { adsQueue, refreshTokenQueue, updateAdsOnDBQueue } = require('./queues')
+const {
+  adsQueue,
+  refreshTokenQueue,
+  updateAdsOnDBQueue,
+  pingServerQueue
+} = require('./queues')
 const evalString = require('../../utils/helpers/eval')
 
 const MlAdModel = database.model('mercadoLibreAd')
@@ -30,6 +36,17 @@ const MlAccountModel = database.model('mercadoLibreAccount')
 
 const instanceQueue = new Queue('update ads mercado libre', redisConfig)
 // const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
+
+pingServerQueue.process((job) => {
+  axios
+    .get('https://alxa-prd.herokuapp.com')
+    .then((resp) => console.log(resp))
+    .catch((err) => console.error(err))
+})
+
+pingServerQueue.add({ id: 1 }, { repeat: { cron: '*/15 * * * *' }, jobId: 1 })
+
+pingServerQueue.getJobCounts().then((count) => console.log(count))
 
 instanceQueue.process(async (job) => {
   const { tokenFcm, index, total } = job.data

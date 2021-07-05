@@ -29,7 +29,7 @@ const mercadoLibreJs = require('../../services/mercadoLibre')
 const tokenGenerate = require('../../utils/helpers/tokenGenerate')
 
 const MlAccountModel = database.model('mercadoLibreAccount')
-const LogErrorsModel = database.model('logError')
+// const LogErrorsModel = database.model('logError')
 const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
 const MlAdModel = database.model('mercadoLibreAd')
 const CalcPriceModel = database.model('calcPrice')
