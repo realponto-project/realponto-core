@@ -257,10 +257,10 @@ updateAdsOnDBQueue.process(async (job) => {
       )(price)
       if (newPrice !== ad.price) {
         if (
-          // newPrice > multiply(ad.price, 3) ||
+          newPrice > multiply(ad.price, 2) ||
           newPrice < multiply(ad.price, 0.7)
         ) {
-          await ad.update({ update_status: 'error' })
+          await ad.update({ update_status: 'not_update' })
         } else {
           await ad.update({ update_status: 'unupdated', price: newPrice })
         }
