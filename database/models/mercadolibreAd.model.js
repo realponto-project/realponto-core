@@ -33,7 +33,13 @@ const MercadoLibreAd = (sequelize) => {
       allowNull: false
     },
     update_status: {
-      type: Sequelize.ENUM(['updated', 'unupdated', 'waiting_update', 'error']),
+      type: Sequelize.ENUM([
+        'updated',
+        'unupdated',
+        'waiting_update',
+        'error',
+        'not_update'
+      ]),
       allowNull: false,
       defaultValue: 'unupdated'
     },

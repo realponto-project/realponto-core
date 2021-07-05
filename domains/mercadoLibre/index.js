@@ -62,23 +62,39 @@ class MercadoLibreDomain {
       include: MlAccountModel,
       transaction
     })
-    const buildAd = applySpec({
-      sku: pathOr(null, ['sku', 'value_name']),
-      parse_sku: pipe(
-        pathOr(null, ['sku', 'value_name']),
-        pipe(split('-'), slice(0, 2), join('-'))
-      ),
-      title: pathOr(null, ['title']),
-      item_id: pathOr(null, ['id']),
-      status: pathOr(null, ['status']),
-      price: pathOr(null, ['price']),
-      mercadoLibreAccountId: pathOr(null, ['mlAccountId']),
-      companyId: pathOr(null, ['companyId'])
-    })
 
     if (ad) {
+      const buildAd = applySpec({
+        sku: pathOr(null, ['sku', 'value_name']),
+        parse_sku: pipe(
+          pathOr(null, ['sku', 'value_name']),
+          pipe(split('-'), slice(0, 2), join('-'))
+        ),
+        title: pathOr(null, ['title']),
+        item_id: pathOr(null, ['id']),
+        status: pathOr(null, ['status']),
+        price_ml: pathOr(null, ['price']),
+        mercadoLibreAccountId: pathOr(null, ['mlAccountId']),
+        companyId: pathOr(null, ['companyId'])
+      })
+
       await ad.update(buildAd(payload), { transaction })
     } else {
+      const buildAd = applySpec({
+        sku: pathOr(null, ['sku', 'value_name']),
+        parse_sku: pipe(
+          pathOr(null, ['sku', 'value_name']),
+          pipe(split('-'), slice(0, 2), join('-'))
+        ),
+        title: pathOr(null, ['title']),
+        item_id: pathOr(null, ['id']),
+        status: pathOr(null, ['status']),
+        price: pathOr(null, ['price']),
+        price_ml: pathOr(null, ['price']),
+        mercadoLibreAccountId: pathOr(null, ['mlAccountId']),
+        companyId: pathOr(null, ['companyId'])
+      })
+
       ad = await MlAdModel.create(buildAd(payload), { transaction })
     }
 
