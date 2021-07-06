@@ -33,12 +33,12 @@ app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/files', Express.static(path.resolve(__dirname, 'tmp', 'uploads')))
 
-app.get('/mercadoLibre/notifications', (req, res) => {
+app.get('/mercadoLibre/notifications', (req, res, next) => {
   console.log('mercadoLibre/notifications >>>', req)
-  res.status(200)
+  return res.json()
 })
+app.get('/', (req, res, next) => res.send('welcome'))
 
-app.get('/', (req, res) => res.send('welcome'))
 app.use('/catalog', catalogRoutes)
 app.use(emailRoutes)
 app.use(registerRoutes)
