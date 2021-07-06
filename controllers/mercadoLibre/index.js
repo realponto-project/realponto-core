@@ -275,9 +275,16 @@ const updateAdsByAccount = async (req, res, next) => {
   try {
     const ads = await MlAdModel.findAll({
       where: {
-        ...query,
-        companyId,
-        mercadoLibreAccountId: mlAccountId
+        [Op.and]: [
+          {
+            ...query,
+            companyId,
+            mercadoLibreAccountId: mlAccountId
+          },
+          {
+            update_status: { [Op.ne]: 'not_update' }
+          }
+        ]
       }
     })
 

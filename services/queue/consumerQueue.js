@@ -41,7 +41,7 @@ pingServerQueue.process((job) => {
   axios
     .get('https://alxa-prd.herokuapp.com')
     .then((resp) => console.log(resp))
-    .catch((err) => console.error(err))
+    .catch((err) => console.error(err.response.status))
 })
 
 pingServerQueue.add({ id: 1 }, { repeat: { cron: '*/15 * * * *' }, jobId: 1 })
@@ -255,12 +255,12 @@ updateAdsOnDBQueue.process(async (job) => {
         Math.floor,
         add(0.87)
       )(price)
-      if (newPrice !== ad.price) {
+      if (newPrice !== ad.price_ml) {
         if (
-          newPrice > multiply(ad.price, 2) ||
-          newPrice < multiply(ad.price, 0.7)
+          newPrice > multiply(ad.price_ml, 2) ||
+          newPrice < multiply(ad.price_ml, 0.7)
         ) {
-          await ad.update({ update_status: 'not_update' })
+          await ad.update({ update_status: 'not_update', price: newPrice })
         } else {
           await ad.update({ update_status: 'unupdated', price: newPrice })
         }
