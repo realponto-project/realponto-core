@@ -40,7 +40,7 @@ const instanceQueue = new Queue('update ads mercado libre', redisConfig)
 pingServerQueue.process((job) => {
   axios
     .get('https://alxa-prd.herokuapp.com')
-    .then((resp) => console.log(resp))
+    .then((resp) => console.log(resp.data))
     .catch((err) => console.error(err.response.status))
 })
 
