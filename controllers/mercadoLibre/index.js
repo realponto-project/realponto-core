@@ -16,12 +16,10 @@ const {
   prop,
   keys,
   filter,
-  isEmpty,
   __,
   not,
   assoc,
   mergeAll,
-  isNil,
   equals
 } = require('ramda')
 
@@ -31,6 +29,8 @@ const mercadoLibreJs = require('../../services/mercadoLibre')
 const tokenGenerate = require('../../utils/helpers/tokenGenerate')
 
 const MlAccountModel = database.model('mercadoLibreAccount')
+// const LogErrorsModel = database.model('logError')
+const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
 const MlAdModel = database.model('mercadoLibreAd')
 const CalcPriceModel = database.model('calcPrice')
 
@@ -275,14 +275,25 @@ const updateAdsByAccount = async (req, res, next) => {
   try {
     const ads = await MlAdModel.findAll({
       where: {
-        ...query,
-        companyId,
-        mercadoLibreAccountId: mlAccountId
+        [Op.and]: [
+          {
+            ...query,
+            companyId,
+            mercadoLibreAccountId: mlAccountId
+          },
+          {
+            update_status: { [Op.ne]: 'not_update' }
+          }
+        ]
       }
     })
 
     await Promise.all(
       map(async (ad) => {
+        await MercadolibreAdLogErrorsModel.destroy({
+          where: { mercadoLibreAdId: ad.id },
+          force: true
+        })
         await ad.update({
           update_status: 'waiting_update'
         })
@@ -290,6 +301,7 @@ const updateAdsByAccount = async (req, res, next) => {
     )
     addIndex(forEach)((ad, index) => {
       enQueue({
+        mercadoLibreAdId: ad.id,
         sku: ad.sku,
         id: ad.item_id,
         price: ad.price,

@@ -33,6 +33,7 @@ app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/files', Express.static(path.resolve(__dirname, 'tmp', 'uploads')))
 
+app.get('/', (req, res) => res.send('welcome'))
 app.use('/catalog', catalogRoutes)
 app.use(emailRoutes)
 app.use(registerRoutes)

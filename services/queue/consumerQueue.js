@@ -1,4 +1,5 @@
 const Queue = require('bull')
+const axios = require('axios').default
 const {
   pathOr,
   propEq,
@@ -11,7 +12,8 @@ const {
   length,
   join,
   split,
-  add
+  add,
+  map
 } = require('ramda')
 
 const database = require('../../database')
@@ -19,14 +21,32 @@ const mercadoLibreJs = require('../mercadoLibre')
 const redisConfig = require('./configRedis')
 const MercadoLibreDomain = require('../../domains/mercadoLibre')
 const notificationService = require('../notification')
-const { adsQueue, refreshTokenQueue, updateAdsOnDBQueue } = require('./queues')
+const {
+  adsQueue,
+  refreshTokenQueue,
+  updateAdsOnDBQueue,
+  pingServerQueue
+} = require('./queues')
 const evalString = require('../../utils/helpers/eval')
 
 const MlAdModel = database.model('mercadoLibreAd')
+const LogErrorsModel = database.model('logError')
+const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
 const MlAccountModel = database.model('mercadoLibreAccount')
 
 const instanceQueue = new Queue('update ads mercado libre', redisConfig)
-const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
+// const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
+
+pingServerQueue.process((job) => {
+  axios
+    .get('https://alxa-prd.herokuapp.com')
+    .then((resp) => console.log(resp))
+    .catch((err) => console.error(err.response.status))
+})
+
+pingServerQueue.add({ id: 1 }, { repeat: { cron: '*/15 * * * *' }, jobId: 1 })
+
+pingServerQueue.getJobCounts().then((count) => console.log(count))
 
 instanceQueue.process(async (job) => {
   const { tokenFcm, index, total } = job.data
@@ -55,6 +75,12 @@ instanceQueue.process(async (job) => {
       await notificationService.SendNotification(message)
     }
   } catch (error) {
+    console.error('instanceQueue >>', error.message)
+
+    if (error.response.data.status === 429) {
+      return instanceQueue.add(job.data)
+    }
+
     if (shouldSendNotification) {
       console.log('send notification')
       await notificationService.SendNotification(message)
@@ -68,7 +94,21 @@ instanceQueue.process(async (job) => {
       update_status: 'error'
     })
 
-    console.error('instanceQueue >>', error.message)
+    const causes = pathOr([], ['response', 'data', 'cause'], error)
+
+    await Promise.all(
+      map(async (cause) => {
+        const logError = await LogErrorsModel.findOrCreate({ where: cause })
+
+        await MercadolibreAdLogErrorsModel.findOrCreate({
+          where: {
+            mercadoLibreAdId: job.data.mercadoLibreAdId,
+            logErrorId: logError[0].id
+          }
+        })
+      }, causes)
+    )
+
     if (error.response.status === 401) {
       const refreshTokenAccount = await MercadoLibreDomain.getRefreshToken(
         job.data.accountId
@@ -81,9 +121,10 @@ instanceQueue.process(async (job) => {
       await MercadoLibreDomain.setNewToken(job.data.accountId, newToken.data)
       instanceQueue.add(job.data)
     } else {
-      reprocessQueue.add(job.data)
+      // reprocessQueue.add(job.data)
     }
   }
+  instanceQueue.removeJobs(job.id)
 })
 
 adsQueue.process(async (job) => {
@@ -174,8 +215,12 @@ adsQueue.process(async (job) => {
       })
     }
   } catch (error) {
+    if (error.response.data.status === 429) {
+      return adsQueue.add(job.data)
+    }
     console.error('>>', error.message)
   }
+  adsQueue.removeJobs(job.id)
 })
 
 updateAdsOnDBQueue.process(async (job) => {
@@ -210,12 +255,12 @@ updateAdsOnDBQueue.process(async (job) => {
         Math.floor,
         add(0.87)
       )(price)
-      if (newPrice !== ad.price) {
+      if (newPrice !== ad.price_ml) {
         if (
-          // newPrice > multiply(ad.price, 3) ||
-          newPrice < multiply(ad.price, 0.7)
+          newPrice > multiply(ad.price_ml, 2) ||
+          newPrice < multiply(ad.price_ml, 0.7)
         ) {
-          await ad.update({ update_status: 'error' })
+          await ad.update({ update_status: 'not_update', price: newPrice })
         } else {
           await ad.update({ update_status: 'unupdated', price: newPrice })
         }
@@ -237,6 +282,7 @@ updateAdsOnDBQueue.process(async (job) => {
   } catch (error) {
     console.error('updateAdsOnDBQueue >>', error.message)
   }
+  updateAdsOnDBQueue.removeJobs(job.id)
 })
 
 refreshTokenQueue.process(async (job) => {

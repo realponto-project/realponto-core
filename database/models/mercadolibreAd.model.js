@@ -12,7 +12,6 @@ const MercadoLibreAd = (sequelize) => {
     },
     sku: {
       type: Sequelize.STRING,
-      unique: true,
       allowNull: false
     },
     parse_sku: {
@@ -34,7 +33,13 @@ const MercadoLibreAd = (sequelize) => {
       allowNull: false
     },
     update_status: {
-      type: Sequelize.ENUM(['updated', 'unupdated', 'waiting_update', 'error']),
+      type: Sequelize.ENUM([
+        'updated',
+        'unupdated',
+        'waiting_update',
+        'error',
+        'not_update'
+      ]),
       allowNull: false,
       defaultValue: 'unupdated'
     },
@@ -44,6 +49,9 @@ const MercadoLibreAd = (sequelize) => {
       set(value) {
         this.setDataValue('price', value.toFixed(2))
       }
+    },
+    price_ml: {
+      type: Sequelize.FLOAT
     }
   })
 
@@ -54,6 +62,10 @@ const MercadoLibreAd = (sequelize) => {
       }
     })
     models.mercadoLibreAd.belongsTo(models.mercadoLibreAccount)
+
+    models.mercadoLibreAd.belongsToMany(models.logError, {
+      through: 'mercadolibreAdLogErrors'
+    })
   }
 
   return MercadoLibreAd
