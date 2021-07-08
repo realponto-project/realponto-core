@@ -46,6 +46,7 @@ const { Op } = sequelize
 const createAccount = async (req, res, next) => {
   const transaction = await database.transaction()
   const code = pathOr({}, ['body', 'code'], req)
+  const tokenFcm = pathOr(null, ['body', 'tokenFcm'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const user = pathOr(null, ['decoded', 'user'], req)
   const sellersMercadoLibre = pathOr(
@@ -92,6 +93,36 @@ const createAccount = async (req, res, next) => {
       { id: accountMl.id },
       { repeat: { cron: '0 */4 * * *' }, jobId: accountMl.id }
     )
+
+    let itmesIdList = []
+    let data = {}
+
+    do {
+      const response = await mercadoLibreJs.ads.get(
+        access_token,
+        seller_id,
+        data.scroll_id
+      )
+
+      data = response.data
+      itmesIdList = concat(itmesIdList, data.results)
+    } while (data.results.length > 0)
+
+    const listSplited = splitEvery(20, itmesIdList)
+
+    listSplited.forEach((list, index) => {
+      adsQueue.add({
+        list,
+        access_token,
+        companyId,
+        mlAccountId: accountMl.id,
+        tokenFcm,
+        index,
+        total: length(listSplited) - 1
+      })
+    })
+
+    await accountMl.update({ last_sync_ads: new Date() })
 
     transaction.commit()
     res.status(201).json({
@@ -161,60 +192,6 @@ const updateAd = async (req, res, next) => {
     res.json(response)
   } catch (error) {
     await transaction.rollback()
-    res.status(400).json({ error: error.message })
-  }
-}
-
-const loadAds = async (req, res, next) => {
-  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-  const mlAccountId = pathOr(null, ['params', 'mlAccountId'], req)
-  const tokenFcm = pathOr(null, ['query', 'tokenFcm'], req)
-
-  try {
-    const mlAccount = await MlAccountModel.findByPk(mlAccountId)
-
-    if (!mlAccount) throw new Error('Account not found')
-
-    const access_token = path(['access_token'], mlAccount)
-    const userDataMl = await mercadoLibreJs.user.myInfo(access_token)
-
-    const seller_id = path(['data', 'id'], userDataMl)
-
-    let itmesIdList = []
-    let data = {}
-
-    do {
-      const response = await mercadoLibreJs.ads.get(
-        access_token,
-        seller_id,
-        data.scroll_id
-      )
-
-      data = response.data
-      itmesIdList = concat(itmesIdList, data.results)
-      // data.results = []
-    } while (data.results.length > 0)
-
-    const listSplited = splitEvery(20, itmesIdList)
-
-    listSplited.forEach((list, index) => {
-      adsQueue.add({
-        list,
-        access_token,
-        companyId,
-        mlAccountId,
-        tokenFcm,
-        index,
-        total: length(listSplited) - 1
-      })
-    })
-
-    await mlAccount.update({ last_sync_ads: new Date() })
-
-    res.json({ message: 'Worker started' })
-  } catch (error) {
-    console.log(error.message)
-
     res.status(400).json({ error: error.message })
   }
 }
@@ -327,7 +304,6 @@ module.exports = {
   getAllAccounts,
   getAccount,
   getAllAds,
-  loadAds,
   updateAd,
   updateManyAd,
   updateAdsByAccount
