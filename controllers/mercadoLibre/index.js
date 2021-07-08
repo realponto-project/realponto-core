@@ -283,6 +283,12 @@ const updateAdsByAccount = async (req, res, next) => {
           },
           {
             update_status: { [Op.ne]: 'not_update' }
+          },
+          {
+            update_status: { [Op.ne]: 'waiting_update' }
+          },
+          {
+            update_status: { [Op.ne]: 'updated' }
           }
         ]
       }
