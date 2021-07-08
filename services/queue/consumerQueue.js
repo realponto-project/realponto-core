@@ -329,7 +329,7 @@ notificationQueue.process(async (job) => {
 
     if (topic === 'items') {
       const account = await MlAccountModel.findOne({
-        where: { sueller_id: user_id }
+        where: { seller_id: user_id }
       })
 
       const url = `https://api.mercadolibre.com${resource}?include_attributes=all&attributes=id,title,price,status,seller_custom_field,attributes,variations,start_time,date_created,last_updated`
