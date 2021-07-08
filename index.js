@@ -1,4 +1,3 @@
-const Queue = require('bull')
 require('dotenv').config({})
 const path = require('path')
 const Express = require('express')
@@ -25,7 +24,7 @@ const catalogRoutes = require('./routes/catalog')
 const calcPriceRoutes = require('./routes/calcPrice')
 const recoveryPasswordRoutes = require('./routes/recoveryPassword')
 const MLRoutes = require('./routes/ML')
-const redisConfig = require('./services/queue/configRedis')
+const { notificationQueue } = require('./services/queue/queues')
 
 const app = Express()
 const baseUrl = '/api'
@@ -35,10 +34,7 @@ app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/files', Express.static(path.resolve(__dirname, 'tmp', 'uploads')))
 
-const notificationQueue = new Queue('notification queue', redisConfig)
-
 app.post('/notifications', (req, res, next) => {
-  console.log('mercadoLibre/notifications >>>', req)
   notificationQueue.add(req.body)
   return res.json()
 })

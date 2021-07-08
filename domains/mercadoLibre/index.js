@@ -1,10 +1,27 @@
-const { pathOr, pipe, split, slice, join, applySpec } = require('ramda')
+const {
+  pathOr,
+  pipe,
+  split,
+  slice,
+  join,
+  applySpec,
+  merge,
+  ifElse,
+  path,
+  includes,
+  equals,
+  or,
+  gt,
+  multiply,
+  lt,
+  __
+} = require('ramda')
 
 const database = require('../../database')
 const buildPagination = require('../../utils/helpers/searchSpec')
 
 const LogErrorsModel = database.model('logError')
-const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
+// const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
 const MlAccountModel = database.model('mercadoLibreAccount')
 const MlAdModel = database.model('mercadoLibreAd')
 
@@ -59,7 +76,8 @@ class MercadoLibreDomain {
 
     let ad = await MlAdModel.findOne({
       where: { companyId, item_id: payload.id },
-      include: MlAccountModel,
+      include: LogErrorsModel,
+      // include: MlAccountModel,
       transaction
     })
 
@@ -78,7 +96,37 @@ class MercadoLibreDomain {
         companyId: pathOr(null, ['companyId'])
       })
 
-      await ad.update(buildAd(payload), { transaction })
+      const adBuilded = buildAd(payload)
+
+      const adPUpdatePayload = merge(
+        adBuilded,
+        ifElse(
+          pipe(
+            path(['update_status']),
+            includes(__, ['unupdated', 'updated', 'not_update'])
+          ),
+          ifElse(
+            (values) => equals(values.price_ml, values.price),
+            () => ({ update_status: 'updated' }),
+            ifElse(
+              ({ price_ml, price }) =>
+                or(
+                  gt(price, multiply(price_ml, 2)),
+                  lt(price, multiply(price_ml, 0.7))
+                ),
+              () => ({ update_status: 'not_update' }),
+              () => ({ update_status: 'unupdated' })
+            )
+          ),
+          () => ({})
+        )({
+          update_status: path(['update_status'], ad),
+          price_ml: path(['price_ml'], adBuilded),
+          price: path(['price'], ad)
+        })
+      )
+
+      await ad.update(adPUpdatePayload, { transaction })
     } else {
       const buildAd = applySpec({
         sku: pathOr(null, ['sku', 'value_name']),

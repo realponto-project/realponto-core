@@ -1,6 +1,8 @@
 const Queue = require('bull')
 const axios = require('axios').default
+const yup = require('yup')
 const {
+  path,
   pathOr,
   propEq,
   omit,
@@ -25,7 +27,8 @@ const {
   adsQueue,
   refreshTokenQueue,
   updateAdsOnDBQueue,
-  pingServerQueue
+  pingServerQueue,
+  notificationQueue
 } = require('./queues')
 const evalString = require('../../utils/helpers/eval')
 
@@ -68,6 +71,7 @@ instanceQueue.process(async (job) => {
 
     await mercadoLibreAd.update({
       update_status: 'updated'
+      // price_ml: job.price,
     })
 
     if (shouldSendNotification) {
@@ -163,8 +167,9 @@ adsQueue.process(async (job) => {
             try {
               await MercadoLibreDomain.createOrUpdateAd(
                 {
-                  ...omit(['attributes'], body),
+                  ...omit(['attributes', 'price'], body),
                   id: join('-', [body.id, String(variation.id)]),
+                  price: variation.price,
                   companyId,
                   mlAccountId,
                   sku
@@ -265,6 +270,7 @@ updateAdsOnDBQueue.process(async (job) => {
           await ad.update({ update_status: 'unupdated', price: newPrice })
         }
       } else {
+        await ad.update({ update_status: 'updated', price: newPrice })
         console.log('O preço se mantem igual')
       }
     }, ads)
@@ -301,4 +307,90 @@ refreshTokenQueue.process(async (job) => {
   } catch (error) {
     console.error('refreshTokenQueue >>', error.message)
   }
+})
+
+const schemaJobData = yup.object().shape({
+  topic: yup.string().required(),
+  resource: yup.string().required(),
+  user_id: yup.number().required().min(1).integer(),
+  application_id: yup.number().required().min(1).integer(),
+  sent: yup.date().required(),
+  attempts: yup.number().required().min(1).integer(),
+  received: yup.date().required()
+})
+
+notificationQueue.process(async (job) => {
+  try {
+    await schemaJobData.validate(job.data, { abortEarly: false })
+
+    const user_id = path(['data', 'user_id'], job)
+    const resource = path(['data', 'resource'], job)
+    const topic = path(['data', 'topic'], job)
+
+    if (topic === 'items') {
+      const account = await MlAccountModel.findOne({
+        where: { sueller_id: user_id }
+      })
+
+      const url = `https://api.mercadolibre.com${resource}?include_attributes=all&attributes=id,title,price,status,seller_custom_field,attributes,variations,start_time,date_created,last_updated`
+      const response = await axios.get(url, {
+        headers: { authorization: `Bearer ${account.access_token}` }
+      })
+
+      const data = pathOr({}, ['data'], response)
+      const variations = pathOr([], ['variations'], data)
+      const attributes = pathOr([], ['attributes'], data)
+
+      forEach(async (variation) => {
+        const sku = find(propEq('id', 'SELLER_SKU'), variation.attributes)
+        if (sku) {
+          const transaction = await database.transaction()
+          try {
+            await MercadoLibreDomain.createOrUpdateAd(
+              {
+                ...omit(['attributes', 'variations', 'price'], data),
+                id: join('-', [data.id, String(variation.id)]),
+                price: variation.price,
+                companyId: account.companyId,
+                mlAccountId: account.id,
+                sku
+              },
+              { transaction }
+            )
+            await transaction.commit()
+          } catch (err) {
+            console.error('adsQueue >>', err)
+            await transaction.rollback()
+          }
+        }
+      }, variations)
+
+      const sku = find(propEq('id', 'SELLER_SKU'), attributes)
+      if (sku) {
+        const transaction = await database.transaction()
+        try {
+          await MercadoLibreDomain.createOrUpdateAd(
+            {
+              ...omit(['attributes'], data),
+              companyId: account.companyId,
+              mlAccountId: account.id,
+              sku
+            },
+            { transaction }
+          )
+          await transaction.commit()
+        } catch (err) {
+          console.error('error >>> >>', err)
+          await transaction.rollback()
+        }
+      }
+    }
+  } catch (error) {
+    console.error(error.message)
+
+    if (error.response.data.status === 429) {
+      return notificationQueue.add(job.data)
+    }
+  }
+  notificationQueue.removeJobs(job.id)
 })
