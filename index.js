@@ -24,6 +24,7 @@ const catalogRoutes = require('./routes/catalog')
 const calcPriceRoutes = require('./routes/calcPrice')
 const recoveryPasswordRoutes = require('./routes/recoveryPassword')
 const MLRoutes = require('./routes/ML')
+const { notificationQueue } = require('./services/queue/queues')
 
 const app = Express()
 const baseUrl = '/api'
@@ -33,7 +34,12 @@ app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/files', Express.static(path.resolve(__dirname, 'tmp', 'uploads')))
 
-app.get('/', (req, res) => res.send('welcome'))
+app.post('/notifications', (req, res, next) => {
+  notificationQueue.add(req.body)
+  return res.json()
+})
+app.get('/', (req, res, next) => res.send('welcome'))
+
 app.use('/catalog', catalogRoutes)
 app.use(emailRoutes)
 app.use(registerRoutes)
