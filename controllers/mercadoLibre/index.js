@@ -4,7 +4,6 @@ const {
   find,
   propEq,
   append,
-  path,
   map,
   concat,
   splitEvery,
@@ -28,8 +27,6 @@ const MercadoLibreDomain = require('../../domains/mercadoLibre')
 const mercadoLibreJs = require('../../services/mercadoLibre')
 const tokenGenerate = require('../../utils/helpers/tokenGenerate')
 
-const MlAccountModel = database.model('mercadoLibreAccount')
-// const LogErrorsModel = database.model('logError')
 const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
 const MlAdModel = database.model('mercadoLibreAd')
 const CalcPriceModel = database.model('calcPrice')
@@ -179,20 +176,25 @@ const getAllAds = async (req, res, next) => {
 
 const updateAd = async (req, res, next) => {
   const transaction = await database.transaction()
-  const price = pathOr(0, ['body', 'price'], req)
-  const sku = pathOr(null, ['body', 'sku'], req)
+
+  const mercadoLibreAdId = pathOr('', ['params', 'id'], req)
+  const bodyData = pathOr('', ['body'], req)
 
   try {
     const response = await MercadoLibreDomain.updateAd(
-      { price, sku },
+      mercadoLibreAdId,
+      bodyData,
       { transaction }
     )
-    await mercadoLibreJs.ads.update(response)
     await transaction.commit()
     res.json(response)
   } catch (error) {
     await transaction.rollback()
-    res.status(400).json({ error: error.message })
+
+    res.status(400).json({
+      error: error.message,
+      data: pathOr({}, ['response', 'data'], error)
+    })
   }
 }
 
@@ -299,6 +301,7 @@ const updateAdsByAccount = async (req, res, next) => {
     res.status(400).json({ error: error.message })
   }
 }
+
 module.exports = {
   createAccount,
   getAllAccounts,
