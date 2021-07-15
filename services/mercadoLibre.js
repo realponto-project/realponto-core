@@ -1,8 +1,27 @@
 /* eslint-disable camelcase */
 const axios = require('axios')
-const { join, split } = require('ramda')
+const {
+  join,
+  split,
+  mergeAll,
+  omit,
+  pipe,
+  applySpec,
+  prop,
+  length,
+  ifElse,
+  and,
+  equals,
+  path,
+  always,
+  keys,
+  map,
+  filter
+} = require('ramda')
 
-const MlDomain = require('../domains/mercadoLibre')
+const database = require('../database')
+
+const MlAccountModel = database.model('mercadoLibreAccount')
 
 const client_id = process.env.CLIENT_ID
 const client_secret = process.env.CLIENT_SECRET
@@ -67,21 +86,71 @@ const myInfo = async (token) => {
 }
 
 const updateAds = async (payload) => {
-  const token = await MlDomain.getToken(payload.accountId)
+  const { access_token: token } = await MlAccountModel.findByPk(
+    payload.accountId
+  )
   const [item_id, variation_id] = split('-', payload.id)
 
-  const body = variation_id
-    ? {
-        variations: [
-          {
-            id: variation_id,
-            price: payload.price
-          }
-        ]
-      }
-    : {
-        price: payload.price
-      }
+  const ad = await axios.get(
+    `https://api.mercadolibre.com/items/${item_id}?include_attributes=all&attributes=id,title,attributes,variations`,
+    {
+      headers: { Authorization: `Bearer ${token}` }
+    }
+  )
+
+  const body = pipe(
+    omit(['accountId', 'id']),
+    ifElse(
+      () => variation_id,
+      applySpec({
+        variations: pipe(
+          applySpec({
+            id: always(variation_id),
+            price: prop('price'),
+            attributes: pipe(
+              ifElse(
+                prop('sku'),
+                (sku) => ({
+                  id: 'SELLER_SKU',
+                  value_name: sku
+                }),
+                always([])
+              )
+            )
+          }),
+          (values) =>
+            pipe(
+              keys,
+              filter((key) => values[key]),
+              map((key) => ({ [key]: values[key] })),
+              mergeAll
+            )(values)
+        )
+      }),
+      applySpec({
+        title: prop('title'),
+        price: prop('price'),
+        attributes: pipe(
+          prop('sku'),
+          ifElse(
+            and(equals(length(path(['data', 'variations'], ad)), 0)),
+            (sku) => ({
+              id: 'SELLER_SKU',
+              value_name: sku
+            }),
+            always([])
+          )
+        )
+      })
+    ),
+    (values) =>
+      pipe(
+        keys,
+        filter((key) => values[key]),
+        map((key) => ({ [key]: values[key] })),
+        mergeAll
+      )(values)
+  )(payload)
 
   const itemResponse = await axios.put(`${urls.ads.url}/${item_id}`, body, {
     headers: { authorization: `Bearer ${token}` }
