@@ -174,7 +174,7 @@ adsQueue.process(async (job) => {
                   mlAccountId,
                   sku
                 },
-                { transaction }
+                { transaction, changePrice: { origin: 'alxa' } }
               )
               await transaction.commit()
             } catch (err) {
@@ -197,7 +197,7 @@ adsQueue.process(async (job) => {
                 mlAccountId,
                 sku
               },
-              { transaction }
+              { transaction, changePrice: { origin: 'alxa' } }
             )
 
             await transaction.commit()
@@ -265,12 +265,21 @@ updateAdsOnDBQueue.process(async (job) => {
           newPrice > multiply(ad.price_ml, 2) ||
           newPrice < multiply(ad.price_ml, 0.7)
         ) {
-          await ad.update({ update_status: 'not_update', price: newPrice })
+          await ad.update(
+            { update_status: 'not_update', price: newPrice },
+            { changePrice: { origin: 'alxa' } }
+          )
         } else {
-          await ad.update({ update_status: 'unupdated', price: newPrice })
+          await ad.update(
+            { update_status: 'unupdated', price: newPrice },
+            { changePrice: { origin: 'alxa' } }
+          )
         }
       } else {
-        await ad.update({ update_status: 'updated', price: newPrice })
+        await ad.update(
+          { update_status: 'updated', price: newPrice },
+          { changePrice: { origin: 'alxa' } }
+        )
         console.log('O preço se mantem igual')
       }
     }, ads)
@@ -355,7 +364,7 @@ notificationQueue.process(async (job) => {
                 mlAccountId: account.id,
                 sku
               },
-              { transaction }
+              { transaction, changePrice: { origin: 'notification' } }
             )
             await transaction.commit()
           } catch (err) {
@@ -376,7 +385,7 @@ notificationQueue.process(async (job) => {
               mlAccountId: account.id,
               sku
             },
-            { transaction }
+            { transaction, changePrice: { origin: 'notification' } }
           )
           await transaction.commit()
         } catch (err) {

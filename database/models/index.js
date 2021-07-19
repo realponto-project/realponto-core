@@ -1,5 +1,6 @@
 const Address = require('./address.model')
 const CalcPrice = require('./calcPrice.model')
+const ChangePrice = require('./changePrice.model')
 const Company = require('./company.model')
 const Customer = require('./customer.model')
 const FakeTransaction = require('./fakeTransaction.model')
@@ -22,6 +23,7 @@ const User = require('./user.model')
 module.exports = [
   Address,
   CalcPrice,
+  ChangePrice,
   Company,
   Customer,
   FakeTransaction,

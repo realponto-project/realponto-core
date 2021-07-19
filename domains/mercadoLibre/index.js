@@ -21,7 +21,8 @@ const {
   mergeAll,
   map,
   always,
-  has
+  has,
+  propOr
 } = require('ramda')
 
 const database = require('../../database')
@@ -81,6 +82,7 @@ class MercadoLibreDomain {
   async createOrUpdateAd(payload, options = {}) {
     const { transaction = null } = options
     const companyId = pathOr('', ['companyId'], payload)
+    const changePrice = propOr({ origin: 'alxa' }, options)
 
     let ad = await MlAdModel.findOne({
       where: { companyId, item_id: payload.id },
@@ -134,7 +136,10 @@ class MercadoLibreDomain {
         })
       )
 
-      await ad.update(adPUpdatePayload, { transaction })
+      await ad.update(adPUpdatePayload, {
+        transaction,
+        changePrice
+      })
     } else {
       const buildAd = applySpec({
         sku: pathOr(null, ['sku', 'value_name']),
@@ -151,7 +156,10 @@ class MercadoLibreDomain {
         companyId: pathOr(null, ['companyId'])
       })
 
-      ad = await MlAdModel.create(buildAd(payload), { transaction })
+      ad = await MlAdModel.create(buildAd(payload), {
+        transaction,
+        changePrice
+      })
     }
 
     return await MlAdModel.findByPk(ad.id, {
@@ -215,7 +223,7 @@ class MercadoLibreDomain {
 
     await adUpdated.update(
       { ...payloadUpdateAd, update_status },
-      { transaction }
+      { transaction, changePrice: { origin: 'alxa' } }
     )
   }
 
