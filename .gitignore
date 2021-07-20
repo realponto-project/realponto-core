@@ -8,3 +8,5 @@ node_modules
 /coverage
 
 /database/database-test.sqlite
+
+/ignore

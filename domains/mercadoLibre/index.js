@@ -1,8 +1,36 @@
-const { pathOr, pipe, split, slice, join, applySpec } = require('ramda')
+const {
+  pathOr,
+  pipe,
+  split,
+  slice,
+  join,
+  applySpec,
+  merge,
+  ifElse,
+  path,
+  includes,
+  equals,
+  or,
+  gt,
+  multiply,
+  lt,
+  __,
+  prop,
+  keys,
+  filter,
+  mergeAll,
+  map,
+  always,
+  has,
+  propOr
+} = require('ramda')
 
 const database = require('../../database')
 const buildPagination = require('../../utils/helpers/searchSpec')
+const mercadoLibreJs = require('../../services/mercadoLibre')
 
+const LogErrorsModel = database.model('logError')
+const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
 const MlAccountModel = database.model('mercadoLibreAccount')
 const MlAdModel = database.model('mercadoLibreAd')
 
@@ -11,7 +39,6 @@ class MercadoLibreDomain {
     const { transaction = null } = options
     const companyId = pathOr(null, ['companyId'], bodyData)
     const seller_id = pathOr(null, ['seller_id'], bodyData)
-    console.log(bodyData)
 
     const account = await MlAccountModel.findOne({
       where: { companyId, seller_id },
@@ -39,41 +66,100 @@ class MercadoLibreDomain {
   }
 
   async getAllAds(query) {
-    const response = await MlAdModel.findAndCountAll({
-      ...buildPagination('mlAd')(query),
-      raw: true
+    const count = await MlAdModel.count({
+      ...buildPagination('mlAd')(query)
     })
 
-    return response
+    const rows = await MlAdModel.findAll({
+      ...buildPagination('mlAd')(query),
+      include: LogErrorsModel
+      // raw: true
+    })
+
+    return { count, rows }
   }
 
   async createOrUpdateAd(payload, options = {}) {
     const { transaction = null } = options
     const companyId = pathOr('', ['companyId'], payload)
+    const changePrice = propOr({ origin: 'alxa' }, options)
 
     let ad = await MlAdModel.findOne({
       where: { companyId, item_id: payload.id },
-      include: MlAccountModel,
+      include: LogErrorsModel,
+      // include: MlAccountModel,
       transaction
-    })
-    const buildAd = applySpec({
-      sku: pathOr(null, ['sku', 'value_name']),
-      parse_sku: pipe(
-        pathOr(null, ['sku', 'value_name']),
-        pipe(split('-'), slice(0, 2), join('-'))
-      ),
-      title: pathOr(null, ['title']),
-      item_id: pathOr(null, ['id']),
-      status: pathOr(null, ['status']),
-      price: pathOr(null, ['price']),
-      mercadoLibreAccountId: pathOr(null, ['mlAccountId']),
-      companyId: pathOr(null, ['companyId'])
     })
 
     if (ad) {
-      await ad.update(buildAd(payload), { transaction })
+      const buildAd = applySpec({
+        sku: pathOr(null, ['sku', 'value_name']),
+        parse_sku: pipe(
+          pathOr(null, ['sku', 'value_name']),
+          pipe(split('-'), slice(0, 2), join('-'))
+        ),
+        title: pathOr(null, ['title']),
+        item_id: pathOr(null, ['id']),
+        status: pathOr(null, ['status']),
+        price_ml: pathOr(null, ['price']),
+        mercadoLibreAccountId: pathOr(null, ['mlAccountId']),
+        companyId: pathOr(null, ['companyId'])
+      })
+
+      const adBuilded = buildAd(payload)
+
+      const adPUpdatePayload = merge(
+        adBuilded,
+        ifElse(
+          pipe(
+            path(['update_status']),
+            includes(__, ['unupdated', 'updated', 'not_update'])
+          ),
+          ifElse(
+            (values) => equals(values.price_ml, values.price),
+            () => ({ update_status: 'updated' }),
+            ifElse(
+              ({ price_ml, price }) =>
+                or(
+                  gt(price, multiply(price_ml, 2)),
+                  lt(price, multiply(price_ml, 0.7))
+                ),
+              () => ({ update_status: 'not_update' }),
+              () => ({ update_status: 'unupdated' })
+            )
+          ),
+          () => ({})
+        )({
+          update_status: path(['update_status'], ad),
+          price_ml: path(['price_ml'], adBuilded),
+          price: path(['price'], ad)
+        })
+      )
+
+      await ad.update(adPUpdatePayload, {
+        transaction,
+        changePrice
+      })
     } else {
-      ad = await MlAdModel.create(buildAd(payload), { transaction })
+      const buildAd = applySpec({
+        sku: pathOr(null, ['sku', 'value_name']),
+        parse_sku: pipe(
+          pathOr(null, ['sku', 'value_name']),
+          pipe(split('-'), slice(0, 2), join('-'))
+        ),
+        title: pathOr(null, ['title']),
+        item_id: pathOr(null, ['id']),
+        status: pathOr(null, ['status']),
+        price: pathOr(null, ['price']),
+        price_ml: pathOr(null, ['price']),
+        mercadoLibreAccountId: pathOr(null, ['mlAccountId']),
+        companyId: pathOr(null, ['companyId'])
+      })
+
+      ad = await MlAdModel.create(buildAd(payload), {
+        transaction,
+        changePrice
+      })
     }
 
     return await MlAdModel.findByPk(ad.id, {
@@ -83,19 +169,62 @@ class MercadoLibreDomain {
     })
   }
 
-  async updateAd({ sku, price }, options = {}) {
-    // const { transaction } = options
-    // const adUpdated = await MlAccountModel.findOne({ where: { sku } })
-    // await adUpdated.update({ price }, { transaction })
-    // const response = await MlAccountAdModel.findOne({
-    //   where: { mercadoLibre_account_id: adUpdated.id }
-    // })
-    // await response.update({ typeSync: false }, { transaction })
-    // return {
-    //   id: response.itemId,
-    //   price,
-    //   accountId: response.mercadoLibre_account_id
-    // }
+  async updateAd(id, bodyData, options = {}) {
+    const { transaction = null } = options
+    const adUpdated = await MlAdModel.findByPk(id)
+
+    if (!adUpdated) throw new Error('Ad not found')
+
+    const checkPropChange = (property) =>
+      pipe(
+        prop(property),
+        ifElse(
+          equals(prop(property, adUpdated)),
+          () => {},
+          (value) => value
+        )
+      )
+
+    const buildUpdateAd = pipe(
+      applySpec({
+        accountId: always(prop('mercadoLibreAccountId', adUpdated)),
+        id: always(prop('item_id', adUpdated)),
+        sku: checkPropChange('sku'),
+        title: checkPropChange('title'),
+        price: checkPropChange('price'),
+        price_ml: checkPropChange('price')
+      }),
+      (values) =>
+        pipe(
+          keys,
+          filter((key) => values[key]),
+          map((key) => ({ [key]: values[key] })),
+          mergeAll
+        )(values)
+    )
+
+    const payloadUpdateAd = buildUpdateAd(bodyData)
+
+    await mercadoLibreJs.ads.update(payloadUpdateAd)
+
+    if (has('price', payloadUpdateAd)) {
+      await MercadolibreAdLogErrorsModel.destroy({
+        where: { mercadoLibreAdId: adUpdated.id },
+        force: true,
+        transaction
+      })
+    }
+
+    const update_status = ifElse(
+      has('price'),
+      always('updated'),
+      always(prop('update_status', adUpdated))
+    )(payloadUpdateAd)
+
+    await adUpdated.update(
+      { ...payloadUpdateAd, update_status },
+      { transaction, changePrice: { origin: 'alxa' } }
+    )
   }
 
   async getToken(mercadoLibreAccountId) {

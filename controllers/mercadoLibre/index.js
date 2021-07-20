@@ -1,14 +1,25 @@
+const sequelize = require('sequelize')
 const {
   pathOr,
   find,
   propEq,
   append,
-  path,
   map,
   concat,
   splitEvery,
   forEach,
-  applySpec
+  applySpec,
+  length,
+  addIndex,
+  pipe,
+  prop,
+  keys,
+  filter,
+  __,
+  not,
+  assoc,
+  mergeAll,
+  equals
 } = require('ramda')
 
 const database = require('../../database')
@@ -16,7 +27,7 @@ const MercadoLibreDomain = require('../../domains/mercadoLibre')
 const mercadoLibreJs = require('../../services/mercadoLibre')
 const tokenGenerate = require('../../utils/helpers/tokenGenerate')
 
-const MlAccountModel = database.model('mercadoLibreAccount')
+const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
 const MlAdModel = database.model('mercadoLibreAd')
 const CalcPriceModel = database.model('calcPrice')
 
@@ -27,9 +38,12 @@ const {
 } = require('../../services/queue/queues')
 const enQueue = require('../../services/queue/queue')
 
+const { Op } = sequelize
+
 const createAccount = async (req, res, next) => {
   const transaction = await database.transaction()
   const code = pathOr({}, ['body', 'code'], req)
+  const tokenFcm = pathOr(null, ['body', 'tokenFcm'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const user = pathOr(null, ['decoded', 'user'], req)
   const sellersMercadoLibre = pathOr(
@@ -76,6 +90,36 @@ const createAccount = async (req, res, next) => {
       { id: accountMl.id },
       { repeat: { cron: '0 */4 * * *' }, jobId: accountMl.id }
     )
+
+    let itmesIdList = []
+    let data = {}
+
+    do {
+      const response = await mercadoLibreJs.ads.get(
+        access_token,
+        seller_id,
+        data.scroll_id
+      )
+
+      data = response.data
+      itmesIdList = concat(itmesIdList, data.results)
+    } while (data.results.length > 0)
+
+    const listSplited = splitEvery(20, itmesIdList)
+
+    listSplited.forEach((list, index) => {
+      adsQueue.add({
+        list,
+        access_token,
+        companyId,
+        mlAccountId: accountMl.id,
+        tokenFcm,
+        index,
+        total: length(listSplited) - 1
+      })
+    })
+
+    await accountMl.update({ last_sync_ads: new Date() })
 
     transaction.commit()
     res.status(201).json({
@@ -132,67 +176,25 @@ const getAllAds = async (req, res, next) => {
 
 const updateAd = async (req, res, next) => {
   const transaction = await database.transaction()
-  const price = pathOr(0, ['body', 'price'], req)
-  const sku = pathOr(null, ['body', 'sku'], req)
+
+  const mercadoLibreAdId = pathOr('', ['params', 'id'], req)
+  const bodyData = pathOr('', ['body'], req)
 
   try {
     const response = await MercadoLibreDomain.updateAd(
-      { price, sku },
+      mercadoLibreAdId,
+      bodyData,
       { transaction }
     )
-    await mercadoLibreJs.ads.update(response)
     await transaction.commit()
     res.json(response)
   } catch (error) {
     await transaction.rollback()
-    res.status(400).json({ error: error.message })
-  }
-}
 
-const loadAds = async (req, res, next) => {
-  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-  const mlAccountId = pathOr(null, ['params', 'mlAccountId'], req)
-  const tokenFcm = pathOr(null, ['query', 'tokenFcm'], req)
-
-  try {
-    const mlAccount = await MlAccountModel.findByPk(mlAccountId)
-
-    if (!mlAccount) throw new Error('Account not found')
-
-    const access_token = path(['access_token'], mlAccount)
-    const userDataMl = await mercadoLibreJs.user.myInfo(access_token)
-
-    const seller_id = path(['data', 'id'], userDataMl)
-
-    let itmesIdList = []
-    let data = {}
-
-    do {
-      const response = await mercadoLibreJs.ads.get(
-        access_token,
-        seller_id,
-        data.scroll_id
-      )
-
-      data = response.data
-      itmesIdList = concat(itmesIdList, data.results)
-      // data.results = []
-    } while (data.results.length > 0)
-
-    const listSplited = splitEvery(20, itmesIdList)
-
-    listSplited.forEach((list) => {
-      console.log(list)
-      adsQueue.add({ list, access_token, companyId, mlAccountId, tokenFcm })
+    res.status(400).json({
+      error: error.message,
+      data: pathOr({}, ['response', 'data'], error)
     })
-
-    await mlAccount.update({ last_sync_ads: new Date() })
-
-    res.json({ message: 'Worker started' })
-  } catch (error) {
-    console.log(error.message)
-
-    res.status(400).json({ error: error.message })
   }
 }
 
@@ -208,13 +210,15 @@ const updateManyAd = async (req, res, next) => {
 
     const ajdustPriceString = pathOr('value => value', ['code'], calcPrice)
 
-    forEach(({ sku, price }) => {
+    addIndex(forEach)(({ sku, price }, index) => {
       updateAdsOnDBQueue.add({
         sku,
         price,
         ajdustPriceString,
         tokenFcm,
-        companyId
+        companyId,
+        index,
+        total: length(rows) - 1
       })
     }, rows)
 
@@ -229,45 +233,80 @@ const updateManyAd = async (req, res, next) => {
 const updateAdsByAccount = async (req, res, next) => {
   const mlAccountId = pathOr(null, ['params', 'mlAccountId'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const tokenFcm = pathOr('', ['body', 'tokenFcm'], req)
+  const query = pipe(
+    applySpec({
+      update_status: pathOr('', ['update_status']),
+      status: pathOr('', ['status']),
+      sku: (values) => ({
+        [Op.startsWith]: pathOr('', ['searchGlobal'], values)
+      })
+    }),
+    (values) =>
+      pipe(
+        keys,
+        filter(pipe(prop(__, values), equals(''), not)),
+        map((key) => assoc(key, prop(key, values), {})),
+        mergeAll
+      )(values)
+  )(pathOr({}, ['body', 'query'], req))
 
   try {
     const ads = await MlAdModel.findAll({
       where: {
-        companyId,
-        mercadoLibreAccountId: mlAccountId,
-        update_status: 'unupdated'
+        [Op.and]: [
+          {
+            ...query,
+            companyId,
+            mercadoLibreAccountId: mlAccountId
+          },
+          {
+            update_status: { [Op.ne]: 'not_update' }
+          },
+          {
+            update_status: { [Op.ne]: 'waiting_update' }
+          },
+          {
+            update_status: { [Op.ne]: 'updated' }
+          }
+        ]
       }
     })
 
     await Promise.all(
       map(async (ad) => {
+        await MercadolibreAdLogErrorsModel.destroy({
+          where: { mercadoLibreAdId: ad.id },
+          force: true
+        })
         await ad.update({
           update_status: 'waiting_update'
         })
       }, ads)
     )
-
-    forEach((ad) => {
+    addIndex(forEach)((ad, index) => {
       enQueue({
+        mercadoLibreAdId: ad.id,
         sku: ad.sku,
         id: ad.item_id,
         price: ad.price,
         accountId: ad.mercadoLibreAccountId,
-        tokenFcm: ''
+        tokenFcm,
+        index,
+        total: length(ads) - 1
       })
     }, ads)
-
     res.json({ message: 'Worker started' })
   } catch (error) {
     res.status(400).json({ error: error.message })
   }
 }
+
 module.exports = {
   createAccount,
   getAllAccounts,
   getAccount,
   getAllAds,
-  loadAds,
   updateAd,
   updateManyAd,
   updateAdsByAccount

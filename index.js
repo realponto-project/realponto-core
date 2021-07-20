@@ -22,8 +22,10 @@ const emailRoutes = require('./routes/email')
 const metricsRoutes = require('./routes/metrics')
 const catalogRoutes = require('./routes/catalog')
 const calcPriceRoutes = require('./routes/calcPrice')
+const changePriceRoutes = require('./routes/changePrice')
 const recoveryPasswordRoutes = require('./routes/recoveryPassword')
 const MLRoutes = require('./routes/ML')
+const { notificationQueue } = require('./services/queue/queues')
 
 const app = Express()
 const baseUrl = '/api'
@@ -32,6 +34,12 @@ app.use(cors('*'))
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/files', Express.static(path.resolve(__dirname, 'tmp', 'uploads')))
+
+app.post('/notifications', (req, res, next) => {
+  notificationQueue.add(req.body)
+  return res.json()
+})
+app.get('/', (req, res, next) => res.send('welcome'))
 
 app.use('/catalog', catalogRoutes)
 app.use(emailRoutes)
@@ -52,6 +60,7 @@ app.use(baseUrl, userRoutes)
 app.use(baseUrl, subscriptionRoutes)
 app.use(baseUrl, customerRoutes)
 app.use(baseUrl, calcPriceRoutes)
+app.use(baseUrl, changePriceRoutes)
 
 app.use((err, req, res, next) => {
   const formattedError = errorFormatter(err)
