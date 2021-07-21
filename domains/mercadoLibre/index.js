@@ -227,6 +227,42 @@ class MercadoLibreDomain {
     )
   }
 
+  async syncPrice(id, sync, options = {}) {
+    const { transaction = null } = options
+    const adUpdated = await MlAdModel.findByPk(id)
+
+    if (!adUpdated) throw new Error('Ad not found')
+
+    if (sync === 'price_ml') {
+      const buildUpdateAd = applySpec({
+        accountId: prop('mercadoLibreAccountId'),
+        id: prop('item_id'),
+        price: prop('price')
+      })
+
+      const payloadUpdateAd = buildUpdateAd(adUpdated)
+
+      await mercadoLibreJs.ads.update(payloadUpdateAd)
+
+      await adUpdated.update(
+        { price_ml: adUpdated.price, update_status: 'updated' },
+        { transaction }
+      )
+    }
+    if (sync === 'price') {
+      await adUpdated.update(
+        { price: adUpdated.price_ml, update_status: 'updated' },
+        { transaction }
+      )
+    }
+
+    await MercadolibreAdLogErrorsModel.destroy({
+      where: { mercadoLibreAdId: adUpdated.id },
+      force: true,
+      transaction
+    })
+  }
+
   async getToken(mercadoLibreAccountId) {
     const response = await MlAccountModel.findByPk(mercadoLibreAccountId)
     return response && response.access_token
