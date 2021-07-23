@@ -182,7 +182,7 @@ class MercadoLibreDomain {
 
     if (!adUpdated) throw new Error('Ad not found')
 
-    const isActive = has('active', adUpdated)
+    const isActive = prop('active', adUpdated)
 
     if (isActive) {
       const checkPropChange = (property) =>
@@ -235,6 +235,8 @@ class MercadoLibreDomain {
         { ...payloadUpdateAd, update_status },
         { transaction, changePrice: { origin: 'alxa' } }
       )
+    } else {
+      throw new Error('Ads is not active')
     }
   }
 
@@ -305,7 +307,7 @@ class MercadoLibreDomain {
 
     const adUpdated = await MlAdModel.findByPk(id)
 
-    return await adUpdated.update(active, { transaction })
+    return await adUpdated.update({ active }, { transaction })
   }
 }
 
