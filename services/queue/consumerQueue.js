@@ -45,6 +45,42 @@ pingServerQueue.process((job) => {
     .get('https://alxa-prd.herokuapp.com')
     .then((resp) => console.log(resp.data))
     .catch((err) => console.error(err.response.status))
+
+  updateAdsOnDBQueue.getCompleted().then((jobs) => {
+    forEach((job) => {
+      updateAdsOnDBQueue.removeJobs(job.id)
+    }, jobs)
+  })
+
+  instanceQueue.getCompleted().then((jobs) => {
+    forEach((job) => {
+      instanceQueue.removeJobs(job.id)
+    }, jobs)
+  })
+
+  adsQueue.getCompleted().then((jobs) => {
+    forEach((job) => {
+      adsQueue.removeJobs(job.id)
+    }, jobs)
+  })
+
+  refreshTokenQueue.getCompleted().then((jobs) => {
+    forEach((job) => {
+      refreshTokenQueue.removeJobs(job.id)
+    }, jobs)
+  })
+
+  notificationQueue.getCompleted().then((jobs) => {
+    forEach((job) => {
+      notificationQueue.removeJobs(job.id)
+    }, jobs)
+  })
+
+  pingServerQueue.getCompleted().then((jobs) => {
+    forEach((job) => {
+      pingServerQueue.removeJobs(job.id)
+    }, jobs)
+  })
 })
 
 pingServerQueue.add({ id: 1 }, { repeat: { cron: '*/15 * * * *' }, jobId: 1 })
