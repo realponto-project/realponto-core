@@ -95,7 +95,7 @@ class MercadoLibreDomain {
       const buildAd = applySpec({
         sku: pathOr('', ['sku', 'value_name']),
         parse_sku: pipe(
-          pathOr(null, ['sku', 'value_name']),
+          pathOr('', ['sku', 'value_name']),
           pipe(split('-'), slice(0, 2), join('-'))
         ),
         title: pathOr(null, ['title']),
