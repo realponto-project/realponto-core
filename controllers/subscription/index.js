@@ -12,9 +12,13 @@ const create = async (req, res, next) => {
   const planId = pathOr(null, ['body', 'planId'], req)
   const planIdFound = await PlanDomain.getPlanById(planId)
 
+  console.log('********* controller 1 *********')
+
   if (!planIdFound.activated) {
     throw new Error('Plan unavaible!')
   }
+
+  console.log('********* controller 2 *********')
 
   try {
     const transactionSpecPagarme = {
@@ -40,6 +44,7 @@ const create = async (req, res, next) => {
       status
     } = await pagarMeService.createTransactions(transactionSpecPagarme)
 
+    console.log('********* controller 3 *********')
     const activated = !!(status === 'paid' || status === 'autorizated')
 
     const response = await SubscriptionDomain.create(
@@ -53,10 +58,14 @@ const create = async (req, res, next) => {
       },
       { transaction }
     )
+    console.log('********* controller 4 *********')
+
     await transaction.commit()
     res.status(201).json(response)
   } catch (error) {
     await transaction.rollback()
+    console.log('error >>>', error)
+
     res.status(400).json({ error: error.message })
   }
 }
