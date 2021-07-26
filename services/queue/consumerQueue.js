@@ -85,8 +85,6 @@ pingServerQueue.process((job) => {
 
 pingServerQueue.add({ id: 1 }, { repeat: { cron: '*/15 * * * *' }, jobId: 1 })
 
-pingServerQueue.getJobCounts().then((count) => console.log(count))
-
 instanceQueue.process(async (job) => {
   const { tokenFcm, index, total } = job.data
   const shouldSendNotification = index === total
