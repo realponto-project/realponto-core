@@ -89,8 +89,6 @@ class MercadoLibreDomain {
       transaction
     })
 
-    console.log('payload', payload)
-
     if (ad) {
       const buildAd = applySpec({
         sku: pathOr('', ['sku', 'value_name']),
@@ -136,10 +134,7 @@ class MercadoLibreDomain {
         })
       )
 
-      console.log('adPUpdatePayload', adPUpdatePayload)
-
-      const teste = await ad.update(adPUpdatePayload, { transaction })
-      console.log('teste', teste)
+      await ad.update(adPUpdatePayload, { transaction })
     } else {
       const buildAd = applySpec({
         sku: pathOr(null, ['sku', 'value_name']),
