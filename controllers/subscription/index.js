@@ -6,6 +6,8 @@ const SubscriptionDomain = require('../../domains/Subscription')
 const PlanDomain = require('../../domains/Plan')
 const PagarMeService = require('../../services/pagarMe')
 
+const CompanyModel = database.model('company')
+
 const create = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const transaction = await database.transaction()
@@ -21,10 +23,26 @@ const create = async (req, res, next) => {
   console.log('********* controller 2 *********')
 
   try {
+    const company = await CompanyModel.findByPk(companyId)
+
+    if (!company) throw new Error('company not found')
+
     const transactionSpecPagarme = {
       api_key: process.env.API_KEY,
       card_hash: pathOr(null, ['body', 'cardHash'], req),
       amount: pathOr(null, ['body', 'amount'], req),
+      billing: {
+        name: `${company.id} - ${company.name}`,
+        address: {
+          country: 'br',
+          state: 'sp',
+          city: 'São Bernardo do Campo',
+          neighborhood: 'Nova Petrópolis',
+          street: 'Av. Imperador Pedro II',
+          street_number: '1201',
+          zipcode: '09770420'
+        }
+      },
       items: [
         {
           id: planId,
