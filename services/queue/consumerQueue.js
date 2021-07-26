@@ -186,26 +186,26 @@ adsQueue.process(async (job) => {
 
         const sku = find(propEq('id', 'SELLER_SKU'), attributes)
 
-        if (sku) {
-          const transaction = await database.transaction()
+        // if (sku) {
+        const transaction = await database.transaction()
 
-          try {
-            await MercadoLibreDomain.createOrUpdateAd(
-              {
-                ...omit(['attributes'], body),
-                companyId,
-                mlAccountId,
-                sku
-              },
-              { transaction }
-            )
+        try {
+          await MercadoLibreDomain.createOrUpdateAd(
+            {
+              ...omit(['attributes'], body),
+              companyId,
+              mlAccountId,
+              sku
+            },
+            { transaction }
+          )
 
-            await transaction.commit()
-          } catch (err) {
-            console.error('error >>> >>', err)
-            await transaction.rollback()
-          }
+          await transaction.commit()
+        } catch (err) {
+          console.error('error >>> >>', err)
+          await transaction.rollback()
         }
+        // }
       }
     })
 
