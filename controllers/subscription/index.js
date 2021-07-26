@@ -66,7 +66,7 @@ const create = async (req, res, next) => {
     await transaction.rollback()
     console.log('error >>>', error)
 
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ messege: error.message, error: error })
   }
 }
 
