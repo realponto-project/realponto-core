@@ -43,6 +43,7 @@ const MercadoLibreAd = (sequelize) => {
         type: Sequelize.ENUM([
           'updated',
           'unupdated',
+          'unupdated_alxa',
           'waiting_update',
           'error',
           'not_update'

@@ -113,7 +113,12 @@ class MercadoLibreDomain {
         ifElse(
           pipe(
             path(['update_status']),
-            includes(__, ['unupdated', 'updated', 'not_update'])
+            includes(__, [
+              'unupdated',
+              'unupdated_alxa',
+              'updated',
+              'not_update'
+            ])
           ),
           ifElse(
             (values) => equals(values.price_ml, values.price),
@@ -125,7 +130,9 @@ class MercadoLibreDomain {
                   lt(price, multiply(price_ml, 0.7))
                 ),
               () => ({ update_status: 'not_update' }),
-              () => ({ update_status: 'unupdated' })
+              () => ({
+                update_status: 'unupdated_alxa'
+              })
             )
           ),
           () => ({})
