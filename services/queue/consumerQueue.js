@@ -15,7 +15,8 @@ const {
   join,
   split,
   add,
-  map
+  map,
+  prop
 } = require('ramda')
 
 const database = require('../../database')
@@ -97,20 +98,28 @@ instanceQueue.process(async (job) => {
   }
 
   try {
-    await mercadoLibreJs.ads.update(job.data)
+    const idUpdated = await MlAdModel.findByPk(job.data.id)
 
-    const mercadoLibreAd = await MlAdModel.findOne({
-      where: { item_id: job.data.id }
-    })
+    const isActive = prop('active', idUpdated)
 
-    await mercadoLibreAd.update({
-      update_status: 'updated'
-      // price_ml: job.price,
-    })
+    if (isActive) {
+      await mercadoLibreJs.ads.update(job.data)
 
-    if (shouldSendNotification) {
-      console.log('send notification')
-      await notificationService.SendNotification(message)
+      const mercadoLibreAd = await MlAdModel.findOne({
+        where: { item_id: job.data.id }
+      })
+
+      await mercadoLibreAd.update({
+        update_status: 'updated'
+        // price_ml: job.price,
+      })
+
+      if (shouldSendNotification) {
+        console.log('send notification')
+        await notificationService.SendNotification(message)
+      }
+    } else {
+      console.log('Ad is not active')
     }
   } catch (error) {
     console.error('instanceQueue >>', error.message)
