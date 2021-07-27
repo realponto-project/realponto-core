@@ -28,7 +28,6 @@ const {
   adsQueue,
   refreshTokenQueue,
   updateAdsOnDBQueue,
-  pingServerQueue,
   notificationQueue
 } = require('./queues')
 const evalString = require('../../utils/helpers/eval')
@@ -39,52 +38,14 @@ const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
 const MlAccountModel = database.model('mercadoLibreAccount')
 
 const instanceQueue = new Queue('update ads mercado libre', redisConfig)
-// const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
 
-pingServerQueue.process((job) => {
-  axios
-    .get('https://alxa-prd.herokuapp.com')
-    .then((resp) => console.log(resp.data))
-    .catch((err) => console.error(err.response.status))
+const removeCompletedJobs = async (queue) => {
+  const completedJobs = await queue.getCompleted()
 
-  updateAdsOnDBQueue.getCompleted().then((jobs) => {
-    forEach((job) => {
-      updateAdsOnDBQueue.removeJobs(job.id)
-    }, jobs)
-  })
-
-  instanceQueue.getCompleted().then((jobs) => {
-    forEach((job) => {
-      instanceQueue.removeJobs(job.id)
-    }, jobs)
-  })
-
-  adsQueue.getCompleted().then((jobs) => {
-    forEach((job) => {
-      adsQueue.removeJobs(job.id)
-    }, jobs)
-  })
-
-  refreshTokenQueue.getCompleted().then((jobs) => {
-    forEach((job) => {
-      refreshTokenQueue.removeJobs(job.id)
-    }, jobs)
-  })
-
-  notificationQueue.getCompleted().then((jobs) => {
-    forEach((job) => {
-      notificationQueue.removeJobs(job.id)
-    }, jobs)
-  })
-
-  pingServerQueue.getCompleted().then((jobs) => {
-    forEach((job) => {
-      pingServerQueue.removeJobs(job.id)
-    }, jobs)
-  })
-})
-
-pingServerQueue.add({ id: 1 }, { repeat: { cron: '*/15 * * * *' }, jobId: 1 })
+  await Promise.all(
+    map(async ({ id }) => await queue.removeJobs(id), completedJobs)
+  )
+}
 
 instanceQueue.process(async (job) => {
   const { tokenFcm, index, total } = job.data
@@ -98,6 +59,7 @@ instanceQueue.process(async (job) => {
   }
 
   try {
+    await removeCompletedJobs(instanceQueue)
     const idUpdated = await MlAdModel.findByPk(job.data.id)
 
     const isActive = prop('active', idUpdated)
@@ -176,6 +138,7 @@ instanceQueue.process(async (job) => {
 
 adsQueue.process(async (job) => {
   try {
+    await removeCompletedJobs(adsQueue)
     const {
       list,
       access_token,
@@ -273,6 +236,8 @@ adsQueue.process(async (job) => {
 
 updateAdsOnDBQueue.process(async (job) => {
   try {
+    await removeCompletedJobs(updateAdsOnDBQueue)
+
     const {
       sku,
       price,
@@ -373,6 +338,7 @@ const schemaJobData = yup.object().shape({
 
 notificationQueue.process(async (job) => {
   try {
+    await removeCompletedJobs(notificationQueue)
     await schemaJobData.validate(job.data, { abortEarly: false })
 
     const user_id = path(['data', 'user_id'], job)
