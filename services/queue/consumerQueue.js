@@ -60,12 +60,13 @@ instanceQueue.process(async (job) => {
 
   try {
     await removeCompletedJobs(instanceQueue)
-    const idUpdated = await MlAdModel.findByPk(job.data.id)
+    const idUpdated = await MlAdModel.findByPk(job.data.mercadoLibreAdId)
 
     const isActive = prop('active', idUpdated)
 
     if (isActive) {
-      await mercadoLibreJs.ads.update(job.data)
+      const { access_token } = await MlAccountModel.findByPk(job.data.accountId)
+      await mercadoLibreJs.ads.update({ ...job.data, access_token })
 
       const mercadoLibreAd = await MlAdModel.findOne({
         where: { item_id: job.data.id }
@@ -73,7 +74,6 @@ instanceQueue.process(async (job) => {
 
       await mercadoLibreAd.update({
         update_status: 'updated'
-        // price_ml: job.price,
       })
 
       if (shouldSendNotification) {
