@@ -22,7 +22,8 @@ const {
   map,
   always,
   has,
-  propOr
+  propOr,
+  not
 } = require('ramda')
 
 const database = require('../../database')
@@ -73,7 +74,6 @@ class MercadoLibreDomain {
     const rows = await MlAdModel.findAll({
       ...buildPagination('mlAd')(query),
       include: LogErrorsModel
-      // raw: true
     })
 
     return { count, rows }
@@ -301,11 +301,15 @@ class MercadoLibreDomain {
     return response
   }
 
-  async updateActive(id, bodyData, options = {}) {
+  async updateActive(id, options = {}) {
     const { transaction = null } = options
-    const active = pathOr(null, ['active'], bodyData)
 
     const adUpdated = await MlAdModel.findByPk(id)
+
+    if (!adUpdated) {
+      throw new Error('Ad not found')
+    }
+    const active = not(prop('active', adUpdated))
 
     return await adUpdated.update({ active }, { transaction })
   }
