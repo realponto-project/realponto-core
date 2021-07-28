@@ -4,9 +4,11 @@ const Sequelize = require('sequelize')
 const uuidv4Generator = require('../../utils/helpers/hash')
 
 const changePriceModelDefine = require('./changePrice.model')
+const logErrorModelDefine = require('./logError.model')
 
 const MercadoLibreAd = (sequelize) => {
   const changePriceModel = changePriceModelDefine(sequelize)
+  const logErrorModel = logErrorModelDefine(sequelize)
 
   const MercadoLibreAd = sequelize.define(
     'mercadoLibreAd',
@@ -69,8 +71,15 @@ const MercadoLibreAd = (sequelize) => {
     },
     {
       hooks: {
-        beforeSave: ({ dataValues, _previousDataValues }, options) => {
+        beforeSave: async ({ dataValues, _previousDataValues }, options) => {
           const { transaction = null } = options
+
+          if (dataValues.update_status !== 'error') {
+            await logErrorModel.destroy({
+              where: { mercadoLibreAdId: dataValues.id },
+              force: true
+            })
+          }
 
           if (dataValues.price !== _previousDataValues.price) {
             const values = {
@@ -80,7 +89,7 @@ const MercadoLibreAd = (sequelize) => {
               origin: pathOr('', ['changePrice', 'origin'], options),
               mercadoLibreAdId: dataValues.id
             }
-            changePriceModel.create(values, { transaction })
+            await changePriceModel.create(values, { transaction })
           }
 
           if (dataValues.price_ml !== _previousDataValues.price_ml) {
@@ -91,7 +100,7 @@ const MercadoLibreAd = (sequelize) => {
               origin: pathOr('', ['changePrice', 'origin'], options),
               mercadoLibreAdId: dataValues.id
             }
-            changePriceModel.create(values, { transaction })
+            await changePriceModel.create(values, { transaction })
           }
         }
       }
