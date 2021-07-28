@@ -4,11 +4,13 @@ const Sequelize = require('sequelize')
 const uuidv4Generator = require('../../utils/helpers/hash')
 
 const changePriceModelDefine = require('./changePrice.model')
-const logErrorModelDefine = require('./logError.model')
+const MercadolibreAdLogErrorsModelDefine = require('./mercadolibreAdLogErrors.model')
 
 const MercadoLibreAd = (sequelize) => {
   const changePriceModel = changePriceModelDefine(sequelize)
-  const logErrorModel = logErrorModelDefine(sequelize)
+  const MercadolibreAdLogErrorsModel = MercadolibreAdLogErrorsModelDefine(
+    sequelize
+  )
 
   const MercadoLibreAd = sequelize.define(
     'mercadoLibreAd',
@@ -75,7 +77,7 @@ const MercadoLibreAd = (sequelize) => {
           const { transaction = null } = options
 
           if (dataValues.update_status !== 'error') {
-            await logErrorModel.destroy({
+            await MercadolibreAdLogErrorsModel.destroy({
               where: { mercadoLibreAdId: dataValues.id },
               force: true
             })
