@@ -4,11 +4,11 @@ const Sequelize = require('sequelize')
 const uuidv4Generator = require('../../utils/helpers/hash')
 
 const changePriceModelDefine = require('./changePrice.model')
-const MercadolibreAdLogErrorsModelDefine = require('./mercadolibreAdLogErrors.model')
+const mercadolibreAdLogErrorsModelDefine = require('./mercadolibreAdLogErrors.model')
 
 const MercadoLibreAd = (sequelize) => {
   const changePriceModel = changePriceModelDefine(sequelize)
-  const MercadolibreAdLogErrorsModel = MercadolibreAdLogErrorsModelDefine(
+  const MercadolibreAdLogErrorsModel = mercadolibreAdLogErrorsModelDefine(
     sequelize
   )
 
