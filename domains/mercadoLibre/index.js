@@ -255,6 +255,8 @@ class MercadoLibreDomain {
 
       const payloadUpdateAd = buildUpdateAd(adUpdated)
 
+      if (!adUpdated.active) throw new Error('Ad is not active')
+
       await mercadoLibreJs.ads.update(payloadUpdateAd)
 
       await adUpdated.update(
