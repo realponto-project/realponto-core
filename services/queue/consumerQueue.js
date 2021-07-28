@@ -15,7 +15,8 @@ const {
   join,
   split,
   add,
-  map
+  map,
+  prop
 } = require('ramda')
 
 const database = require('../../database')
@@ -27,7 +28,6 @@ const {
   adsQueue,
   refreshTokenQueue,
   updateAdsOnDBQueue,
-  pingServerQueue,
   notificationQueue
 } = require('./queues')
 const evalString = require('../../utils/helpers/eval')
@@ -38,18 +38,14 @@ const MercadolibreAdLogErrorsModel = database.model('mercadolibreAdLogErrors')
 const MlAccountModel = database.model('mercadoLibreAccount')
 
 const instanceQueue = new Queue('update ads mercado libre', redisConfig)
-// const reprocessQueue = new Queue('reprocess ads mercado libre', redisConfig)
 
-pingServerQueue.process((job) => {
-  axios
-    .get('https://alxa-prd.herokuapp.com')
-    .then((resp) => console.log(resp.data))
-    .catch((err) => console.error(err.response.status))
-})
+const removeCompletedJobs = async (queue) => {
+  const completedJobs = await queue.getCompleted()
 
-pingServerQueue.add({ id: 1 }, { repeat: { cron: '*/15 * * * *' }, jobId: 1 })
-
-pingServerQueue.getJobCounts().then((count) => console.log(count))
+  await Promise.all(
+    map(async ({ id }) => await queue.removeJobs(id), completedJobs)
+  )
+}
 
 instanceQueue.process(async (job) => {
   const { tokenFcm, index, total } = job.data
@@ -63,20 +59,29 @@ instanceQueue.process(async (job) => {
   }
 
   try {
-    await mercadoLibreJs.ads.update(job.data)
+    await removeCompletedJobs(instanceQueue)
+    const idUpdated = await MlAdModel.findByPk(job.data.mercadoLibreAdId)
 
-    const mercadoLibreAd = await MlAdModel.findOne({
-      where: { item_id: job.data.id }
-    })
+    const isActive = prop('active', idUpdated)
 
-    await mercadoLibreAd.update({
-      update_status: 'updated'
-      // price_ml: job.price,
-    })
+    if (isActive) {
+      const { access_token } = await MlAccountModel.findByPk(job.data.accountId)
+      await mercadoLibreJs.ads.update({ ...job.data, access_token })
 
-    if (shouldSendNotification) {
-      console.log('send notification')
-      await notificationService.SendNotification(message)
+      const mercadoLibreAd = await MlAdModel.findOne({
+        where: { item_id: job.data.id }
+      })
+
+      await mercadoLibreAd.update({
+        update_status: 'updated'
+      })
+
+      if (shouldSendNotification) {
+        console.log('send notification')
+        await notificationService.SendNotification(message)
+      }
+    } else {
+      console.log('Ad is not active')
     }
   } catch (error) {
     console.error('instanceQueue >>', error.message)
@@ -133,6 +138,7 @@ instanceQueue.process(async (job) => {
 
 adsQueue.process(async (job) => {
   try {
+    await removeCompletedJobs(adsQueue)
     const {
       list,
       access_token,
@@ -174,7 +180,7 @@ adsQueue.process(async (job) => {
                   mlAccountId,
                   sku
                 },
-                { transaction }
+                { transaction, changePrice: { origin: 'alxa' } }
               )
               await transaction.commit()
             } catch (err) {
@@ -197,7 +203,7 @@ adsQueue.process(async (job) => {
                 mlAccountId,
                 sku
               },
-              { transaction }
+              { transaction, changePrice: { origin: 'alxa' } }
             )
 
             await transaction.commit()
@@ -230,6 +236,8 @@ adsQueue.process(async (job) => {
 
 updateAdsOnDBQueue.process(async (job) => {
   try {
+    await removeCompletedJobs(updateAdsOnDBQueue)
+
     const {
       sku,
       price,
@@ -265,12 +273,21 @@ updateAdsOnDBQueue.process(async (job) => {
           newPrice > multiply(ad.price_ml, 2) ||
           newPrice < multiply(ad.price_ml, 0.7)
         ) {
-          await ad.update({ update_status: 'not_update', price: newPrice })
+          await ad.update(
+            { update_status: 'not_update', price: newPrice },
+            { changePrice: { origin: 'alxa' } }
+          )
         } else {
-          await ad.update({ update_status: 'unupdated', price: newPrice })
+          await ad.update(
+            { update_status: 'unupdated', price: newPrice },
+            { changePrice: { origin: 'alxa' } }
+          )
         }
       } else {
-        await ad.update({ update_status: 'updated', price: newPrice })
+        await ad.update(
+          { update_status: 'updated', price: newPrice },
+          { changePrice: { origin: 'alxa' } }
+        )
         console.log('O preço se mantem igual')
       }
     }, ads)
@@ -321,6 +338,7 @@ const schemaJobData = yup.object().shape({
 
 notificationQueue.process(async (job) => {
   try {
+    await removeCompletedJobs(notificationQueue)
     await schemaJobData.validate(job.data, { abortEarly: false })
 
     const user_id = path(['data', 'user_id'], job)
@@ -355,7 +373,7 @@ notificationQueue.process(async (job) => {
                 mlAccountId: account.id,
                 sku
               },
-              { transaction }
+              { transaction, changePrice: { origin: 'notification' } }
             )
             await transaction.commit()
           } catch (err) {
@@ -376,7 +394,7 @@ notificationQueue.process(async (job) => {
               mlAccountId: account.id,
               sku
             },
-            { transaction }
+            { transaction, changePrice: { origin: 'notification' } }
           )
           await transaction.commit()
         } catch (err) {

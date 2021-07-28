@@ -302,6 +302,45 @@ const updateAdsByAccount = async (req, res, next) => {
   }
 }
 
+const syncPrice = async (req, res, next) => {
+  const transaction = await database.transaction()
+
+  const adId = pathOr(null, ['params', 'id'], req)
+  const sync = pathOr({}, ['body', 'sync'], req)
+
+  try {
+    await MercadoLibreDomain.syncPrice(adId, sync, {
+      transaction
+    })
+    await transaction.commit()
+    res.json()
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
+const updateActive = async (req, res, next) => {
+  const transaction = await database.transaction()
+
+  const mercadoLibreAdId = pathOr('', ['params', 'id'], req)
+
+  try {
+    const response = await MercadoLibreDomain.updateActive(mercadoLibreAdId, {
+      transaction
+    })
+    await transaction.commit()
+    res.json(response)
+  } catch (error) {
+    await transaction.rollback()
+
+    res.status(400).json({
+      error: error.message,
+      data: pathOr({}, ['response', 'data'], error)
+    })
+  }
+}
+
 module.exports = {
   createAccount,
   getAllAccounts,
@@ -309,5 +348,7 @@ module.exports = {
   getAllAds,
   updateAd,
   updateManyAd,
-  updateAdsByAccount
+  updateAdsByAccount,
+  syncPrice,
+  updateActive
 }
