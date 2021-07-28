@@ -8,7 +8,7 @@ const mercadolibreAdLogErrorsModelDefine = require('./mercadolibreAdLogErrors.mo
 
 const MercadoLibreAd = (sequelize) => {
   const changePriceModel = changePriceModelDefine(sequelize)
-  const MercadolibreAdLogErrorsModel = mercadolibreAdLogErrorsModelDefine(
+  const mercadolibreAdLogErrorsModel = mercadolibreAdLogErrorsModelDefine(
     sequelize
   )
 
@@ -77,7 +77,7 @@ const MercadoLibreAd = (sequelize) => {
           const { transaction = null } = options
 
           if (dataValues.update_status !== 'error') {
-            await MercadolibreAdLogErrorsModel.destroy({
+            await mercadolibreAdLogErrorsModel.destroy({
               where: { mercadoLibreAdId: dataValues.id },
               force: true
             })
