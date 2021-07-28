@@ -206,6 +206,7 @@ const applyOrOperation = (fields) => (values) => {
 const searchSpecs = {
   mlAd: pipe(
     applySpec({
+      active: pipe(pathOr([], ['active']), (values) => ({ [or]: values })),
       companyId: pathOr(null, ['companyId']),
       mercadoLibreAccountId: pathOr(null, ['account']),
       update_status: pathOr(null, ['update_status']),
