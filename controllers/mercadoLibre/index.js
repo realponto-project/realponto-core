@@ -324,14 +324,11 @@ const updateActive = async (req, res, next) => {
   const transaction = await database.transaction()
 
   const mercadoLibreAdId = pathOr('', ['params', 'id'], req)
-  const bodyData = pathOr('', ['body'], req)
 
   try {
-    const response = await MercadoLibreDomain.updateActive(
-      mercadoLibreAdId,
-      bodyData,
-      { transaction }
-    )
+    const response = await MercadoLibreDomain.updateActive(mercadoLibreAdId, {
+      transaction
+    })
     await transaction.commit()
     res.json(response)
   } catch (error) {
