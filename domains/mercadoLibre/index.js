@@ -71,12 +71,9 @@ class MercadoLibreDomain {
       ...buildPagination('mlAd')(query)
     })
 
-    console.log(buildPagination('mlAd')(query))
-
     const rows = await MlAdModel.findAll({
       ...buildPagination('mlAd')(query),
       include: LogErrorsModel
-      // raw: true
     })
 
     return { count, rows }
