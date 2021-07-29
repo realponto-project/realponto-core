@@ -110,10 +110,12 @@ const updateAds = async (payload) => {
             attributes: pipe(
               ifElse(
                 prop('sku'),
-                (sku) => ({
-                  id: 'SELLER_SKU',
-                  value_name: sku
-                }),
+                (sku) => [
+                  {
+                    id: 'SELLER_SKU',
+                    value_name: sku
+                  }
+                ],
                 always([])
               )
             )
@@ -134,10 +136,12 @@ const updateAds = async (payload) => {
           prop('sku'),
           ifElse(
             and(equals(length(path(['data', 'variations'], ad)), 0)),
-            (sku) => ({
-              id: 'SELLER_SKU',
-              value_name: sku
-            }),
+            (sku) => [
+              {
+                id: 'SELLER_SKU',
+                value_name: sku
+              }
+            ],
             always([])
           )
         )
