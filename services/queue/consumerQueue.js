@@ -129,8 +129,6 @@ instanceQueue.process(async (job) => {
 
       await MercadoLibreDomain.setNewToken(job.data.accountId, newToken.data)
       instanceQueue.add(job.data)
-    } else {
-      // reprocessQueue.add(job.data)
     }
   }
   await instanceQueue.removeJobs(job.id)
