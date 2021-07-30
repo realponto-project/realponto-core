@@ -25,6 +25,7 @@ const calcPriceRoutes = require('./routes/calcPrice')
 const changePriceRoutes = require('./routes/changePrice')
 const recoveryPasswordRoutes = require('./routes/recoveryPassword')
 const MLRoutes = require('./routes/ML')
+const WorkerRoutes = require('./routes/worker')
 const { notificationQueue } = require('./services/queue/queues')
 
 const app = Express()
@@ -61,6 +62,7 @@ app.use(baseUrl, subscriptionRoutes)
 app.use(baseUrl, customerRoutes)
 app.use(baseUrl, calcPriceRoutes)
 app.use(baseUrl, changePriceRoutes)
+app.use(baseUrl, WorkerRoutes)
 
 app.use((err, req, res, next) => {
   const formattedError = errorFormatter(err)
