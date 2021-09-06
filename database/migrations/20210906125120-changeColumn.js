@@ -2,12 +2,12 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('mercadoLibreAd', 'shoppingCost', {
+    await queryInterface.addColumn('mercadoLibreAd', 'shippingCost', {
       type: Sequelize.FLOAT
     })
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('mercadoLibreAd', 'shoppingCost')
+    await queryInterface.removeColumn('mercadoLibreAd', 'shippingCost')
   }
 }
