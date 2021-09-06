@@ -65,6 +65,9 @@ const MercadoLibreAd = (sequelize) => {
       price_ml: {
         type: Sequelize.FLOAT
       },
+      shoppingCost: {
+        type: Sequelize.FLOAT
+      },
       active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
