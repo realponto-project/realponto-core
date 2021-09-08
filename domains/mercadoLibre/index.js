@@ -23,7 +23,8 @@ const {
   always,
   has,
   propOr,
-  not
+  not,
+  add
 } = require('ramda')
 
 const database = require('../../database')
@@ -98,6 +99,7 @@ class MercadoLibreDomain {
           pathOr(null, ['sku', 'value_name']),
           pipe(split('-'), slice(0, 2), join('-'))
         ),
+        shippingCost: pathOr(null, ['shippingCost']),
         title: pathOr(null, ['title']),
         item_id: pathOr(null, ['id']),
         status: pathOr(null, ['status']),
@@ -108,7 +110,7 @@ class MercadoLibreDomain {
 
       const adBuilded = buildAd(payload)
 
-      const adPUpdatePayload = merge(
+      const adPUpdatePayload = mergeAll([
         adBuilded,
         ifElse(
           pipe(
@@ -140,8 +142,22 @@ class MercadoLibreDomain {
           update_status: path(['update_status'], ad),
           price_ml: path(['price_ml'], adBuilded),
           price: path(['price'], ad)
-        })
-      )
+        }),
+        adBuilded.shippingCost === ad.shippingCost
+          ? {}
+          : {
+              update_status: 'unupdated',
+              price: pipe(
+                prop('costPrice'),
+                multiply(1.5),
+                add(adBuilded.shippingCost || 6),
+                (value) => value.toFixed(2),
+                Number,
+                Math.floor,
+                add(0.87)
+              )(ad)
+            }
+      ])
 
       await ad.update(adPUpdatePayload, {
         transaction,
@@ -154,6 +170,7 @@ class MercadoLibreDomain {
           pathOr(null, ['sku', 'value_name']),
           pipe(split('-'), slice(0, 2), join('-'))
         ),
+        shippingCost: pathOr(null, ['shippingCost']),
         title: pathOr(null, ['title']),
         item_id: pathOr(null, ['id']),
         status: pathOr(null, ['status']),

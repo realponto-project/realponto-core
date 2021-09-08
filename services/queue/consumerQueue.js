@@ -258,35 +258,55 @@ updateAdsOnDBQueue.process(async (job) => {
         split('-'),
         join('')
       )(ad.sku)
-      const newPrice = pipe(
+      const newCostPrice = pipe(
         multiply(multiplicador || 1),
         ajdustPrice,
+        (value) => value.toFixed(2),
+        Number
+      )(price)
+
+      const newPrice = pipe(
+        multiply(1.5),
+        add(ad.shippingCost || 6),
         (value) => value.toFixed(2),
         Number,
         Math.floor,
         add(0.87)
-      )(price)
+      )(newCostPrice)
+
       if (newPrice !== ad.price_ml) {
         if (
           newPrice > multiply(ad.price_ml, 2) ||
           newPrice < multiply(ad.price_ml, 0.7)
         ) {
           await ad.update(
-            { update_status: 'not_update', price: newPrice },
+            {
+              update_status: 'not_update',
+              price: newPrice,
+              costPrice: newCostPrice
+            },
             { changePrice: { origin: 'alxa' } }
           )
         } else {
           await ad.update(
-            { update_status: 'unupdated', price: newPrice },
+            {
+              update_status: 'unupdated',
+              price: newPrice,
+              costPrice: newCostPrice
+            },
             { changePrice: { origin: 'alxa' } }
           )
         }
       } else {
         await ad.update(
-          { update_status: 'updated', price: newPrice },
+          {
+            update_status: 'updated',
+            price: newPrice,
+            costPrice: newCostPrice
+          },
           { changePrice: { origin: 'alxa' } }
         )
-        console.log('O preço se mantem igual')
+        //   console.log('O preço se mantem igual')
       }
     }, ads)
 
@@ -356,6 +376,20 @@ notificationQueue.process(async (job) => {
       const data = pathOr({}, ['data'], response)
       const variations = pathOr([], ['variations'], data)
       const attributes = pathOr([], ['attributes'], data)
+      let shippingCost = null
+
+      try {
+        const shippingResp = await axios.get(
+          `https://api.mercadolibre.com${resource}/shipping_options/free`,
+          {
+            headers: { authorization: `Bearer ${account.access_token}` }
+          }
+        )
+        shippingCost = path(
+          ['data', 'coverage', 'all_country', 'list_cost'],
+          shippingResp
+        )
+      } catch (e) {}
 
       forEach(async (variation) => {
         const sku = find(propEq('id', 'SELLER_SKU'), variation.attributes)
@@ -365,6 +399,7 @@ notificationQueue.process(async (job) => {
             await MercadoLibreDomain.createOrUpdateAd(
               {
                 ...omit(['attributes', 'variations', 'price'], data),
+                shippingCost,
                 id: join('-', [data.id, String(variation.id)]),
                 price: variation.price,
                 companyId: account.companyId,
@@ -388,6 +423,7 @@ notificationQueue.process(async (job) => {
           await MercadoLibreDomain.createOrUpdateAd(
             {
               ...omit(['attributes'], data),
+              shippingCost,
               companyId: account.companyId,
               mlAccountId: account.id,
               sku
