@@ -24,7 +24,8 @@ const {
   has,
   propOr,
   not,
-  add
+  add,
+  lte
 } = require('ramda')
 
 const database = require('../../database')
@@ -150,7 +151,8 @@ class MercadoLibreDomain {
               price: pipe(
                 prop('costPrice'),
                 multiply(1.5),
-                add(adBuilded.shippingCost || 6),
+                // add(adBuilded.shippingCost || 6),
+                ifElse(lte(72.99), add(adBuilded.shippingCost || 6), add(6)),
                 (value) => value.toFixed(2),
                 Number,
                 Math.floor,

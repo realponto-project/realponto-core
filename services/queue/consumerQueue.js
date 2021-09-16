@@ -16,6 +16,8 @@ const {
   split,
   add,
   map,
+  lte,
+  ifElse,
   prop
 } = require('ramda')
 
@@ -30,6 +32,7 @@ const {
   updateAdsOnDBQueue,
   notificationQueue
 } = require('./queues')
+
 const evalString = require('../../utils/helpers/eval')
 
 const MlAdModel = database.model('mercadoLibreAd')
@@ -67,15 +70,17 @@ instanceQueue.process(async (job) => {
     if (isActive) {
       const { access_token } = await MlAccountModel.findByPk(job.data.accountId)
       await mercadoLibreJs.ads.update({ ...job.data, access_token })
-
       const mercadoLibreAd = await MlAdModel.findOne({
         where: { item_id: job.data.id }
       })
 
       await mercadoLibreAd.update({
-        update_status: 'updated'
+        update_status: 'updated',
+        shippingCost: lte(79, job.data.price)
+          ? mercadoLibreAd.shippingCost
+          : null,
+        price_ml: job.data.price
       })
-
       if (shouldSendNotification) {
         console.log('send notification')
         await notificationService.SendNotification(message)
@@ -267,7 +272,8 @@ updateAdsOnDBQueue.process(async (job) => {
 
       const newPrice = pipe(
         multiply(1.5),
-        add(ad.shippingCost || 6),
+        ifElse(lte(72.99), add(ad.shippingCost || 6), add(6)),
+        // add(ad.shippingCost || 6),
         (value) => value.toFixed(2),
         Number,
         Math.floor,

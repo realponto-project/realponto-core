@@ -16,7 +16,10 @@ const {
   always,
   keys,
   map,
-  filter
+  filter,
+  append,
+  __,
+  lte
 } = require('ramda')
 
 const database = require('../database')
@@ -107,6 +110,17 @@ const updateAds = async (payload) => {
           applySpec({
             id: always(variation_id),
             price: prop('price'),
+            shipping: pipe(
+              prop('price'),
+              ifElse(
+                lte(79),
+                always(null),
+                always({
+                  free_shipping: false,
+                  free_methods: []
+                })
+              )
+            ),
             attributes: pipe(
               ifElse(
                 prop('sku'),
@@ -126,12 +140,24 @@ const updateAds = async (payload) => {
               filter((key) => values[key]),
               map((key) => ({ [key]: values[key] })),
               mergeAll
-            )(values)
+            )(values),
+          append(__, [])
         )
       }),
       applySpec({
         title: prop('title'),
         price: prop('price'),
+        shipping: pipe(
+          prop('price'),
+          ifElse(
+            lte(79),
+            always(null),
+            always({
+              free_shipping: false,
+              free_methods: []
+            })
+          )
+        ),
         attributes: pipe(
           prop('sku'),
           ifElse(
@@ -147,18 +173,23 @@ const updateAds = async (payload) => {
         )
       })
     ),
-    (values) =>
-      pipe(
+    (values) => {
+      return pipe(
         keys,
         filter((key) => values[key]),
         map((key) => ({ [key]: values[key] })),
         mergeAll
       )(values)
+    }
   )(payload)
+
+  // console.log(`${urls.ads.url}/${item_id}`)
+  // console.log(body)
 
   const itemResponse = await axios.put(`${urls.ads.url}/${item_id}`, body, {
     headers: { authorization: `Bearer ${token}` }
   })
+
   return itemResponse
 }
 
