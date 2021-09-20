@@ -183,9 +183,6 @@ const updateAds = async (payload) => {
     }
   )(payload)
 
-  // console.log(`${urls.ads.url}/${item_id}`)
-  // console.log(body)
-
   const itemResponse = await axios.put(`${urls.ads.url}/${item_id}`, body, {
     headers: { authorization: `Bearer ${token}` }
   })
