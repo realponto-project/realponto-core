@@ -125,23 +125,21 @@ describe('company controller', () => {
       expect(res.body).toHaveProperty('total', expect.any(Number))
       expect(res.body).toHaveProperty('source')
       expect(res.body.total).toBeGreaterThan(0)
-      expect(res.body.source).toContainEqual(
-        expect.objectContaining({
-          id: expect.stringMatching(/^co_/),
-          name: expect.any(String),
-          fullname: expect.any(String),
-          siteUrl: expect.any(String),
-          document: expect.any(String),
-          passwordUserDefault: expect.any(String),
-          companyLogo: expect.any(String),
-          trialDays: expect.any(Number),
-          allowPdv: expect.any(Boolean),
-          allowOrder: expect.any(Boolean),
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-          deletedAt: null
-        })
-      )
+      expect(res.body.source).toContainEqual({
+        id: expect.stringMatching(/^co_/),
+        name: expect.any(String),
+        fullname: expect.any(String),
+        siteUrl: expect.any(String),
+        document: expect.any(String),
+        passwordUserDefault: expect.any(String),
+        companyLogo: expect.any(String),
+        trialDays: expect.any(Number),
+        allowPdv: expect.any(Boolean),
+        allowOrder: expect.any(Boolean),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        deletedAt: null
+      })
     })
   })
 })

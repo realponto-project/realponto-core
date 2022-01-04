@@ -1,4 +1,4 @@
-const { pathOr } = require('ramda')
+const { pathOr, not, isNil } = require('ramda')
 const Sequelize = require('sequelize')
 
 const uuidv4Generator = require('../../utils/helpers/hash')
@@ -89,7 +89,10 @@ const MercadoLibreAd = (sequelize) => {
             })
           }
 
-          if (dataValues.price !== _previousDataValues.price) {
+          if (
+            dataValues.price !== _previousDataValues.price &&
+            not(isNil(_previousDataValues.price))
+          ) {
             const values = {
               newPrice: Number(dataValues.price),
               oldPrice: _previousDataValues.price,
@@ -100,7 +103,10 @@ const MercadoLibreAd = (sequelize) => {
             await changePriceModel.create(values, { transaction })
           }
 
-          if (dataValues.price_ml !== _previousDataValues.price_ml) {
+          if (
+            dataValues.price_ml !== _previousDataValues.price_ml &&
+            not(isNil(_previousDataValues.price_ml))
+          ) {
             const values = {
               newPrice: Number(dataValues.price),
               oldPrice: _previousDataValues.price,
@@ -108,6 +114,7 @@ const MercadoLibreAd = (sequelize) => {
               origin: pathOr('', ['changePrice', 'origin'], options),
               mercadoLibreAdId: dataValues.id
             }
+
             await changePriceModel.create(values, { transaction })
           }
         }
