@@ -68,8 +68,7 @@ instanceQueue.process(async (job) => {
     const isActive = prop('active', idUpdated)
 
     if (isActive) {
-      const { access_token } = await MlAccountModel.findByPk(job.data.accountId)
-      await mercadoLibreJs.ads.update({ ...job.data, access_token })
+      await mercadoLibreJs.ads.update({ ...job.data })
       const mercadoLibreAd = await MlAdModel.findOne({
         where: { item_id: job.data.id }
       })

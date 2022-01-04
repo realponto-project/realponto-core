@@ -89,7 +89,10 @@ const MercadoLibreAd = (sequelize) => {
             })
           }
 
-          if (dataValues.price !== _previousDataValues.price) {
+          if (
+            dataValues.price !== _previousDataValues.price &&
+            _previousDataValues.price !== null
+          ) {
             const values = {
               newPrice: Number(dataValues.price),
               oldPrice: _previousDataValues.price,
@@ -100,7 +103,10 @@ const MercadoLibreAd = (sequelize) => {
             await changePriceModel.create(values, { transaction })
           }
 
-          if (dataValues.price_ml !== _previousDataValues.price_ml) {
+          if (
+            dataValues.price_ml !== _previousDataValues.price_ml &&
+            _previousDataValues.price_ml !== null
+          ) {
             const values = {
               newPrice: Number(dataValues.price),
               oldPrice: _previousDataValues.price,
