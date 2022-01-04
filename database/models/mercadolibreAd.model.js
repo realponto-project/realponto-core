@@ -100,7 +100,8 @@ const MercadoLibreAd = (sequelize) => {
               origin: pathOr('', ['changePrice', 'origin'], options),
               mercadoLibreAdId: dataValues.id
             }
-            await changePriceModel.create(values, { transaction })
+            console.log('price', values)
+            // await changePriceModel.create(values, { transaction })
           }
 
           if (
@@ -114,7 +115,10 @@ const MercadoLibreAd = (sequelize) => {
               origin: pathOr('', ['changePrice', 'origin'], options),
               mercadoLibreAdId: dataValues.id
             }
-            await changePriceModel.create(values, { transaction })
+
+            console.log('price_ml', values)
+
+            // await changePriceModel.create(values, { transaction })
           }
         }
       }
