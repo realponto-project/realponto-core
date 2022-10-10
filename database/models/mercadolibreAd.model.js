@@ -89,34 +89,34 @@ const MercadoLibreAd = (sequelize) => {
             })
           }
 
-          if (
-            dataValues.price !== _previousDataValues.price &&
-            not(isNil(_previousDataValues.price))
-          ) {
-            const values = {
-              newPrice: Number(dataValues.price),
-              oldPrice: _previousDataValues.price,
-              field: 'price',
-              origin: pathOr('', ['changePrice', 'origin'], options),
-              mercadoLibreAdId: dataValues.id
-            }
-            await changePriceModel.create(values, { transaction })
-          }
+          // if (
+          //   dataValues.price !== _previousDataValues.price &&
+          //   not(isNil(_previousDataValues.price))
+          // ) {
+          //   const values = {
+          //     newPrice: Number(dataValues.price),
+          //     oldPrice: _previousDataValues.price,
+          //     field: 'price',
+          //     origin: pathOr('', ['changePrice', 'origin'], options),
+          //     mercadoLibreAdId: dataValues.id
+          //   }
+          //   await changePriceModel.create(values, { transaction })
+          // }
 
-          if (
-            dataValues.price_ml !== _previousDataValues.price_ml &&
-            not(isNil(_previousDataValues.price_ml))
-          ) {
-            const values = {
-              newPrice: Number(dataValues.price),
-              oldPrice: _previousDataValues.price,
-              field: 'price_ml',
-              origin: pathOr('', ['changePrice', 'origin'], options),
-              mercadoLibreAdId: dataValues.id
-            }
+          // if (
+          //   dataValues.price_ml !== _previousDataValues.price_ml &&
+          //   not(isNil(_previousDataValues.price_ml))
+          // ) {
+          //   const values = {
+          //     newPrice: Number(dataValues.price),
+          //     oldPrice: _previousDataValues.price,
+          //     field: 'price_ml',
+          //     origin: pathOr('', ['changePrice', 'origin'], options),
+          //     mercadoLibreAdId: dataValues.id
+          //   }
 
-            await changePriceModel.create(values, { transaction })
-          }
+          //   await changePriceModel.create(values, { transaction })
+          // }
         }
       }
     }
