@@ -53,79 +53,79 @@ const createAccount = async (req, res, next) => {
   )
 
   try {
-//     const autorizationMl = await mercadoLibreJs.authorization.token(code)
+    const autorizationMl = await mercadoLibreJs.authorization.token(code)
 
-//     const { access_token, refresh_token, user_id } = applySpec({
-//       access_token: pathOr(null, ['data', 'access_token']),
-//       refresh_token: pathOr(null, ['data', 'refresh_token']),
-//       user_id: pathOr(null, ['data', 'user_id'])
-//     })(autorizationMl)
+    const { access_token, refresh_token, user_id } = applySpec({
+      access_token: pathOr(null, ['data', 'access_token']),
+      refresh_token: pathOr(null, ['data', 'refresh_token']),
+      user_id: pathOr(null, ['data', 'user_id'])
+    })(autorizationMl)
 
-//     const userDataMl = await mercadoLibreJs.user.myInfo(access_token)
+    const userDataMl = await mercadoLibreJs.user.myInfo(access_token)
 
-//     const { first_name, last_name, seller_id } = applySpec({
-//       first_name: pathOr(null, ['data', 'first_name']),
-//       last_name: pathOr(null, ['data', 'last_name']),
-//       seller_id: pathOr(null, ['data', 'id'])
-//     })(userDataMl)
+    const { first_name, last_name, seller_id } = applySpec({
+      first_name: pathOr(null, ['data', 'first_name']),
+      last_name: pathOr(null, ['data', 'last_name']),
+      seller_id: pathOr(null, ['data', 'id'])
+    })(userDataMl)
 
-//     const accountMl = await MercadoLibreDomain.createOrUpdate(
-//       {
-//         fullname: `${first_name} ${last_name}`,
-//         seller_id,
-//         access_token,
-//         refresh_token,
-//         companyId
-//       },
-//       { transaction }
-//     )
+    const accountMl = await MercadoLibreDomain.createOrUpdate(
+      {
+        fullname: `${first_name} ${last_name}`,
+        seller_id,
+        access_token,
+        refresh_token,
+        companyId
+      },
+      { transaction }
+    )
 
-//     const findUserId = find(propEq('user_id', user_id))
+    const findUserId = find(propEq('user_id', user_id))
 
-//     const parserSellers = findUserId(sellersMercadoLibre)
-//       ? sellersMercadoLibre
-//       : append(pathOr([], ['data'], autorizationMl), sellersMercadoLibre)
+    const parserSellers = findUserId(sellersMercadoLibre)
+      ? sellersMercadoLibre
+      : append(pathOr([], ['data'], autorizationMl), sellersMercadoLibre)
 
-//     refreshTokenQueue.add(
-//       { id: accountMl.id },
-//       { repeat: { cron: '0 */4 * * *' }, jobId: accountMl.id }
-//     )
+    refreshTokenQueue.add(
+      { id: accountMl.id },
+      { repeat: { cron: '0 */4 * * *' }, jobId: accountMl.id }
+    )
 
-//     let itmesIdList = []
-//     let data = {}
+    let itmesIdList = []
+    let data = {}
 
-//     do {
-//       const response = await mercadoLibreJs.ads.get(
-//         access_token,
-//         seller_id,
-//         data.scroll_id
-//       )
+    do {
+      const response = await mercadoLibreJs.ads.get(
+        access_token,
+        seller_id,
+        data.scroll_id
+      )
 
-//       data = response.data
-//       itmesIdList = concat(itmesIdList, data.results)
-//     } while (data.results.length > 0)
+      data = response.data
+      itmesIdList = concat(itmesIdList, data.results)
+    } while (data.results.length > 0)
 
-//     const listSplited = splitEvery(20, itmesIdList)
+    const listSplited = splitEvery(20, itmesIdList)
 
-//     listSplited.forEach((list, index) => {
-//       adsQueue.add({
-//         list,
-//         access_token,
-//         companyId,
-//         mlAccountId: accountMl.id,
-//         tokenFcm,
-//         index,
-//         total: length(listSplited) - 1
-//       })
-//     })
+    listSplited.forEach((list, index) => {
+      adsQueue.add({
+        list,
+        access_token,
+        companyId,
+        mlAccountId: accountMl.id,
+        tokenFcm,
+        index,
+        total: length(listSplited) - 1
+      })
+    })
 
-//     await accountMl.update({ last_sync_ads: new Date() })
+    await accountMl.update({ last_sync_ads: new Date() }, { transaction })
 
-//     transaction.commit()
-//     res.status(201).json({
-//       token: tokenGenerate({ user, sellersMercadoLibre: parserSellers }),
-//       accountMl
-//     })
+    transaction.commit()
+    res.status(201).json({
+      token: tokenGenerate({ user, sellersMercadoLibre: parserSellers }),
+      accountMl
+    })
 		res.status(201)
   } catch (error) {
     await transaction.rollback()
