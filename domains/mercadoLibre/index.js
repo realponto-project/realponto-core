@@ -152,11 +152,11 @@ class MercadoLibreDomain {
                 prop('costPrice'),
                 multiply(1.5),
                 // add(adBuilded.shippingCost || 6),
-                ifElse(lte(72.99), add(adBuilded.shippingCost || 6), add(6)),
+                ifElse(lte(72.99), add(adBuilded.shippingCost || 7), add(6)),
                 (value) => value.toFixed(2),
                 Number,
                 Math.floor,
-                add(0.87)
+                add(0.76)
               )(ad)
             }
       ])
