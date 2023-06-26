@@ -150,13 +150,13 @@ class MercadoLibreDomain {
               update_status: 'unupdated',
               price: pipe(
                 prop('costPrice'),
-                multiply(1.6),
+                multiply(1.65),
                 // add(adBuilded.shippingCost || 6),
-                ifElse(lte(71.99), add(adBuilded.shippingCost || 7), add(7)),
+                ifElse(lte(43.50), add(adBuilded.shippingCost || 7), add(7)),
                 (value) => value.toFixed(2),
                 Number,
                 Math.floor,
-                add(0.76)
+                add(0.79)
               )(ad)
             }
       ])
