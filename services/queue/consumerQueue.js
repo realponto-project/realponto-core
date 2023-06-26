@@ -270,13 +270,13 @@ updateAdsOnDBQueue.process(async (job) => {
       )(price)
 
       const newPrice = pipe(
-        multiply(1.6),
-        ifElse(lte(71.99), add(ad.shippingCost || 7), add(7)),
+        multiply(1.65),
+        ifElse(lte(71.775), add(ad.shippingCost || 7), add(7)),
         // add(ad.shippingCost || 6),
         (value) => value.toFixed(2),
         Number,
         Math.floor,
-        add(0.76)
+        add(0.79)
       )(newCostPrice)
 
       if (newPrice !== ad.price_ml) {
